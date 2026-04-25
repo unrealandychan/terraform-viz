@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 function IconGraph() {
   return (
@@ -133,9 +133,7 @@ export function Sidebar() {
       </div>
 
       <div className="sidebar__footer">
-        <div className="sidebar__theme-row">
-          <ThemeToggle />
-        </div>
+        <ThemeToggle />
         <Link
           href="/settings"
           className={`sidebar__nav-item${pathname === "/settings" ? " sidebar__nav-item--active" : ""}`}
