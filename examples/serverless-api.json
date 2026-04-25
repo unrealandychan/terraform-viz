@@ -1,0 +1,231 @@
+{
+  "_readme": "Serverless API upgrade plan. Shows a realistic mid-lifecycle change: existing infra (NO_OP), configuration tuning (UPDATE), new capabilities (CREATE), and retiring a legacy handler (DELETE). 14 resources across compute, database, and data layers.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_iam_role.lambda_exec",
+          "mode": "managed", "type": "aws_iam_role", "name": "lambda_exec",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "lambda-execution-role",
+            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+            "tags": { "Name": "lambda-exec" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_apigatewayv2_api.api",
+          "mode": "managed", "type": "aws_apigatewayv2_api", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "user-api",
+            "protocol_type": "HTTP",
+            "cors_configuration": {
+              "allow_origins": ["https://app.example.com"],
+              "allow_methods": ["GET", "POST", "PUT", "DELETE"],
+              "allow_headers": ["Content-Type", "Authorization"]
+            },
+            "tags": { "Name": "user-api" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_apigatewayv2_stage.prod",
+          "mode": "managed", "type": "aws_apigatewayv2_stage", "name": "prod",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "api_id": "aws_apigatewayv2_api.api",
+            "name": "$default",
+            "auto_deploy": true,
+            "default_route_settings": {
+              "throttling_burst_limit": 100,
+              "throttling_rate_limit": 50
+            }
+          },
+          "depends_on": ["aws_apigatewayv2_api.api"]
+        },
+        {
+          "address": "aws_lambda_function.get_user",
+          "mode": "managed", "type": "aws_lambda_function", "name": "get_user",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "user-api-get-user",
+            "runtime": "nodejs20.x",
+            "handler": "index.handler",
+            "memory_size": 128,
+            "timeout": 10,
+            "role": "aws_iam_role.lambda_exec",
+            "tags": { "Name": "get-user" }
+          },
+          "depends_on": ["aws_iam_role.lambda_exec"]
+        },
+        {
+          "address": "aws_lambda_function.create_user",
+          "mode": "managed", "type": "aws_lambda_function", "name": "create_user",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "user-api-create-user",
+            "runtime": "nodejs20.x",
+            "handler": "index.handler",
+            "memory_size": 256,
+            "timeout": 15,
+            "role": "aws_iam_role.lambda_exec",
+            "tags": { "Name": "create-user" }
+          },
+          "depends_on": ["aws_iam_role.lambda_exec"]
+        },
+        {
+          "address": "aws_lambda_function.legacy_handler",
+          "mode": "managed", "type": "aws_lambda_function", "name": "legacy_handler",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "user-api-legacy",
+            "runtime": "nodejs14.x",
+            "handler": "app.handler",
+            "memory_size": 512,
+            "timeout": 30,
+            "role": "aws_iam_role.lambda_exec"
+          },
+          "depends_on": ["aws_iam_role.lambda_exec"]
+        },
+        {
+          "address": "aws_lambda_function.process_events",
+          "mode": "managed", "type": "aws_lambda_function", "name": "process_events",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "user-api-process-events",
+            "runtime": "nodejs20.x",
+            "handler": "events.handler",
+            "memory_size": 512,
+            "timeout": 60,
+            "role": "aws_iam_role.lambda_exec",
+            "reserved_concurrent_executions": 10
+          },
+          "depends_on": ["aws_iam_role.lambda_exec"]
+        },
+        {
+          "address": "aws_dynamodb_table.users",
+          "mode": "managed", "type": "aws_dynamodb_table", "name": "users",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "users",
+            "billing_mode": "PAY_PER_REQUEST",
+            "hash_key": "userId",
+            "attribute": [{ "name": "userId", "type": "S" }],
+            "point_in_time_recovery": { "enabled": true },
+            "tags": { "Name": "users" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_dynamodb_table.events",
+          "mode": "managed", "type": "aws_dynamodb_table", "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "events",
+            "billing_mode": "PAY_PER_REQUEST",
+            "hash_key": "eventId",
+            "range_key": "timestamp",
+            "attribute": [
+              { "name": "eventId", "type": "S" },
+              { "name": "timestamp", "type": "S" }
+            ],
+            "ttl": { "attribute_name": "expiresAt", "enabled": true }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sqs_queue.event_queue",
+          "mode": "managed", "type": "aws_sqs_queue", "name": "event_queue",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "user-events",
+            "visibility_timeout_seconds": 30,
+            "message_retention_seconds": 345600,
+            "receive_wait_time_seconds": 20,
+            "tags": { "Name": "user-events" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sqs_queue.dlq",
+          "mode": "managed", "type": "aws_sqs_queue", "name": "dlq",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "user-events-dlq",
+            "message_retention_seconds": 1209600,
+            "tags": { "Name": "user-events-dlq" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_event_source_mapping.sqs_trigger",
+          "mode": "managed", "type": "aws_lambda_event_source_mapping", "name": "sqs_trigger",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "event_source_arn": "aws_sqs_queue.event_queue",
+            "function_name": "aws_lambda_function.process_events",
+            "batch_size": 10,
+            "maximum_batching_window_in_seconds": 5
+          },
+          "depends_on": ["aws_sqs_queue.event_queue", "aws_lambda_function.process_events"]
+        },
+        {
+          "address": "aws_sns_topic.notifications",
+          "mode": "managed", "type": "aws_sns_topic", "name": "notifications",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "user-notifications",
+            "kms_master_key_id": "alias/aws/sns",
+            "tags": { "Name": "user-notifications" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_log_group.api",
+          "mode": "managed", "type": "aws_cloudwatch_log_group", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/aws/lambda/user-api",
+            "retention_in_days": 30,
+            "tags": { "Name": "api-logs" }
+          },
+          "depends_on": []
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    { "address": "aws_iam_role.lambda_exec",               "mode": "managed", "type": "aws_iam_role",                       "name": "lambda_exec",   "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["no-op"],        "before": {}, "after": {} } },
+    { "address": "aws_apigatewayv2_api.api",               "mode": "managed", "type": "aws_apigatewayv2_api",               "name": "api",           "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["no-op"],        "before": {}, "after": {} } },
+    { "address": "aws_apigatewayv2_stage.prod",            "mode": "managed", "type": "aws_apigatewayv2_stage",             "name": "prod",          "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["update"],       "before": { "default_route_settings": { "throttling_burst_limit": 50 }  }, "after": { "default_route_settings": { "throttling_burst_limit": 100 } } } },
+    { "address": "aws_lambda_function.get_user",           "mode": "managed", "type": "aws_lambda_function",                "name": "get_user",      "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } },
+    { "address": "aws_lambda_function.create_user",        "mode": "managed", "type": "aws_lambda_function",                "name": "create_user",   "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } },
+    { "address": "aws_lambda_function.legacy_handler",     "mode": "managed", "type": "aws_lambda_function",                "name": "legacy_handler","provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["delete"],       "before": { "runtime": "nodejs14.x" }, "after": null } },
+    { "address": "aws_lambda_function.process_events",     "mode": "managed", "type": "aws_lambda_function",                "name": "process_events","provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["update"],       "before": { "memory_size": 256, "reserved_concurrent_executions": -1 }, "after": { "memory_size": 512, "reserved_concurrent_executions": 10 } } },
+    { "address": "aws_dynamodb_table.users",               "mode": "managed", "type": "aws_dynamodb_table",                 "name": "users",         "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["no-op"],        "before": {}, "after": {} } },
+    { "address": "aws_dynamodb_table.events",              "mode": "managed", "type": "aws_dynamodb_table",                 "name": "events",        "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["no-op"],        "before": {}, "after": {} } },
+    { "address": "aws_sqs_queue.event_queue",              "mode": "managed", "type": "aws_sqs_queue",                      "name": "event_queue",   "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } },
+    { "address": "aws_sqs_queue.dlq",                      "mode": "managed", "type": "aws_sqs_queue",                      "name": "dlq",           "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } },
+    { "address": "aws_lambda_event_source_mapping.sqs_trigger","mode":"managed","type":"aws_lambda_event_source_mapping","name":"sqs_trigger",    "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } },
+    { "address": "aws_sns_topic.notifications",            "mode": "managed", "type": "aws_sns_topic",                      "name": "notifications", "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["update"],       "before": { "kms_master_key_id": null }, "after": { "kms_master_key_id": "alias/aws/sns" } } },
+    { "address": "aws_cloudwatch_log_group.api",           "mode": "managed", "type": "aws_cloudwatch_log_group",           "name": "api",           "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"],       "before": null, "after": {} } }
+  ]
+}

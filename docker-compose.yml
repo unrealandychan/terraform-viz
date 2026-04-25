@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PARSER_URL=http://parser:3001
+      - PRICING_URL=http://pricing:3002
+      - COMPARISON_URL=http://comparison:3003
+      - LLM_URL=http://llm:3004
+      - WORKER_URL=http://terraform-worker:3005
+    depends_on:
+      - parser
+      - pricing
+      - comparison
+      - llm
+      - terraform-worker
+    volumes:
+      - ./apps/web:/app/apps/web
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+
+  parser:
+    build:
+      context: .
+      dockerfile: services/parser/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+    volumes:
+      - ./services/parser/src:/app/services/parser/src
+      - ./packages:/app/packages
+
+  pricing:
+    build:
+      context: .
+      dockerfile: services/pricing/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=development
+    volumes:
+      - ./services/pricing/src:/app/services/pricing/src
+      - ./packages:/app/packages
+      - ./pricing:/app/pricing
+
+  comparison:
+    build:
+      context: .
+      dockerfile: services/comparison/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - NODE_ENV=development
+      - SNAPSHOT_DIR=/app/data/snapshots
+    volumes:
+      - ./services/comparison/src:/app/services/comparison/src
+      - ./packages:/app/packages
+      - comparison_data:/app/data
+
+  llm:
+    build:
+      context: .
+      dockerfile: services/llm/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - NODE_ENV=development
+      - LLM_PROVIDER=openai
+      # Set your key: LLM_API_KEY=sk-...
+    volumes:
+      - ./services/llm/src:/app/services/llm/src
+      - ./packages:/app/packages
+
+  terraform-worker:
+    build:
+      context: .
+      dockerfile: apps/terraform-worker/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - NODE_ENV=development
+    volumes:
+      - ./apps/terraform-worker/src:/app/apps/terraform-worker/src
+      - worker_tmp:/tmp/terraform-runs
+      # Docker socket needed for Terraform execution
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  comparison_data:
+  worker_tmp:

@@ -1,0 +1,514 @@
+{
+  "_readme": "Dummy Terraform plan JSON for terraform-viz showcase. Paste into the Upload page or POST to /api/parse. Represents a 3-tier GCP web application: VPC networking → GKE + Compute Engine compute → Cloud SQL + Spanner database → GCS + Persistent Disk storage → BigQuery + Pub/Sub + Dataflow data pipeline. Includes a mix of CREATE, UPDATE, and DELETE to showcase all change actions.",
+  "format_version": "1.0",
+  "terraform_version": "1.6.6",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_compute_network.vpc",
+          "mode": "managed",
+          "type": "google_compute_network",
+          "name": "vpc",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-vpc",
+            "project": "showcase-project",
+            "auto_create_subnetworks": false,
+            "routing_mode": "REGIONAL",
+            "description": "Main VPC for showcase environment"
+          }
+        },
+        {
+          "address": "google_compute_subnetwork.public",
+          "mode": "managed",
+          "type": "google_compute_subnetwork",
+          "name": "public",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "public",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "network": "showcase-vpc",
+            "ip_cidr_range": "10.2.1.0/24",
+            "private_ip_google_access": true
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_compute_subnetwork.private",
+          "mode": "managed",
+          "type": "google_compute_subnetwork",
+          "name": "private",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "private",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "network": "showcase-vpc",
+            "ip_cidr_range": "10.2.10.0/24",
+            "private_ip_google_access": true,
+            "secondary_ip_range": [
+              { "range_name": "pods",     "ip_cidr_range": "172.16.0.0/16" },
+              { "range_name": "services", "ip_cidr_range": "172.17.0.0/16" }
+            ]
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_compute_firewall.allow_http",
+          "mode": "managed",
+          "type": "google_compute_firewall",
+          "name": "allow_http",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "showcase-allow-http",
+            "project": "showcase-project",
+            "network": "showcase-vpc",
+            "direction": "INGRESS",
+            "allow": [{ "protocol": "tcp", "ports": ["80", "443"] }],
+            "source_ranges": ["0.0.0.0/0"],
+            "target_tags": ["web"]
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_compute_firewall.allow_internal",
+          "mode": "managed",
+          "type": "google_compute_firewall",
+          "name": "allow_internal",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "showcase-allow-internal",
+            "project": "showcase-project",
+            "network": "showcase-vpc",
+            "direction": "INGRESS",
+            "allow": [{ "protocol": "tcp", "ports": ["0-65535"] }, { "protocol": "udp", "ports": ["0-65535"] }],
+            "source_ranges": ["10.2.0.0/16"]
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_compute_router.router",
+          "mode": "managed",
+          "type": "google_compute_router",
+          "name": "router",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-router",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "network": "showcase-vpc"
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_compute_router_nat.nat",
+          "mode": "managed",
+          "type": "google_compute_router_nat",
+          "name": "nat",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-nat",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "router": "showcase-router",
+            "nat_ip_allocate_option": "AUTO_ONLY",
+            "source_subnetwork_ip_ranges_to_nat": "ALL_SUBNETWORKS_ALL_IP_RANGES"
+          },
+          "depends_on": ["google_compute_router.router"]
+        },
+        {
+          "address": "google_compute_global_forwarding_rule.lb",
+          "mode": "managed",
+          "type": "google_compute_global_forwarding_rule",
+          "name": "lb",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-lb",
+            "project": "showcase-project",
+            "load_balancing_scheme": "EXTERNAL",
+            "port_range": "443",
+            "target": "google_compute_target_https_proxy.default",
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_container_cluster.gke",
+          "mode": "managed",
+          "type": "google_container_cluster",
+          "name": "gke",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 2,
+          "values": {
+            "name": "showcase-gke",
+            "project": "showcase-project",
+            "location": "us-central1",
+            "network": "showcase-vpc",
+            "subnetwork": "private",
+            "remove_default_node_pool": true,
+            "initial_node_count": 1,
+            "min_master_version": "1.28",
+            "workload_identity_config": { "workload_pool": "showcase-project.svc.id.goog" },
+            "ip_allocation_policy": {
+              "cluster_secondary_range_name": "pods",
+              "services_secondary_range_name": "services"
+            },
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_compute_subnetwork.private"]
+        },
+        {
+          "address": "google_container_node_pool.app_nodes",
+          "mode": "managed",
+          "type": "google_container_node_pool",
+          "name": "app_nodes",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "app-nodes",
+            "project": "showcase-project",
+            "cluster": "showcase-gke",
+            "location": "us-central1",
+            "initial_node_count": 2,
+            "autoscaling": { "min_node_count": 1, "max_node_count": 6 },
+            "node_config": {
+              "machine_type": "n2-standard-4",
+              "disk_size_gb": 100,
+              "disk_type": "pd-ssd",
+              "oauth_scopes": ["https://www.googleapis.com/auth/cloud-platform"]
+            }
+          },
+          "depends_on": ["google_container_cluster.gke"]
+        },
+        {
+          "address": "google_compute_instance.bastion",
+          "mode": "managed",
+          "type": "google_compute_instance",
+          "name": "bastion",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 6,
+          "values": {
+            "name": "showcase-bastion",
+            "project": "showcase-project",
+            "zone": "us-central1-a",
+            "machine_type": "e2-small",
+            "boot_disk": { "initialize_params": { "image": "debian-cloud/debian-12", "type": "pd-balanced", "size": 20 } },
+            "network_interface": [{ "network": "showcase-vpc", "subnetwork": "public", "access_config": [{}] }],
+            "tags": ["bastion"],
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_compute_subnetwork.public"]
+        },
+        {
+          "address": "google_cloud_run_service.api",
+          "mode": "managed",
+          "type": "google_cloud_run_service",
+          "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "showcase-api",
+            "project": "showcase-project",
+            "location": "us-central1",
+            "template": {
+              "spec": {
+                "containers": [{ "image": "gcr.io/showcase-project/api:latest", "resources": { "limits": { "cpu": "1000m", "memory": "512Mi" } } }]
+              }
+            },
+            "traffic": [{ "percent": 100, "latest_revision": true }],
+            "autogenerate_revision_name": true
+          },
+          "depends_on": ["google_compute_subnetwork.private"]
+        },
+        {
+          "address": "google_sql_database_instance.postgres",
+          "mode": "managed",
+          "type": "google_sql_database_instance",
+          "name": "postgres",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-postgres",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "database_version": "POSTGRES_15",
+            "settings": {
+              "tier": "db-n1-standard-2",
+              "disk_size": 100,
+              "disk_type": "PD_SSD",
+              "backup_configuration": { "enabled": true, "start_time": "03:00" },
+              "ip_configuration": {
+                "ipv4_enabled": false,
+                "private_network": "google_compute_network.vpc",
+                "require_ssl": true
+              }
+            },
+            "deletion_protection": true
+          },
+          "depends_on": ["google_compute_subnetwork.private"]
+        },
+        {
+          "address": "google_spanner_instance.catalog",
+          "mode": "managed",
+          "type": "google_spanner_instance",
+          "name": "catalog",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-spanner",
+            "project": "showcase-project",
+            "config": "regional-us-central1",
+            "display_name": "Showcase Catalog",
+            "num_nodes": 1,
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_redis_instance.session",
+          "mode": "managed",
+          "type": "google_redis_instance",
+          "name": "session",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-redis",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "tier": "STANDARD_HA",
+            "memory_size_gb": 2,
+            "redis_version": "REDIS_7_0",
+            "authorized_network": "showcase-vpc"
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_storage_bucket.assets",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "assets",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-static-assets",
+            "project": "showcase-project",
+            "location": "US",
+            "storage_class": "STANDARD",
+            "uniform_bucket_level_access": true,
+            "versioning": { "enabled": false },
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_storage_bucket.data_lake",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "data_lake",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-data-lake",
+            "project": "showcase-project",
+            "location": "US",
+            "storage_class": "STANDARD",
+            "uniform_bucket_level_access": true,
+            "versioning": { "enabled": true },
+            "lifecycle_rule": [{
+              "condition": { "age": 365 },
+              "action": { "type": "SetStorageClass", "storage_class": "NEARLINE" }
+            }],
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_compute_disk.app_data",
+          "mode": "managed",
+          "type": "google_compute_disk",
+          "name": "app_data",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-app-data",
+            "project": "showcase-project",
+            "zone": "us-central1-a",
+            "type": "pd-ssd",
+            "size": 200,
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_filestore_instance.shared",
+          "mode": "managed",
+          "type": "google_filestore_instance",
+          "name": "shared",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "showcase-filestore",
+            "project": "showcase-project",
+            "location": "us-central1-a",
+            "tier": "BASIC_HDD",
+            "file_shares": [{ "name": "data", "capacity_gb": 1024 }],
+            "networks": [{ "network": "showcase-vpc", "modes": ["MODE_IPV4"] }]
+          },
+          "depends_on": ["google_compute_network.vpc"]
+        },
+        {
+          "address": "google_bigquery_dataset.analytics",
+          "mode": "managed",
+          "type": "google_bigquery_dataset",
+          "name": "analytics",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "showcase_analytics",
+            "project": "showcase-project",
+            "location": "US",
+            "friendly_name": "Showcase Analytics",
+            "default_table_expiration_ms": null,
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_bigquery_table.events",
+          "mode": "managed",
+          "type": "google_bigquery_table",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "showcase_analytics",
+            "table_id": "events",
+            "project": "showcase-project",
+            "schema": "[{\"name\":\"event_id\",\"type\":\"STRING\"},{\"name\":\"event_time\",\"type\":\"TIMESTAMP\"},{\"name\":\"user_id\",\"type\":\"STRING\"},{\"name\":\"payload\",\"type\":\"JSON\"}]",
+            "time_partitioning": { "type": "DAY", "field": "event_time" },
+            "clustering": ["user_id"],
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_bigquery_dataset.analytics"]
+        },
+        {
+          "address": "google_pubsub_topic.events",
+          "mode": "managed",
+          "type": "google_pubsub_topic",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-events",
+            "project": "showcase-project",
+            "message_retention_duration": "86400s",
+            "labels": { "env": "demo" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_pubsub_subscription.events_bq",
+          "mode": "managed",
+          "type": "google_pubsub_subscription",
+          "name": "events_bq",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-events-bq",
+            "project": "showcase-project",
+            "topic": "showcase-events",
+            "ack_deadline_seconds": 60,
+            "bigquery_config": {
+              "table": "showcase-project:showcase_analytics.events",
+              "use_table_schema": true
+            }
+          },
+          "depends_on": ["google_pubsub_topic.events", "google_bigquery_table.events"]
+        },
+        {
+          "address": "google_dataflow_job.ingest",
+          "mode": "managed",
+          "type": "google_dataflow_job",
+          "name": "ingest",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "showcase-ingest",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "template_gcs_path": "gs://dataflow-templates/latest/PubSub_to_BigQuery",
+            "temp_gcs_location": "gs://showcase-data-lake/tmp/dataflow",
+            "parameters": {
+              "inputTopic": "projects/showcase-project/topics/showcase-events",
+              "outputTableSpec": "showcase-project:showcase_analytics.events"
+            },
+            "max_workers": 4,
+            "on_delete": "drain",
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_pubsub_topic.events", "google_bigquery_dataset.analytics", "google_storage_bucket.data_lake"]
+        },
+        {
+          "address": "google_composer_environment.orchestration",
+          "mode": "managed",
+          "type": "google_composer_environment",
+          "name": "orchestration",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 1,
+          "values": {
+            "name": "showcase-composer",
+            "project": "showcase-project",
+            "region": "us-central1",
+            "config": {
+              "software_config": { "image_version": "composer-2.6.6-airflow-2.7.3" },
+              "workloads_config": {
+                "scheduler": { "cpu": 2.0, "memory_gb": 7.5 },
+                "web_server": { "cpu": 0.5, "memory_gb": 1.875 }
+              },
+              "node_config": { "network": "showcase-vpc", "subnetwork": "private" }
+            },
+            "labels": { "env": "demo" }
+          },
+          "depends_on": ["google_compute_subnetwork.private", "google_storage_bucket.data_lake"]
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    { "address": "google_compute_network.vpc",                      "mode": "managed", "type": "google_compute_network",                      "name": "vpc",                "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_subnetwork.public",                "mode": "managed", "type": "google_compute_subnetwork",                    "name": "public",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_subnetwork.private",               "mode": "managed", "type": "google_compute_subnetwork",                    "name": "private",            "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_firewall.allow_http",              "mode": "managed", "type": "google_compute_firewall",                      "name": "allow_http",         "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_firewall.allow_internal",          "mode": "managed", "type": "google_compute_firewall",                      "name": "allow_internal",     "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_router.router",                    "mode": "managed", "type": "google_compute_router",                        "name": "router",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_router_nat.nat",                   "mode": "managed", "type": "google_compute_router_nat",                    "name": "nat",                "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_global_forwarding_rule.lb",        "mode": "managed", "type": "google_compute_global_forwarding_rule",        "name": "lb",                 "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_container_cluster.gke",                    "mode": "managed", "type": "google_container_cluster",                     "name": "gke",                "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_container_node_pool.app_nodes",            "mode": "managed", "type": "google_container_node_pool",                   "name": "app_nodes",          "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_instance.bastion",                 "mode": "managed", "type": "google_compute_instance",                      "name": "bastion",            "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["update"], "before": { "machine_type": "f1-micro" }, "after": { "machine_type": "e2-small" } } },
+    { "address": "google_cloud_run_service.api",                    "mode": "managed", "type": "google_cloud_run_service",                     "name": "api",                "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_sql_database_instance.postgres",          "mode": "managed", "type": "google_sql_database_instance",                 "name": "postgres",           "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_spanner_instance.catalog",                 "mode": "managed", "type": "google_spanner_instance",                      "name": "catalog",            "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_redis_instance.session",                   "mode": "managed", "type": "google_redis_instance",                        "name": "session",            "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_storage_bucket.assets",                    "mode": "managed", "type": "google_storage_bucket",                        "name": "assets",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_storage_bucket.data_lake",                 "mode": "managed", "type": "google_storage_bucket",                        "name": "data_lake",          "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_compute_disk.app_data",                    "mode": "managed", "type": "google_compute_disk",                          "name": "app_data",           "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_filestore_instance.shared",                "mode": "managed", "type": "google_filestore_instance",                    "name": "shared",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_bigquery_dataset.analytics",               "mode": "managed", "type": "google_bigquery_dataset",                      "name": "analytics",          "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_bigquery_table.events",                    "mode": "managed", "type": "google_bigquery_table",                        "name": "events",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_pubsub_topic.events",                      "mode": "managed", "type": "google_pubsub_topic",                          "name": "events",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_pubsub_subscription.events_bq",            "mode": "managed", "type": "google_pubsub_subscription",                   "name": "events_bq",          "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_dataflow_job.ingest",                      "mode": "managed", "type": "google_dataflow_job",                          "name": "ingest",             "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "google_composer_environment.orchestration",       "mode": "managed", "type": "google_composer_environment",                  "name": "orchestration",      "provider_name": "registry.terraform.io/hashicorp/google", "change": { "actions": ["create"], "before": null, "after": {} } }
+  ]
+}

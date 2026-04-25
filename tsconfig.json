@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  },
+  "include": [
+    "services/*/src/**/*.ts",
+    "packages/*/src/**/*.ts",
+    "apps/terraform-worker/src/**/*.ts",
+    "commitlint.config.cjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "apps/web"
+  ]
+}

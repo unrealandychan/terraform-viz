@@ -1,0 +1,148 @@
+{
+  "_readme": "Simple static website on AWS. S3 origin → CloudFront CDN → Route53 DNS. ACM TLS cert. All resources are new (CREATE). Good starting point for understanding terraform-viz.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_s3_bucket.website",
+          "mode": "managed", "type": "aws_s3_bucket", "name": "website",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "my-static-site-prod",
+            "tags": { "Name": "website", "Env": "production" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_s3_bucket_website_configuration.website",
+          "mode": "managed", "type": "aws_s3_bucket_website_configuration", "name": "website",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "aws_s3_bucket.website",
+            "index_document": { "suffix": "index.html" },
+            "error_document": { "key": "404.html" }
+          },
+          "depends_on": ["aws_s3_bucket.website"]
+        },
+        {
+          "address": "aws_cloudfront_origin_access_control.oac",
+          "mode": "managed", "type": "aws_cloudfront_origin_access_control", "name": "oac",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "website-oac",
+            "origin_access_control_origin_type": "s3",
+            "signing_behavior": "always",
+            "signing_protocol": "sigv4"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_acm_certificate.cert",
+          "mode": "managed", "type": "aws_acm_certificate", "name": "cert",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "domain_name": "example.com",
+            "subject_alternative_names": ["www.example.com"],
+            "validation_method": "DNS",
+            "tags": { "Name": "example-cert" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudfront_distribution.cdn",
+          "mode": "managed", "type": "aws_cloudfront_distribution", "name": "cdn",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "enabled": true,
+            "is_ipv6_enabled": true,
+            "default_root_object": "index.html",
+            "price_class": "PriceClass_100",
+            "aliases": ["example.com", "www.example.com"],
+            "origin": [{
+              "domain_name": "aws_s3_bucket.website",
+              "origin_id": "s3-website",
+              "origin_access_control_id": "aws_cloudfront_origin_access_control.oac"
+            }],
+            "default_cache_behavior": {
+              "allowed_methods": ["GET", "HEAD"],
+              "cached_methods": ["GET", "HEAD"],
+              "viewer_protocol_policy": "redirect-to-https",
+              "compress": true,
+              "cache_policy_id": "658327ea-f89d-4fab-a63d-7e88639e58f6"
+            },
+            "viewer_certificate": {
+              "acm_certificate_arn": "aws_acm_certificate.cert",
+              "ssl_support_method": "sni-only",
+              "minimum_protocol_version": "TLSv1.2_2021"
+            },
+            "tags": { "Name": "website-cdn" }
+          },
+          "depends_on": ["aws_s3_bucket.website", "aws_cloudfront_origin_access_control.oac", "aws_acm_certificate.cert"]
+        },
+        {
+          "address": "aws_route53_zone.main",
+          "mode": "managed", "type": "aws_route53_zone", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "example.com",
+            "comment": "Managed by Terraform",
+            "tags": { "Name": "example.com" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_route53_record.www",
+          "mode": "managed", "type": "aws_route53_record", "name": "www",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "zone_id": "aws_route53_zone.main",
+            "name": "www.example.com",
+            "type": "A",
+            "alias": {
+              "name": "aws_cloudfront_distribution.cdn",
+              "zone_id": "Z2FDTNDATAQYW2",
+              "evaluate_target_health": false
+            }
+          },
+          "depends_on": ["aws_route53_zone.main", "aws_cloudfront_distribution.cdn"]
+        },
+        {
+          "address": "aws_route53_record.apex",
+          "mode": "managed", "type": "aws_route53_record", "name": "apex",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "zone_id": "aws_route53_zone.main",
+            "name": "example.com",
+            "type": "A",
+            "alias": {
+              "name": "aws_cloudfront_distribution.cdn",
+              "zone_id": "Z2FDTNDATAQYW2",
+              "evaluate_target_health": false
+            }
+          },
+          "depends_on": ["aws_route53_zone.main", "aws_cloudfront_distribution.cdn"]
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    { "address": "aws_s3_bucket.website",                          "mode": "managed", "type": "aws_s3_bucket",                          "name": "website",  "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": { "bucket": "my-static-site-prod" } } },
+    { "address": "aws_s3_bucket_website_configuration.website",    "mode": "managed", "type": "aws_s3_bucket_website_configuration",    "name": "website",  "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "aws_cloudfront_origin_access_control.oac",       "mode": "managed", "type": "aws_cloudfront_origin_access_control",   "name": "oac",      "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "aws_acm_certificate.cert",                       "mode": "managed", "type": "aws_acm_certificate",                    "name": "cert",     "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "aws_cloudfront_distribution.cdn",                "mode": "managed", "type": "aws_cloudfront_distribution",            "name": "cdn",      "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "aws_route53_zone.main",                          "mode": "managed", "type": "aws_route53_zone",                       "name": "main",     "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["no-op"],  "before": { "name": "example.com" }, "after": { "name": "example.com" } } },
+    { "address": "aws_route53_record.www",                         "mode": "managed", "type": "aws_route53_record",                     "name": "www",      "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } },
+    { "address": "aws_route53_record.apex",                        "mode": "managed", "type": "aws_route53_record",                     "name": "apex",     "provider_name": "registry.terraform.io/hashicorp/aws", "change": { "actions": ["create"], "before": null, "after": {} } }
+  ]
+}

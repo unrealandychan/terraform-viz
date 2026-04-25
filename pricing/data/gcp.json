@@ -1,0 +1,161 @@
+{
+  "_comment": "GCP pricing catalog — hourly rates in USD, monthly = hourly × 730 hrs",
+  "_version": "2024-01",
+  "google_compute_instance": {
+    "_key": "machine_type",
+    "e2-micro":     { "hourly": 0.0084,  "vcpu": 2,  "ram_gb": 1 },
+    "e2-small":     { "hourly": 0.0134,  "vcpu": 2,  "ram_gb": 2 },
+    "e2-medium":    { "hourly": 0.0268,  "vcpu": 2,  "ram_gb": 4 },
+    "e2-standard-2":{ "hourly": 0.0670,  "vcpu": 2,  "ram_gb": 8 },
+    "e2-standard-4":{ "hourly": 0.1340,  "vcpu": 4,  "ram_gb": 16 },
+    "e2-standard-8":{ "hourly": 0.2681,  "vcpu": 8,  "ram_gb": 32 },
+    "n1-standard-1":{ "hourly": 0.0475,  "vcpu": 1,  "ram_gb": 3.75 },
+    "n1-standard-2":{ "hourly": 0.0950,  "vcpu": 2,  "ram_gb": 7.5 },
+    "n1-standard-4":{ "hourly": 0.1900,  "vcpu": 4,  "ram_gb": 15 },
+    "n1-standard-8":{ "hourly": 0.3800,  "vcpu": 8,  "ram_gb": 30 },
+    "n2-standard-2":{ "hourly": 0.0971,  "vcpu": 2,  "ram_gb": 8 },
+    "n2-standard-4":{ "hourly": 0.1942,  "vcpu": 4,  "ram_gb": 16 },
+    "n2-standard-8":{ "hourly": 0.3884,  "vcpu": 8,  "ram_gb": 32 },
+    "c2-standard-4":{ "hourly": 0.2088,  "vcpu": 4,  "ram_gb": 16 },
+    "c2-standard-8":{ "hourly": 0.4176,  "vcpu": 8,  "ram_gb": 32 },
+    "m1-megamem-96":{ "hourly": 10.6740, "vcpu": 96, "ram_gb": 1433.6 },
+    "_default":     { "hourly": 0.10,    "vcpu": 2,  "ram_gb": 4 }
+  },
+  "google_compute_disk": {
+    "_key": "type",
+    "pd-standard": { "per_gb_month": 0.04 },
+    "pd-ssd":      { "per_gb_month": 0.17 },
+    "pd-balanced": { "per_gb_month": 0.10 },
+    "pd-extreme":  { "per_gb_month": 0.125 },
+    "_default":    { "per_gb_month": 0.04 }
+  },
+  "google_sql_database_instance": {
+    "_key": "database_version",
+    "_comment": "Pricing depends on tier; using shared-core defaults",
+    "POSTGRES_15": { "per_vcpu_hour": 0.0413, "per_gb_ram_hour": 0.007 },
+    "POSTGRES_14": { "per_vcpu_hour": 0.0413, "per_gb_ram_hour": 0.007 },
+    "MYSQL_8_0":   { "per_vcpu_hour": 0.0413, "per_gb_ram_hour": 0.007 },
+    "MYSQL_5_7":   { "per_vcpu_hour": 0.0413, "per_gb_ram_hour": 0.007 },
+    "SQLSERVER_2019_STANDARD": { "per_vcpu_hour": 0.1445, "per_gb_ram_hour": 0.049 },
+    "_default":    { "per_vcpu_hour": 0.0413, "per_gb_ram_hour": 0.007 },
+    "storage_ssd_per_gb_month": 0.17,
+    "storage_hdd_per_gb_month": 0.09,
+    "ha_multiplier": 2
+  },
+  "google_container_cluster": {
+    "_comment": "Standard cluster: $0.10/hr for control plane; Autopilot billed per pod resource",
+    "standard_control_plane_per_hour": 0.10,
+    "autopilot_per_vcpu_hour": 0.0445,
+    "autopilot_per_gb_ram_hour": 0.00490
+  },
+  "google_container_node_pool": {
+    "_comment": "Billed as google_compute_instance — check instance machine_type"
+  },
+  "google_compute_forwarding_rule": {
+    "per_hour": 0.025,
+    "per_gb_processed": 0.008
+  },
+  "google_compute_global_forwarding_rule": {
+    "per_hour": 0.025,
+    "per_gb_processed": 0.008
+  },
+  "google_storage_bucket": {
+    "_comment": "Base bucket free; charges depend on storage class and usage",
+    "usage_based": true,
+    "standard_per_gb_month": 0.020,
+    "nearline_per_gb_month": 0.010,
+    "coldline_per_gb_month": 0.004,
+    "archive_per_gb_month":  0.0012
+  },
+  "google_redis_instance": {
+    "_key": "tier",
+    "BASIC":        { "per_gb_hour": 0.016 },
+    "STANDARD_HA":  { "per_gb_hour": 0.032 },
+    "_default":     { "per_gb_hour": 0.02 }
+  },
+  "google_cloudfunctions_function": {
+    "_comment": "Billed per invocation and compute time — mark as usage-based",
+    "usage_based": true,
+    "per_million_invocations": 0.40,
+    "per_gb_second": 0.0000025
+  },
+  "google_cloud_run_service": {
+    "_comment": "Billed per CPU/memory/request — mark as usage-based",
+    "usage_based": true,
+    "per_vcpu_second": 0.00002400,
+    "per_gb_ram_second": 0.00000250
+  },
+
+  "_section_storage": "── Deep storage services ─────────────────────────────────────────────",
+  "google_filestore_instance": {
+    "_key": "tier",
+    "BASIC_HDD":       { "per_gb_month": 0.20 },
+    "BASIC_SSD":       { "per_gb_month": 0.48 },
+    "ZONAL":           { "per_gb_month": 0.36 },
+    "REGIONAL":        { "per_gb_month": 0.50 },
+    "ENTERPRISE":      { "per_gb_month": 0.68 },
+    "_default":        { "per_gb_month": 0.20 }
+  },
+  "google_storage_transfer_job": {
+    "_comment": "Charged per GB transferred from on-prem or other clouds",
+    "per_gb_transferred": 0.0025
+  },
+
+  "_section_data": "── Data, streaming & analytics services ──────────────────────────────",
+  "google_bigquery_dataset": {
+    "_comment": "Dataset itself is free; billed via tables/queries",
+    "storage_active_per_gb_month": 0.02,
+    "storage_longterm_per_gb_month": 0.01,
+    "on_demand_per_tb_queried": 6.25,
+    "flat_rate_per_slot_hour": 0.04
+  },
+  "google_bigquery_table": {
+    "storage_active_per_gb_month": 0.02,
+    "storage_longterm_per_gb_month": 0.01,
+    "streaming_insert_per_gb": 0.01
+  },
+  "google_pubsub_topic": {
+    "usage_based": true,
+    "per_gb_published": 0.04,
+    "per_gb_delivered": 0.04
+  },
+  "google_pubsub_subscription": {
+    "usage_based": true,
+    "per_gb_delivered": 0.04,
+    "per_gb_snapshot_storage_month": 0.02
+  },
+  "google_pubsub_lite_topic": {
+    "usage_based": true,
+    "per_gib_month_throughput_capacity": 0.0035,
+    "per_gib_month_storage": 0.0030
+  },
+  "google_dataflow_job": {
+    "usage_based": true,
+    "per_vcpu_hour": 0.056,
+    "per_gb_ram_hour": 0.003557,
+    "per_gb_shuffle_data": 0.011
+  },
+  "google_dataproc_cluster": {
+    "_comment": "Billed as Compute Engine cost + Dataproc surcharge per vCPU-hour",
+    "usage_based": true,
+    "per_vcpu_hour_surcharge": 0.01
+  },
+  "google_composer_environment": {
+    "_key": "config",
+    "_comment": "Cloud Composer 2 billed per vCPU and memory of environment resources",
+    "per_vcpu_hour": 0.088,
+    "per_gb_ram_hour": 0.0044,
+    "per_gb_storage_month": 0.17,
+    "_default": { "per_vcpu_hour": 0.088 }
+  },
+  "google_vertex_ai_dataset": {
+    "_comment": "No charge for the dataset resource itself; billed via training/prediction",
+    "usage_based": true
+  },
+  "google_vertex_ai_endpoint": {
+    "_comment": "Billed per vCPU and accelerator hour for deployed models",
+    "usage_based": true,
+    "per_vcpu_hour": 0.14,
+    "per_gpu_hour_t4": 0.70
+  }
+}

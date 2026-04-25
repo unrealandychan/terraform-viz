@@ -1,0 +1,186 @@
+{
+  "_comment": "Azure pricing catalog — pay-as-you-go rates in USD, monthly = hourly × 730 hrs",
+  "_version": "2024-01",
+  "azurerm_linux_virtual_machine": {
+    "_key": "size",
+    "Standard_B1s":  { "hourly": 0.0104, "vcpu": 1,  "ram_gb": 1 },
+    "Standard_B1ms": { "hourly": 0.0207, "vcpu": 1,  "ram_gb": 2 },
+    "Standard_B2s":  { "hourly": 0.0416, "vcpu": 2,  "ram_gb": 4 },
+    "Standard_B2ms": { "hourly": 0.0832, "vcpu": 2,  "ram_gb": 8 },
+    "Standard_D2s_v3":  { "hourly": 0.096,  "vcpu": 2,  "ram_gb": 8 },
+    "Standard_D4s_v3":  { "hourly": 0.192,  "vcpu": 4,  "ram_gb": 16 },
+    "Standard_D8s_v3":  { "hourly": 0.384,  "vcpu": 8,  "ram_gb": 32 },
+    "Standard_D16s_v3": { "hourly": 0.768,  "vcpu": 16, "ram_gb": 64 },
+    "Standard_E2s_v3":  { "hourly": 0.126,  "vcpu": 2,  "ram_gb": 16 },
+    "Standard_E4s_v3":  { "hourly": 0.252,  "vcpu": 4,  "ram_gb": 32 },
+    "Standard_F2s_v2":  { "hourly": 0.085,  "vcpu": 2,  "ram_gb": 4 },
+    "Standard_F4s_v2":  { "hourly": 0.169,  "vcpu": 4,  "ram_gb": 8 },
+    "_default":         { "hourly": 0.10,   "vcpu": 2,  "ram_gb": 4 }
+  },
+  "azurerm_windows_virtual_machine": {
+    "_key": "size",
+    "Standard_B2s":     { "hourly": 0.076,  "vcpu": 2,  "ram_gb": 4 },
+    "Standard_D2s_v3":  { "hourly": 0.192,  "vcpu": 2,  "ram_gb": 8 },
+    "Standard_D4s_v3":  { "hourly": 0.384,  "vcpu": 4,  "ram_gb": 16 },
+    "_default":         { "hourly": 0.15,   "vcpu": 2,  "ram_gb": 4 }
+  },
+  "azurerm_virtual_machine": {
+    "_comment": "Deprecated resource — use azurerm_linux_virtual_machine or azurerm_windows_virtual_machine",
+    "_default": { "hourly": 0.10 }
+  },
+  "azurerm_managed_disk": {
+    "_key": "storage_account_type",
+    "Standard_LRS":     { "per_gb_month": 0.04 },
+    "StandardSSD_LRS":  { "per_gb_month": 0.0576 },
+    "Premium_LRS":      { "per_gb_month": 0.135 },
+    "UltraSSD_LRS":     { "per_gb_month": 0.225 },
+    "_default":         { "per_gb_month": 0.06 }
+  },
+  "azurerm_mssql_database": {
+    "_key": "sku_name",
+    "Basic":      { "monthly": 4.99 },
+    "S0":         { "monthly": 14.72 },
+    "S1":         { "monthly": 29.45 },
+    "S2":         { "monthly": 58.90 },
+    "GP_Gen5_2":  { "hourly": 0.308 },
+    "GP_Gen5_4":  { "hourly": 0.616 },
+    "GP_Gen5_8":  { "hourly": 1.232 },
+    "BC_Gen5_2":  { "hourly": 0.908 },
+    "BC_Gen5_4":  { "hourly": 1.816 },
+    "_default":   { "monthly": 15.0 },
+    "storage_per_gb_month": 0.115
+  },
+  "azurerm_postgresql_server": {
+    "_key": "sku_name",
+    "B_Gen5_1":  { "hourly": 0.047 },
+    "B_Gen5_2":  { "hourly": 0.094 },
+    "GP_Gen5_2": { "hourly": 0.183 },
+    "GP_Gen5_4": { "hourly": 0.366 },
+    "GP_Gen5_8": { "hourly": 0.732 },
+    "MO_Gen5_2": { "hourly": 0.346 },
+    "_default":  { "hourly": 0.10 },
+    "storage_per_gb_month": 0.115,
+    "backup_per_gb_month": 0.095
+  },
+  "azurerm_mysql_server": {
+    "_key": "sku_name",
+    "B_Gen5_1":  { "hourly": 0.039 },
+    "B_Gen5_2":  { "hourly": 0.077 },
+    "GP_Gen5_2": { "hourly": 0.169 },
+    "GP_Gen5_4": { "hourly": 0.339 },
+    "_default":  { "hourly": 0.10 }
+  },
+  "azurerm_lb": {
+    "basic_per_hour": 0.0,
+    "standard_per_hour": 0.025,
+    "standard_per_rule_hour": 0.008,
+    "per_gb_processed": 0.005
+  },
+  "azurerm_storage_account": {
+    "_comment": "Base cost free; charges depend on capacity and operations — mark as usage-based",
+    "usage_based": true,
+    "lrs_per_gb_month": 0.018,
+    "grs_per_gb_month": 0.036,
+    "zrs_per_gb_month": 0.023
+  },
+  "azurerm_kubernetes_cluster": {
+    "control_plane_per_hour": 0.10,
+    "_comment": "Node pool costs depend on VM size — see azurerm_linux_virtual_machine"
+  },
+  "azurerm_redis_cache": {
+    "_key": "sku_name",
+    "Basic_C0":    { "hourly": 0.022 },
+    "Basic_C1":    { "hourly": 0.044 },
+    "Standard_C1": { "hourly": 0.088 },
+    "Standard_C2": { "hourly": 0.176 },
+    "Premium_P1":  { "hourly": 0.554 },
+    "_default":    { "hourly": 0.05 }
+  },
+
+  "_section_storage": "── Deep storage services ─────────────────────────────────────────────",
+  "azurerm_storage_share": {
+    "_key": "quota",
+    "_comment": "Azure Files — billed per GB provisioned",
+    "lrs_per_gb_month": 0.06,
+    "grs_per_gb_month": 0.12,
+    "zrs_per_gb_month": 0.075
+  },
+  "azurerm_netapp_pool": {
+    "_key": "service_level",
+    "Standard":  { "per_tib_month": 230 },
+    "Premium":   { "per_tib_month": 460 },
+    "Ultra":     { "per_tib_month": 920 },
+    "_default":  { "per_tib_month": 230 }
+  },
+  "azurerm_netapp_volume": {
+    "_comment": "Cost determined by pool service level — see azurerm_netapp_pool"
+  },
+  "azurerm_data_protection_backup_vault": {
+    "usage_based": true,
+    "per_instance_month": 5.00
+  },
+
+  "_section_data": "── Data, streaming & analytics services ──────────────────────────────",
+  "azurerm_data_factory": {
+    "usage_based": true,
+    "_comment": "Billed per pipeline runs, activity runs, and integration runtime hours",
+    "per_pipeline_run": 0.001,
+    "per_activity_run": 0.005,
+    "azure_ir_per_diu_hour": 0.25
+  },
+  "azurerm_eventhub_namespace": {
+    "_key": "sku",
+    "Basic":    { "per_throughput_unit_hour": 0.015, "per_million_events": 0.028 },
+    "Standard": { "per_throughput_unit_hour": 0.030, "per_million_events": 0.028 },
+    "Premium":  { "per_processing_unit_hour": 0.927 },
+    "_default": { "per_throughput_unit_hour": 0.030 }
+  },
+  "azurerm_eventhub": {
+    "_comment": "Billed via its parent namespace — see azurerm_eventhub_namespace",
+    "per_gb_capture_month": 0.028
+  },
+  "azurerm_servicebus_namespace": {
+    "_key": "sku",
+    "Basic":    { "per_million_operations": 0.05 },
+    "Standard": { "per_million_operations": 0.80, "per_hybrid_connection_hour": 0.10 },
+    "Premium":  { "per_messaging_unit_hour": 0.928 },
+    "_default": { "per_million_operations": 0.80 }
+  },
+  "azurerm_stream_analytics_job": {
+    "_key": "streaming_units",
+    "_comment": "1 SU = 1 vCPU + 3 GB RAM",
+    "per_streaming_unit_hour": 0.081,
+    "_default": { "per_streaming_unit_hour": 0.081 }
+  },
+  "azurerm_databricks_workspace": {
+    "_key": "sku",
+    "standard":  { "dbu_per_hour_standard_vm": 0.07 },
+    "premium":   { "dbu_per_hour_standard_vm": 0.15, "dbu_per_hour_jobs_compute": 0.07 },
+    "trial":     { "dbu_per_hour_standard_vm": 0.0 },
+    "_default":  { "dbu_per_hour_standard_vm": 0.10 }
+  },
+  "azurerm_synapse_workspace": {
+    "usage_based": true,
+    "sql_pool_per_dwu_hour": 1.20,
+    "spark_pool_per_vcpu_hour": 0.40,
+    "serverless_per_tb_processed": 5.00
+  },
+  "azurerm_hdinsight_kafka_cluster": {
+    "_comment": "Billed per worker node VM — see azurerm_linux_virtual_machine rates",
+    "usage_based": true
+  },
+  "azurerm_hdinsight_spark_cluster": {
+    "_comment": "Billed per worker node VM — see azurerm_linux_virtual_machine rates",
+    "usage_based": true
+  },
+  "azurerm_cognitive_account": {
+    "_key": "sku_name",
+    "F0":  { "monthly": 0, "_comment": "Free tier — limited requests" },
+    "S0":  { "usage_based": true, "_comment": "Standard pay-per-call" },
+    "_default": { "usage_based": true }
+  },
+  "azurerm_machine_learning_workspace": {
+    "_comment": "No direct workspace charge; billed via underlying compute/storage",
+    "usage_based": true
+  }
+}
