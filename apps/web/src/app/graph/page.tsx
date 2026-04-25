@@ -8,6 +8,9 @@ import { ResizeHandle } from "@/components/layout/ResizeHandle";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { loadPlan, savePlan, saveToHistory, loadHistory, type PlanHistoryEntry } from "@/lib/plan-store";
 import { estimateCost, costByProvider } from "@/lib/pricing-estimates";
+import { UsageEditor } from "@/components/graph/UsageEditor";
+import { isUsageBased } from "@/lib/usage-params";
+import { loadUsageOverrides, resetAllUsageOverrides, applyUsageOverrides } from "@/lib/usage-store";
 import { saveBaseline, loadBaseline, clearBaseline, type BaselineEntry } from "@/lib/baseline-store";
 import { diffPlans, type PlanDiff, type DiffKind } from "@/lib/plan-diff";
 import { encodePlan, decodePlan, PLAN_URL_PARAM } from "@/lib/plan-url";
@@ -42,8 +45,13 @@ const LAYER_LABELS: Record<ResourceLayer, string> = {
   [ResourceLayer.UNKNOWN]: "unknown",
 };
 
-const NodeDetail = memo(function NodeDetail({ node }: { node: GraphNode }) {
-  const { monthly, annual, breakdown } = estimateCost(node);
+const NodeDetail = memo(function NodeDetail({ node, onUsageUpdate }: { node: GraphNode; onUsageUpdate: () => void }) {
+  const allOverrides = loadUsageOverrides();
+  const nodeOverrides = allOverrides[node.id];
+  const effectiveNode = nodeOverrides
+    ? { ...node, attributes: applyUsageOverrides(node.attributes as Record<string, unknown>, nodeOverrides) }
+    : node;
+  const { monthly, annual, breakdown } = estimateCost(effectiveNode);
 
   return (
     <aside className="node-detail">
@@ -89,6 +97,14 @@ const NodeDetail = memo(function NodeDetail({ node }: { node: GraphNode }) {
       <p className="node-detail__address">{node.address}</p>
       {node.moduleAddress !== null && (
         <p className="node-detail__module">module: {node.moduleAddress}</p>
+      )}
+      {isUsageBased(node.type) && (
+        <UsageEditor
+          nodeId={node.id}
+          resourceType={node.type}
+          attributes={node.attributes as Record<string, unknown>}
+          onUpdate={onUsageUpdate}
+        />
       )}
       <AttributesPanel attributes={node.attributes} />
     </aside>
@@ -500,10 +516,19 @@ const PROVIDER_DISPLAY: Record<string, { label: string; color: string }> = {
   UNKNOWN: { label: "Unknown",             color: "#6b7280" },
 };
 
-const CostBreakdown = memo(function CostBreakdown({ model }: { model: GraphModel }) {
+const CostBreakdown = memo(function CostBreakdown({ model, usageVersion, onResetAll }: { model: GraphModel; usageVersion: number; onResetAll: () => void }) {
   const { monthly, byProvider, rows, free, unknown } = useMemo(() => {
     // Single pass over nodes — compute everything together
-    const costs = model.nodes.map((n) => ({ node: n, monthly: estimateCost(n).monthly }));
+    // usageVersion is referenced to bust the cache when overrides change
+    void usageVersion;
+    const allOverrides = loadUsageOverrides();
+    const costs = model.nodes.map((n) => {
+      const nodeOverrides = allOverrides[n.id];
+      const effectiveNode = nodeOverrides
+        ? { ...n, attributes: applyUsageOverrides(n.attributes as Record<string, unknown>, nodeOverrides) }
+        : n;
+      return { node: n, monthly: estimateCost(effectiveNode).monthly };
+    });
     const monthly = costs.reduce((s, r) => s + (r.monthly ?? 0), 0);
     const byProvider = costByProvider(model.nodes);
     const rows = costs
@@ -516,6 +541,26 @@ const CostBreakdown = memo(function CostBreakdown({ model }: { model: GraphModel
 
   return (
     <aside className="cost-breakdown">
+      {(() => {
+        const allOverrides = loadUsageOverrides();
+        const count = Object.keys(allOverrides).filter(id =>
+          Object.keys(allOverrides[id] ?? {}).length > 0
+        ).length;
+        if (count === 0) return null;
+        return (
+          <div className="cost-customized-badge">
+            <span className="cost-customized-badge__text">
+              ✦ {count} resource{count > 1 ? "s" : ""} with custom usage
+            </span>
+            <button
+              className="cost-customized-badge__reset"
+              onClick={onResetAll}
+            >
+              Reset all
+            </button>
+          </div>
+        );
+      })()}
       <div className="cost-breakdown__header">
         <span className="cost-breakdown__total">
           {monthly === 0 ? "$0" : `~$${monthly.toFixed(0)}`}
@@ -917,6 +962,7 @@ export default function GraphPage() {
   const [detailW, setDetailW] = useState(DEFAULT_DETAIL);
   const [chatOpen, setChatOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<PanelTab>("cost");
+  const [usageVersion, setUsageVersion] = useState(0);
   const [filter, setFilter] = useState<GraphFilter>({
     actions: new Set(),
     layers: new Set(),
@@ -1453,10 +1499,14 @@ export default function GraphPage() {
 
               {/* Panel content */}
               {activeTab === "cost" && (
-                <CostBreakdown model={filteredModel ?? model} />
+                <CostBreakdown
+                  model={filteredModel ?? model}
+                  usageVersion={usageVersion}
+                  onResetAll={() => { resetAllUsageOverrides(); setUsageVersion(v => v + 1); }}
+                />
               )}
               {activeTab === "detail" && selectedNode !== null && (
-                <NodeDetail node={selectedNode} />
+                <NodeDetail key={usageVersion} node={selectedNode} onUsageUpdate={() => setUsageVersion(v => v + 1)} />
               )}
               {activeTab === "chat" && chatOpen && (
                 <ChatPanel

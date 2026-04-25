@@ -2619,3 +2619,127 @@ body {
   line-height: 1;
 }
 .storage-warning button:hover { opacity: 1; }
+
+/* ── Usage Assumptions Editor ─────────────────────────────── */
+.usage-editor {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--bg-secondary, #f8f9fa);
+  border: 1px solid var(--border, #e5e7eb);
+}
+[data-theme="dark"] .usage-editor {
+  background: #1e2433;
+  border-color: #2d3448;
+}
+.usage-editor__header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+.usage-editor__title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #6b7280);
+}
+.usage-editor__hint-icon {
+  font-size: 0.72rem;
+  color: var(--text-muted, #6b7280);
+  cursor: help;
+}
+.usage-editor__reset-btn {
+  margin-left: auto;
+  font-size: 0.70rem;
+  color: #6366f1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.usage-editor__reset-btn:hover { color: #4f46e5; }
+
+.usage-editor__params { display: flex; flex-direction: column; gap: 0.6rem; }
+
+.usage-editor__param { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.usage-editor__param-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.usage-editor__label {
+  flex: 1;
+  font-size: 0.72rem;
+  color: var(--text-secondary, #374151);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+[data-theme="dark"] .usage-editor__label { color: #9ca3af; }
+.usage-editor__label--overridden { color: #6366f1 !important; font-weight: 600; }
+
+.usage-editor__input {
+  width: 64px;
+  padding: 0.15rem 0.3rem;
+  font-size: 0.72rem;
+  border: 1px solid var(--border, #d1d5db);
+  border-radius: 4px;
+  background: var(--bg-primary, #fff);
+  color: var(--text-primary, #111827);
+  text-align: right;
+}
+[data-theme="dark"] .usage-editor__input {
+  background: #0f1117;
+  border-color: #374151;
+  color: #f9fafb;
+}
+.usage-editor__input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+.usage-editor__unit {
+  font-size: 0.65rem;
+  color: var(--text-muted, #9ca3af);
+  white-space: nowrap;
+  min-width: 40px;
+}
+
+.usage-editor__slider {
+  width: 100%;
+  height: 3px;
+  accent-color: #6366f1;
+  cursor: pointer;
+  margin: 0;
+}
+
+.usage-editor__param-hint {
+  font-size: 0.65rem;
+  color: var(--text-muted, #9ca3af);
+  margin: 0;
+  padding-left: 0.1rem;
+}
+
+/* ── Cost Breakdown: customization badge ──────────────────── */
+.cost-customized-badge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.5rem;
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+  font-size: 0.70rem;
+}
+.cost-customized-badge__text { color: #6366f1; font-weight: 500; }
+.cost-customized-badge__reset {
+  background: none; border: none; cursor: pointer;
+  color: #6366f1; font-size: 0.70rem; text-decoration: underline; padding: 0;
+}
+.cost-customized-badge__reset:hover { color: #4f46e5; }
