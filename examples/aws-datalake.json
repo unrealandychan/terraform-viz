@@ -1,0 +1,971 @@
+{
+  "_readme": "AWS Data Lake showcase: S3 raw/curated/processed zones \u2192 Kinesis Firehose ingest \u2192 Glue ETL jobs \u2192 Redshift data warehouse \u2192 Athena ad-hoc queries. Includes MSK (Kafka), SQS, SNS for event-driven orchestration and full IAM setup. Represents a production-grade AWS analytics platform.",
+  "format_version": "1.0",
+  "terraform_version": "1.6.6",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_vpc.main",
+          "mode": "managed",
+          "type": "aws_vpc",
+          "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "cidr_block": "10.0.0.0/16",
+            "enable_dns_support": true,
+            "enable_dns_hostnames": true,
+            "tags": {
+              "Name": "datalake-vpc",
+              "Env": "prod"
+            }
+          }
+        },
+        {
+          "address": "aws_subnet.private_a",
+          "mode": "managed",
+          "type": "aws_subnet",
+          "name": "private_a",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "vpc_id": "aws_vpc.main",
+            "cidr_block": "10.0.1.0/24",
+            "availability_zone": "us-east-1a",
+            "tags": {
+              "Name": "private-a"
+            }
+          },
+          "depends_on": [
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "address": "aws_subnet.private_b",
+          "mode": "managed",
+          "type": "aws_subnet",
+          "name": "private_b",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "vpc_id": "aws_vpc.main",
+            "cidr_block": "10.0.2.0/24",
+            "availability_zone": "us-east-1b",
+            "tags": {
+              "Name": "private-b"
+            }
+          },
+          "depends_on": [
+            "aws_vpc.main"
+          ]
+        },
+        {
+          "address": "aws_s3_bucket.raw",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "raw",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "datalake-demo-raw",
+            "tags": {
+              "zone": "raw",
+              "env": "prod"
+            }
+          }
+        },
+        {
+          "address": "aws_s3_bucket.curated",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "curated",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "datalake-demo-curated",
+            "tags": {
+              "zone": "curated"
+            }
+          }
+        },
+        {
+          "address": "aws_s3_bucket.processed",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "processed",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "datalake-demo-processed",
+            "tags": {
+              "zone": "processed"
+            }
+          }
+        },
+        {
+          "address": "aws_s3_bucket.athena_results",
+          "mode": "managed",
+          "type": "aws_s3_bucket",
+          "name": "athena_results",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "datalake-demo-athena-results"
+          }
+        },
+        {
+          "address": "aws_kinesis_stream.events",
+          "mode": "managed",
+          "type": "aws_kinesis_stream",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "user-events-stream",
+            "shard_count": 4,
+            "retention_period": 24,
+            "stream_mode_details": [
+              {
+                "stream_mode": "PROVISIONED"
+              }
+            ],
+            "tags": {
+              "env": "prod"
+            }
+          }
+        },
+        {
+          "address": "aws_kinesis_firehose_delivery_stream.to_s3",
+          "mode": "managed",
+          "type": "aws_kinesis_firehose_delivery_stream",
+          "name": "to_s3",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "events-to-s3",
+            "destination": "extended_s3",
+            "kinesis_source_configuration": [
+              {
+                "kinesis_stream_arn": "aws_kinesis_stream.events",
+                "role_arn": "aws_iam_role.firehose.arn"
+              }
+            ],
+            "extended_s3_configuration": [
+              {
+                "bucket_arn": "datalake-demo-raw",
+                "prefix": "events/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/",
+                "buffer_size": 128,
+                "buffer_interval": 300,
+                "compression_format": "GZIP"
+              }
+            ]
+          },
+          "depends_on": [
+            "aws_kinesis_stream.events"
+          ]
+        },
+        {
+          "address": "aws_msk_cluster.kafka",
+          "mode": "managed",
+          "type": "aws_msk_cluster",
+          "name": "kafka",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "cluster_name": "datalake-kafka",
+            "kafka_version": "3.5.1",
+            "number_of_broker_nodes": 3,
+            "broker_node_group_info": [
+              {
+                "instance_type": "kafka.m5.large",
+                "client_subnets": [
+                  "aws_subnet.private_a",
+                  "aws_subnet.private_b"
+                ],
+                "storage_info": [
+                  {
+                    "ebs_storage_info": [
+                      {
+                        "volume_size": 500
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "encryption_info": [
+              {
+                "encryption_in_transit": [
+                  {
+                    "client_broker": "TLS_PLAINTEXT"
+                  }
+                ]
+              }
+            ]
+          },
+          "depends_on": [
+            "aws_subnet.private_a",
+            "aws_subnet.private_b"
+          ]
+        },
+        {
+          "address": "aws_sqs_queue.etl_jobs",
+          "mode": "managed",
+          "type": "aws_sqs_queue",
+          "name": "etl_jobs",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "etl-job-queue",
+            "visibility_timeout_seconds": 300,
+            "message_retention_seconds": 86400,
+            "tags": {
+              "purpose": "etl-trigger"
+            }
+          }
+        },
+        {
+          "address": "aws_sns_topic.pipeline_alerts",
+          "mode": "managed",
+          "type": "aws_sns_topic",
+          "name": "pipeline_alerts",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "pipeline-alerts",
+            "tags": {
+              "env": "prod"
+            }
+          }
+        },
+        {
+          "address": "aws_glue_catalog_database.raw_db",
+          "mode": "managed",
+          "type": "aws_glue_catalog_database",
+          "name": "raw_db",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "raw_events_db",
+            "description": "Raw events from Kinesis ingest"
+          }
+        },
+        {
+          "address": "aws_glue_catalog_database.curated_db",
+          "mode": "managed",
+          "type": "aws_glue_catalog_database",
+          "name": "curated_db",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "curated_db",
+            "description": "Cleaned and enriched data"
+          }
+        },
+        {
+          "address": "aws_glue_job.raw_to_curated",
+          "mode": "managed",
+          "type": "aws_glue_job",
+          "name": "raw_to_curated",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "raw-to-curated-etl",
+            "role_arn": "aws_iam_role.glue.arn",
+            "glue_version": "4.0",
+            "number_of_workers": 5,
+            "worker_type": "G.1X",
+            "command": [
+              {
+                "name": "glueetl",
+                "script_location": "s3://datalake-demo-processed/scripts/raw_to_curated.py",
+                "python_version": "3"
+              }
+            ],
+            "default_arguments": {
+              "--job-language": "python",
+              "--enable-spark-ui": "true",
+              "--TempDir": "s3://datalake-demo-processed/tmp"
+            }
+          },
+          "depends_on": [
+            "aws_glue_catalog_database.raw_db"
+          ]
+        },
+        {
+          "address": "aws_glue_crawler.raw_crawler",
+          "mode": "managed",
+          "type": "aws_glue_crawler",
+          "name": "raw_crawler",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "raw-events-crawler",
+            "role": "aws_iam_role.glue.arn",
+            "database_name": "raw_events_db",
+            "s3_target": [
+              {
+                "path": "s3://datalake-demo-raw/events/"
+              }
+            ],
+            "schedule": "cron(0 1 * * ? *)"
+          }
+        },
+        {
+          "address": "aws_redshift_cluster.warehouse",
+          "mode": "managed",
+          "type": "aws_redshift_cluster",
+          "name": "warehouse",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "cluster_identifier": "datalake-warehouse",
+            "node_type": "dc2.large",
+            "number_of_nodes": 2,
+            "database_name": "analytics",
+            "master_username": "admin",
+            "master_password": "PLACEHOLDER",
+            "cluster_subnet_group_name": "datalake-subnet-group",
+            "vpc_security_group_ids": [
+              "sg-placeholder"
+            ],
+            "encrypted": true,
+            "skip_final_snapshot": false,
+            "tags": {
+              "env": "prod",
+              "tier": "warehouse"
+            }
+          },
+          "depends_on": [
+            "aws_subnet.private_a"
+          ]
+        },
+        {
+          "address": "aws_athena_workgroup.analysts",
+          "mode": "managed",
+          "type": "aws_athena_workgroup",
+          "name": "analysts",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "analysts-workgroup",
+            "configuration": [
+              {
+                "result_configuration": [
+                  {
+                    "output_location": "s3://datalake-demo-athena-results/"
+                  }
+                ],
+                "enforce_workgroup_configuration": true,
+                "bytes_scanned_cutoff_per_query": 10737418240
+              }
+            ]
+          }
+        },
+        {
+          "address": "aws_iam_role.glue",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "glue",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "datalake-glue-role",
+            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"glue.amazonaws.com\"}}]}"
+          }
+        },
+        {
+          "address": "aws_iam_role.firehose",
+          "mode": "managed",
+          "type": "aws_iam_role",
+          "name": "firehose",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "datalake-firehose-role",
+            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"firehose.amazonaws.com\"}}]}"
+          }
+        },
+        {
+          "address": "aws_cloudwatch_metric_alarm.kinesis_lag",
+          "mode": "managed",
+          "type": "aws_cloudwatch_metric_alarm",
+          "name": "kinesis_lag",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "alarm_name": "kinesis-iterator-age-high",
+            "comparison_operator": "GreaterThanThreshold",
+            "evaluation_periods": 2,
+            "metric_name": "GetRecords.IteratorAgeMilliseconds",
+            "namespace": "AWS/Kinesis",
+            "period": 60,
+            "statistic": "Maximum",
+            "threshold": 30000,
+            "alarm_description": "Kinesis consumer is falling behind",
+            "alarm_actions": [
+              "aws_sns_topic.pipeline_alerts"
+            ]
+          }
+        },
+        {
+          "address": "aws_cloudwatch_dashboard.datalake",
+          "mode": "managed",
+          "type": "aws_cloudwatch_dashboard",
+          "name": "datalake",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "dashboard_name": "datalake-overview",
+            "dashboard_body": "{\"widgets\":[{\"type\":\"metric\",\"properties\":{\"title\":\"Kinesis Throughput\"}}]}"
+          }
+        },
+        {
+          "address": "aws_kms_key.datalake",
+          "mode": "managed",
+          "type": "aws_kms_key",
+          "name": "datalake",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "description": "Data Lake encryption key",
+            "enable_key_rotation": true,
+            "tags": {
+              "purpose": "datalake"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "aws_vpc.main",
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cidr_block": "10.0.0.0/16",
+          "enable_dns_support": true,
+          "enable_dns_hostnames": true,
+          "tags": {
+            "Name": "datalake-vpc",
+            "Env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_subnet.private_a",
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "private_a",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "vpc_id": "aws_vpc.main",
+          "cidr_block": "10.0.1.0/24",
+          "availability_zone": "us-east-1a",
+          "tags": {
+            "Name": "private-a"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_subnet.private_b",
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "private_b",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "vpc_id": "aws_vpc.main",
+          "cidr_block": "10.0.2.0/24",
+          "availability_zone": "us-east-1b",
+          "tags": {
+            "Name": "private-b"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.raw",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "raw",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "datalake-demo-raw",
+          "tags": {
+            "zone": "raw",
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.curated",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "curated",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "datalake-demo-curated",
+          "tags": {
+            "zone": "curated"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.processed",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "processed",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "datalake-demo-processed",
+          "tags": {
+            "zone": "processed"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_s3_bucket.athena_results",
+      "mode": "managed",
+      "type": "aws_s3_bucket",
+      "name": "athena_results",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "bucket": "datalake-demo-athena-results"
+        }
+      }
+    },
+    {
+      "address": "aws_kinesis_stream.events",
+      "mode": "managed",
+      "type": "aws_kinesis_stream",
+      "name": "events",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "user-events-stream",
+          "shard_count": 4,
+          "retention_period": 24,
+          "stream_mode_details": [
+            {
+              "stream_mode": "PROVISIONED"
+            }
+          ],
+          "tags": {
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_kinesis_firehose_delivery_stream.to_s3",
+      "mode": "managed",
+      "type": "aws_kinesis_firehose_delivery_stream",
+      "name": "to_s3",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "events-to-s3",
+          "destination": "extended_s3",
+          "kinesis_source_configuration": [
+            {
+              "kinesis_stream_arn": "aws_kinesis_stream.events",
+              "role_arn": "aws_iam_role.firehose.arn"
+            }
+          ],
+          "extended_s3_configuration": [
+            {
+              "bucket_arn": "datalake-demo-raw",
+              "prefix": "events/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/",
+              "buffer_size": 128,
+              "buffer_interval": 300,
+              "compression_format": "GZIP"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_msk_cluster.kafka",
+      "mode": "managed",
+      "type": "aws_msk_cluster",
+      "name": "kafka",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cluster_name": "datalake-kafka",
+          "kafka_version": "3.5.1",
+          "number_of_broker_nodes": 3,
+          "broker_node_group_info": [
+            {
+              "instance_type": "kafka.m5.large",
+              "client_subnets": [
+                "aws_subnet.private_a",
+                "aws_subnet.private_b"
+              ],
+              "storage_info": [
+                {
+                  "ebs_storage_info": [
+                    {
+                      "volume_size": 500
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "encryption_info": [
+            {
+              "encryption_in_transit": [
+                {
+                  "client_broker": "TLS_PLAINTEXT"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_sqs_queue.etl_jobs",
+      "mode": "managed",
+      "type": "aws_sqs_queue",
+      "name": "etl_jobs",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "etl-job-queue",
+          "visibility_timeout_seconds": 300,
+          "message_retention_seconds": 86400,
+          "tags": {
+            "purpose": "etl-trigger"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_sns_topic.pipeline_alerts",
+      "mode": "managed",
+      "type": "aws_sns_topic",
+      "name": "pipeline_alerts",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "pipeline-alerts",
+          "tags": {
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_glue_catalog_database.raw_db",
+      "mode": "managed",
+      "type": "aws_glue_catalog_database",
+      "name": "raw_db",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw_events_db",
+          "description": "Raw events from Kinesis ingest"
+        }
+      }
+    },
+    {
+      "address": "aws_glue_catalog_database.curated_db",
+      "mode": "managed",
+      "type": "aws_glue_catalog_database",
+      "name": "curated_db",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "curated_db",
+          "description": "Cleaned and enriched data"
+        }
+      }
+    },
+    {
+      "address": "aws_glue_job.raw_to_curated",
+      "mode": "managed",
+      "type": "aws_glue_job",
+      "name": "raw_to_curated",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw-to-curated-etl",
+          "role_arn": "aws_iam_role.glue.arn",
+          "glue_version": "4.0",
+          "number_of_workers": 5,
+          "worker_type": "G.1X",
+          "command": [
+            {
+              "name": "glueetl",
+              "script_location": "s3://datalake-demo-processed/scripts/raw_to_curated.py",
+              "python_version": "3"
+            }
+          ],
+          "default_arguments": {
+            "--job-language": "python",
+            "--enable-spark-ui": "true",
+            "--TempDir": "s3://datalake-demo-processed/tmp"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_glue_crawler.raw_crawler",
+      "mode": "managed",
+      "type": "aws_glue_crawler",
+      "name": "raw_crawler",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw-events-crawler",
+          "role": "aws_iam_role.glue.arn",
+          "database_name": "raw_events_db",
+          "s3_target": [
+            {
+              "path": "s3://datalake-demo-raw/events/"
+            }
+          ],
+          "schedule": "cron(0 1 * * ? *)"
+        }
+      }
+    },
+    {
+      "address": "aws_redshift_cluster.warehouse",
+      "mode": "managed",
+      "type": "aws_redshift_cluster",
+      "name": "warehouse",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "cluster_identifier": "datalake-warehouse",
+          "node_type": "dc2.large",
+          "number_of_nodes": 2,
+          "database_name": "analytics",
+          "master_username": "admin",
+          "master_password": "PLACEHOLDER",
+          "cluster_subnet_group_name": "datalake-subnet-group",
+          "vpc_security_group_ids": [
+            "sg-placeholder"
+          ],
+          "encrypted": true,
+          "skip_final_snapshot": false,
+          "tags": {
+            "env": "prod",
+            "tier": "warehouse"
+          }
+        }
+      }
+    },
+    {
+      "address": "aws_athena_workgroup.analysts",
+      "mode": "managed",
+      "type": "aws_athena_workgroup",
+      "name": "analysts",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "analysts-workgroup",
+          "configuration": [
+            {
+              "result_configuration": [
+                {
+                  "output_location": "s3://datalake-demo-athena-results/"
+                }
+              ],
+              "enforce_workgroup_configuration": true,
+              "bytes_scanned_cutoff_per_query": 10737418240
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role.glue",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "glue",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "datalake-glue-role",
+          "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"glue.amazonaws.com\"}}]}"
+        }
+      }
+    },
+    {
+      "address": "aws_iam_role.firehose",
+      "mode": "managed",
+      "type": "aws_iam_role",
+      "name": "firehose",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "datalake-firehose-role",
+          "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Action\":\"sts:AssumeRole\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"firehose.amazonaws.com\"}}]}"
+        }
+      }
+    },
+    {
+      "address": "aws_cloudwatch_metric_alarm.kinesis_lag",
+      "mode": "managed",
+      "type": "aws_cloudwatch_metric_alarm",
+      "name": "kinesis_lag",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "alarm_name": "kinesis-iterator-age-high",
+          "comparison_operator": "GreaterThanThreshold",
+          "evaluation_periods": 2,
+          "metric_name": "GetRecords.IteratorAgeMilliseconds",
+          "namespace": "AWS/Kinesis",
+          "period": 60,
+          "statistic": "Maximum",
+          "threshold": 30000,
+          "alarm_description": "Kinesis consumer is falling behind",
+          "alarm_actions": [
+            "aws_sns_topic.pipeline_alerts"
+          ]
+        }
+      }
+    },
+    {
+      "address": "aws_cloudwatch_dashboard.datalake",
+      "mode": "managed",
+      "type": "aws_cloudwatch_dashboard",
+      "name": "datalake",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "dashboard_name": "datalake-overview",
+          "dashboard_body": "{\"widgets\":[{\"type\":\"metric\",\"properties\":{\"title\":\"Kinesis Throughput\"}}]}"
+        }
+      }
+    },
+    {
+      "address": "aws_kms_key.datalake",
+      "mode": "managed",
+      "type": "aws_kms_key",
+      "name": "datalake",
+      "provider_name": "registry.terraform.io/hashicorp/aws",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "description": "Data Lake encryption key",
+          "enable_key_rotation": true,
+          "tags": {
+            "purpose": "datalake"
+          }
+        }
+      }
+    }
+  ]
+}

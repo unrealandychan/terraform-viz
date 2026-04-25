@@ -1,0 +1,675 @@
+{
+  "_readme": "Azure Modern Analytics Platform: ADLS Gen2 storage \u2192 Azure Event Hubs ingest \u2192 Azure Synapse Analytics (serverless + dedicated pool) \u2192 Power BI integration. Includes Azure Data Factory pipelines, Azure Databricks workspace, Key Vault secrets, and Monitor alerts. Production-grade analytics stack.",
+  "format_version": "1.0",
+  "terraform_version": "1.6.6",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "azurerm_resource_group.analytics",
+          "mode": "managed",
+          "type": "azurerm_resource_group",
+          "name": "analytics",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "rg-analytics-prod",
+            "location": "East US"
+          }
+        },
+        {
+          "address": "azurerm_storage_account.adls",
+          "mode": "managed",
+          "type": "azurerm_storage_account",
+          "name": "adls",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "adlsanalyticsproddemo",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "account_tier": "Standard",
+            "account_replication_type": "GRS",
+            "is_hns_enabled": true,
+            "tags": {
+              "purpose": "data-lake"
+            }
+          },
+          "depends_on": [
+            "azurerm_resource_group.analytics"
+          ]
+        },
+        {
+          "address": "azurerm_storage_data_lake_gen2_filesystem.raw",
+          "mode": "managed",
+          "type": "azurerm_storage_data_lake_gen2_filesystem",
+          "name": "raw",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "raw",
+            "storage_account_id": "azurerm_storage_account.adls"
+          },
+          "depends_on": [
+            "azurerm_storage_account.adls"
+          ]
+        },
+        {
+          "address": "azurerm_storage_data_lake_gen2_filesystem.curated",
+          "mode": "managed",
+          "type": "azurerm_storage_data_lake_gen2_filesystem",
+          "name": "curated",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "curated",
+            "storage_account_id": "azurerm_storage_account.adls"
+          },
+          "depends_on": [
+            "azurerm_storage_account.adls"
+          ]
+        },
+        {
+          "address": "azurerm_eventhub_namespace.ns",
+          "mode": "managed",
+          "type": "azurerm_eventhub_namespace",
+          "name": "ns",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "eh-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "sku": "Standard",
+            "capacity": 4,
+            "auto_inflate_enabled": true,
+            "maximum_throughput_units": 20,
+            "tags": {
+              "purpose": "streaming-ingest"
+            }
+          },
+          "depends_on": [
+            "azurerm_resource_group.analytics"
+          ]
+        },
+        {
+          "address": "azurerm_eventhub.events",
+          "mode": "managed",
+          "type": "azurerm_eventhub",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "user-events",
+            "namespace_name": "eh-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "partition_count": 32,
+            "message_retention": 3
+          },
+          "depends_on": [
+            "azurerm_eventhub_namespace.ns"
+          ]
+        },
+        {
+          "address": "azurerm_eventhub.clickstream",
+          "mode": "managed",
+          "type": "azurerm_eventhub",
+          "name": "clickstream",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "clickstream",
+            "namespace_name": "eh-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "partition_count": 16,
+            "message_retention": 1
+          },
+          "depends_on": [
+            "azurerm_eventhub_namespace.ns"
+          ]
+        },
+        {
+          "address": "azurerm_synapse_workspace.ws",
+          "mode": "managed",
+          "type": "azurerm_synapse_workspace",
+          "name": "ws",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "synapse-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "storage_data_lake_gen2_filesystem_id": "azurerm_storage_data_lake_gen2_filesystem.curated",
+            "sql_administrator_login": "sqladmin",
+            "sql_administrator_login_password": "PLACEHOLDER",
+            "managed_virtual_network_enabled": true,
+            "tags": {
+              "env": "prod"
+            }
+          },
+          "depends_on": [
+            "azurerm_storage_data_lake_gen2_filesystem.curated"
+          ]
+        },
+        {
+          "address": "azurerm_synapse_sql_pool.warehouse",
+          "mode": "managed",
+          "type": "azurerm_synapse_sql_pool",
+          "name": "warehouse",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "analyticsdw",
+            "synapse_workspace_id": "azurerm_synapse_workspace.ws",
+            "sku_name": "DW200c",
+            "create_mode": "Default",
+            "tags": {
+              "purpose": "warehouse"
+            }
+          },
+          "depends_on": [
+            "azurerm_synapse_workspace.ws"
+          ]
+        },
+        {
+          "address": "azurerm_synapse_spark_pool.spark",
+          "mode": "managed",
+          "type": "azurerm_synapse_spark_pool",
+          "name": "spark",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "sparkpool",
+            "synapse_workspace_id": "azurerm_synapse_workspace.ws",
+            "node_size_family": "MemoryOptimized",
+            "node_size": "Large",
+            "auto_scale": [
+              {
+                "min_node_count": 3,
+                "max_node_count": 10
+              }
+            ],
+            "auto_pause": [
+              {
+                "delay_in_minutes": 15
+              }
+            ],
+            "spark_version": "3.3"
+          },
+          "depends_on": [
+            "azurerm_synapse_workspace.ws"
+          ]
+        },
+        {
+          "address": "azurerm_databricks_workspace.dw",
+          "mode": "managed",
+          "type": "azurerm_databricks_workspace",
+          "name": "dw",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "databricks-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "sku": "premium",
+            "tags": {
+              "env": "prod",
+              "purpose": "ml-engineering"
+            }
+          },
+          "depends_on": [
+            "azurerm_resource_group.analytics"
+          ]
+        },
+        {
+          "address": "azurerm_data_factory.adf",
+          "mode": "managed",
+          "type": "azurerm_data_factory",
+          "name": "adf",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "adf-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "github_configuration": [
+              {
+                "account_name": "myorg",
+                "branch_name": "main",
+                "git_url": "https://github.com",
+                "repository_name": "adf-pipelines",
+                "root_folder": "/pipelines"
+              }
+            ],
+            "tags": {
+              "purpose": "orchestration"
+            }
+          },
+          "depends_on": [
+            "azurerm_resource_group.analytics"
+          ]
+        },
+        {
+          "address": "azurerm_key_vault.kv",
+          "mode": "managed",
+          "type": "azurerm_key_vault",
+          "name": "kv",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "kv-analytics-prod",
+            "resource_group_name": "rg-analytics-prod",
+            "location": "East US",
+            "tenant_id": "TENANT_ID_PLACEHOLDER",
+            "sku_name": "standard",
+            "purge_protection_enabled": true,
+            "soft_delete_retention_days": 90
+          }
+        },
+        {
+          "address": "azurerm_monitor_action_group.alerts",
+          "mode": "managed",
+          "type": "azurerm_monitor_action_group",
+          "name": "alerts",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "analytics-alerts",
+            "resource_group_name": "rg-analytics-prod",
+            "short_name": "analytics",
+            "email_receiver": [
+              {
+                "name": "on-call",
+                "email_address": "oncall@company.com"
+              }
+            ]
+          }
+        },
+        {
+          "address": "azurerm_monitor_metric_alert.eh_throttle",
+          "mode": "managed",
+          "type": "azurerm_monitor_metric_alert",
+          "name": "eh_throttle",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "eventhub-throttle-alert",
+            "resource_group_name": "rg-analytics-prod",
+            "scopes": [
+              "azurerm_eventhub_namespace.ns"
+            ],
+            "description": "Alert when Event Hub throttles messages",
+            "criteria": [
+              {
+                "metric_namespace": "Microsoft.EventHub/namespaces",
+                "metric_name": "ThrottledRequests",
+                "aggregation": "Total",
+                "operator": "GreaterThan",
+                "threshold": 100
+              }
+            ],
+            "action": [
+              {
+                "action_group_id": "azurerm_monitor_action_group.alerts"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "azurerm_resource_group.analytics",
+      "mode": "managed",
+      "type": "azurerm_resource_group",
+      "name": "analytics",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "rg-analytics-prod",
+          "location": "East US"
+        }
+      }
+    },
+    {
+      "address": "azurerm_storage_account.adls",
+      "mode": "managed",
+      "type": "azurerm_storage_account",
+      "name": "adls",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "adlsanalyticsproddemo",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "account_tier": "Standard",
+          "account_replication_type": "GRS",
+          "is_hns_enabled": true,
+          "tags": {
+            "purpose": "data-lake"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_storage_data_lake_gen2_filesystem.raw",
+      "mode": "managed",
+      "type": "azurerm_storage_data_lake_gen2_filesystem",
+      "name": "raw",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw",
+          "storage_account_id": "azurerm_storage_account.adls"
+        }
+      }
+    },
+    {
+      "address": "azurerm_storage_data_lake_gen2_filesystem.curated",
+      "mode": "managed",
+      "type": "azurerm_storage_data_lake_gen2_filesystem",
+      "name": "curated",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "curated",
+          "storage_account_id": "azurerm_storage_account.adls"
+        }
+      }
+    },
+    {
+      "address": "azurerm_eventhub_namespace.ns",
+      "mode": "managed",
+      "type": "azurerm_eventhub_namespace",
+      "name": "ns",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "eh-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "sku": "Standard",
+          "capacity": 4,
+          "auto_inflate_enabled": true,
+          "maximum_throughput_units": 20,
+          "tags": {
+            "purpose": "streaming-ingest"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_eventhub.events",
+      "mode": "managed",
+      "type": "azurerm_eventhub",
+      "name": "events",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "user-events",
+          "namespace_name": "eh-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "partition_count": 32,
+          "message_retention": 3
+        }
+      }
+    },
+    {
+      "address": "azurerm_eventhub.clickstream",
+      "mode": "managed",
+      "type": "azurerm_eventhub",
+      "name": "clickstream",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "clickstream",
+          "namespace_name": "eh-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "partition_count": 16,
+          "message_retention": 1
+        }
+      }
+    },
+    {
+      "address": "azurerm_synapse_workspace.ws",
+      "mode": "managed",
+      "type": "azurerm_synapse_workspace",
+      "name": "ws",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "synapse-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "storage_data_lake_gen2_filesystem_id": "azurerm_storage_data_lake_gen2_filesystem.curated",
+          "sql_administrator_login": "sqladmin",
+          "sql_administrator_login_password": "PLACEHOLDER",
+          "managed_virtual_network_enabled": true,
+          "tags": {
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_synapse_sql_pool.warehouse",
+      "mode": "managed",
+      "type": "azurerm_synapse_sql_pool",
+      "name": "warehouse",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "analyticsdw",
+          "synapse_workspace_id": "azurerm_synapse_workspace.ws",
+          "sku_name": "DW200c",
+          "create_mode": "Default",
+          "tags": {
+            "purpose": "warehouse"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_synapse_spark_pool.spark",
+      "mode": "managed",
+      "type": "azurerm_synapse_spark_pool",
+      "name": "spark",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "sparkpool",
+          "synapse_workspace_id": "azurerm_synapse_workspace.ws",
+          "node_size_family": "MemoryOptimized",
+          "node_size": "Large",
+          "auto_scale": [
+            {
+              "min_node_count": 3,
+              "max_node_count": 10
+            }
+          ],
+          "auto_pause": [
+            {
+              "delay_in_minutes": 15
+            }
+          ],
+          "spark_version": "3.3"
+        }
+      }
+    },
+    {
+      "address": "azurerm_databricks_workspace.dw",
+      "mode": "managed",
+      "type": "azurerm_databricks_workspace",
+      "name": "dw",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "databricks-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "sku": "premium",
+          "tags": {
+            "env": "prod",
+            "purpose": "ml-engineering"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_data_factory.adf",
+      "mode": "managed",
+      "type": "azurerm_data_factory",
+      "name": "adf",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "adf-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "github_configuration": [
+            {
+              "account_name": "myorg",
+              "branch_name": "main",
+              "git_url": "https://github.com",
+              "repository_name": "adf-pipelines",
+              "root_folder": "/pipelines"
+            }
+          ],
+          "tags": {
+            "purpose": "orchestration"
+          }
+        }
+      }
+    },
+    {
+      "address": "azurerm_key_vault.kv",
+      "mode": "managed",
+      "type": "azurerm_key_vault",
+      "name": "kv",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "kv-analytics-prod",
+          "resource_group_name": "rg-analytics-prod",
+          "location": "East US",
+          "tenant_id": "TENANT_ID_PLACEHOLDER",
+          "sku_name": "standard",
+          "purge_protection_enabled": true,
+          "soft_delete_retention_days": 90
+        }
+      }
+    },
+    {
+      "address": "azurerm_monitor_action_group.alerts",
+      "mode": "managed",
+      "type": "azurerm_monitor_action_group",
+      "name": "alerts",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "analytics-alerts",
+          "resource_group_name": "rg-analytics-prod",
+          "short_name": "analytics",
+          "email_receiver": [
+            {
+              "name": "on-call",
+              "email_address": "oncall@company.com"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "azurerm_monitor_metric_alert.eh_throttle",
+      "mode": "managed",
+      "type": "azurerm_monitor_metric_alert",
+      "name": "eh_throttle",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "eventhub-throttle-alert",
+          "resource_group_name": "rg-analytics-prod",
+          "scopes": [
+            "azurerm_eventhub_namespace.ns"
+          ],
+          "description": "Alert when Event Hub throttles messages",
+          "criteria": [
+            {
+              "metric_namespace": "Microsoft.EventHub/namespaces",
+              "metric_name": "ThrottledRequests",
+              "aggregation": "Total",
+              "operator": "GreaterThan",
+              "threshold": 100
+            }
+          ],
+          "action": [
+            {
+              "action_group_id": "azurerm_monitor_action_group.alerts"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

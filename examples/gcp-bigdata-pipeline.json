@@ -1,0 +1,983 @@
+{
+  "_readme": "GCP Big Data Pipeline showcase: GCS ingest \u2192 Pub/Sub \u2192 Dataflow \u2192 BigQuery analytics warehouse. Includes Dataproc for batch Spark jobs, Cloud Scheduler trigger, and monitoring. Represents a real-time + batch hybrid data platform on GCP.",
+  "format_version": "1.0",
+  "terraform_version": "1.6.6",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_compute_network.vpc",
+          "mode": "managed",
+          "type": "google_compute_network",
+          "name": "vpc",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "bigdata-vpc",
+            "project": "bigdata-demo",
+            "auto_create_subnetworks": false
+          }
+        },
+        {
+          "address": "google_compute_subnetwork.data_subnet",
+          "mode": "managed",
+          "type": "google_compute_subnetwork",
+          "name": "data_subnet",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "data-subnet",
+            "region": "us-central1",
+            "network": "bigdata-vpc",
+            "ip_cidr_range": "10.10.0.0/24",
+            "private_ip_google_access": true
+          },
+          "depends_on": [
+            "google_compute_network.vpc"
+          ]
+        },
+        {
+          "address": "google_storage_bucket.raw_ingest",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "raw_ingest",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "bigdata-demo-raw-ingest",
+            "location": "US",
+            "project": "bigdata-demo",
+            "storage_class": "STANDARD",
+            "versioning": [
+              {
+                "enabled": true
+              }
+            ],
+            "lifecycle_rule": [
+              {
+                "action": [
+                  {
+                    "type": "SetStorageClass",
+                    "storage_class": "NEARLINE"
+                  }
+                ],
+                "condition": [
+                  {
+                    "age": 30
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "address": "google_storage_bucket.dataflow_staging",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "dataflow_staging",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "bigdata-demo-dataflow-staging",
+            "location": "US-CENTRAL1",
+            "project": "bigdata-demo",
+            "storage_class": "STANDARD",
+            "uniform_bucket_level_access": true
+          }
+        },
+        {
+          "address": "google_storage_bucket.dataproc_staging",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "dataproc_staging",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "bigdata-demo-dataproc-staging",
+            "location": "US-CENTRAL1",
+            "project": "bigdata-demo",
+            "storage_class": "STANDARD"
+          }
+        },
+        {
+          "address": "google_storage_bucket.output",
+          "mode": "managed",
+          "type": "google_storage_bucket",
+          "name": "output",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "bigdata-demo-output",
+            "location": "US",
+            "project": "bigdata-demo",
+            "storage_class": "STANDARD"
+          }
+        },
+        {
+          "address": "google_pubsub_topic.events",
+          "mode": "managed",
+          "type": "google_pubsub_topic",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "raw-events",
+            "project": "bigdata-demo",
+            "message_retention_duration": "86600s",
+            "labels": {
+              "env": "prod",
+              "tier": "ingest"
+            }
+          }
+        },
+        {
+          "address": "google_pubsub_topic.dlq",
+          "mode": "managed",
+          "type": "google_pubsub_topic",
+          "name": "dlq",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "raw-events-dlq",
+            "project": "bigdata-demo"
+          }
+        },
+        {
+          "address": "google_pubsub_subscription.dataflow_sub",
+          "mode": "managed",
+          "type": "google_pubsub_subscription",
+          "name": "dataflow_sub",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "dataflow-events-sub",
+            "project": "bigdata-demo",
+            "topic": "raw-events",
+            "ack_deadline_seconds": 60,
+            "message_retention_duration": "600s",
+            "dead_letter_policy": [
+              {
+                "dead_letter_topic": "raw-events-dlq",
+                "max_delivery_attempts": 5
+              }
+            ]
+          },
+          "depends_on": [
+            "google_pubsub_topic.events",
+            "google_pubsub_topic.dlq"
+          ]
+        },
+        {
+          "address": "google_dataflow_job.streaming_pipeline",
+          "mode": "managed",
+          "type": "google_dataflow_job",
+          "name": "streaming_pipeline",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "streaming-events-to-bq",
+            "project": "bigdata-demo",
+            "region": "us-central1",
+            "zone": "us-central1-a",
+            "template_gcs_path": "gs://dataflow-templates/latest/PubSub_to_BigQuery",
+            "temp_gcs_location": "gs://bigdata-demo-dataflow-staging/tmp",
+            "machine_type": "n1-standard-4",
+            "max_workers": 10,
+            "num_workers": 2,
+            "parameters": {
+              "inputTopic": "projects/bigdata-demo/topics/raw-events",
+              "outputTableSpec": "bigdata-demo:analytics.events",
+              "outputDeadletterTable": "bigdata-demo:analytics.events_errors"
+            },
+            "labels": {
+              "pipeline": "streaming",
+              "env": "prod"
+            }
+          },
+          "depends_on": [
+            "google_pubsub_subscription.dataflow_sub"
+          ]
+        },
+        {
+          "address": "google_bigquery_dataset.analytics",
+          "mode": "managed",
+          "type": "google_bigquery_dataset",
+          "name": "analytics",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "analytics",
+            "project": "bigdata-demo",
+            "location": "US",
+            "friendly_name": "Analytics Warehouse",
+            "description": "Main analytics dataset for processed events",
+            "default_table_expiration_ms": null,
+            "labels": {
+              "env": "prod"
+            }
+          }
+        },
+        {
+          "address": "google_bigquery_table.events",
+          "mode": "managed",
+          "type": "google_bigquery_table",
+          "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "analytics",
+            "project": "bigdata-demo",
+            "table_id": "events",
+            "friendly_name": "Raw Events",
+            "clustering": [
+              "event_type",
+              "user_id"
+            ],
+            "time_partitioning": [
+              {
+                "type": "DAY",
+                "field": "event_timestamp"
+              }
+            ],
+            "schema": "[{\"name\": \"event_id\", \"type\": \"STRING\", \"mode\": \"REQUIRED\"}, {\"name\": \"event_type\", \"type\": \"STRING\", \"mode\": \"REQUIRED\"}, {\"name\": \"user_id\", \"type\": \"STRING\", \"mode\": \"NULLABLE\"}, {\"name\": \"payload\", \"type\": \"JSON\", \"mode\": \"NULLABLE\"}, {\"name\": \"event_timestamp\", \"type\": \"TIMESTAMP\", \"mode\": \"REQUIRED\"}]"
+          },
+          "depends_on": [
+            "google_bigquery_dataset.analytics"
+          ]
+        },
+        {
+          "address": "google_bigquery_table.events_daily_agg",
+          "mode": "managed",
+          "type": "google_bigquery_table",
+          "name": "events_daily_agg",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "analytics",
+            "project": "bigdata-demo",
+            "table_id": "events_daily_agg",
+            "friendly_name": "Daily Aggregations",
+            "time_partitioning": [
+              {
+                "type": "DAY"
+              }
+            ],
+            "view": [
+              {
+                "query": "SELECT DATE(event_timestamp) as date, event_type, COUNT(*) as cnt FROM `bigdata-demo.analytics.events` GROUP BY 1,2",
+                "use_legacy_sql": false
+              }
+            ]
+          },
+          "depends_on": [
+            "google_bigquery_table.events"
+          ]
+        },
+        {
+          "address": "google_bigquery_dataset.staging",
+          "mode": "managed",
+          "type": "google_bigquery_dataset",
+          "name": "staging",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "staging",
+            "project": "bigdata-demo",
+            "location": "US",
+            "default_table_expiration_ms": 604800000
+          }
+        },
+        {
+          "address": "google_dataproc_cluster.batch_cluster",
+          "mode": "managed",
+          "type": "google_dataproc_cluster",
+          "name": "batch_cluster",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "batch-spark-cluster",
+            "region": "us-central1",
+            "project": "bigdata-demo",
+            "cluster_config": [
+              {
+                "staging_bucket": "bigdata-demo-dataproc-staging",
+                "master_config": [
+                  {
+                    "num_instances": 1,
+                    "machine_type": "n1-standard-4",
+                    "disk_config": [
+                      {
+                        "boot_disk_size_gb": 100
+                      }
+                    ]
+                  }
+                ],
+                "worker_config": [
+                  {
+                    "num_instances": 4,
+                    "machine_type": "n1-standard-4",
+                    "disk_config": [
+                      {
+                        "boot_disk_size_gb": 100
+                      }
+                    ]
+                  }
+                ],
+                "preemptible_worker_config": [
+                  {
+                    "num_instances": 2
+                  }
+                ],
+                "software_config": [
+                  {
+                    "image_version": "2.1-debian11",
+                    "optional_components": [
+                      "JUPYTER",
+                      "ZEPPELIN"
+                    ]
+                  }
+                ],
+                "gce_cluster_config": [
+                  {
+                    "subnetwork": "data-subnet",
+                    "internal_ip_only": true,
+                    "tags": [
+                      "dataproc"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "labels": {
+              "purpose": "batch-etl",
+              "env": "prod"
+            }
+          },
+          "depends_on": [
+            "google_storage_bucket.dataproc_staging",
+            "google_compute_subnetwork.data_subnet"
+          ]
+        },
+        {
+          "address": "google_cloud_scheduler_job.nightly_batch",
+          "mode": "managed",
+          "type": "google_cloud_scheduler_job",
+          "name": "nightly_batch",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "nightly-spark-etl",
+            "project": "bigdata-demo",
+            "region": "us-central1",
+            "schedule": "0 2 * * *",
+            "time_zone": "America/New_York",
+            "description": "Trigger nightly Spark ETL",
+            "http_target": [
+              {
+                "uri": "https://dataproc.googleapis.com/v1/projects/bigdata-demo/regions/us-central1/jobs:submit",
+                "http_method": "POST"
+              }
+            ]
+          }
+        },
+        {
+          "address": "google_service_account.dataflow_sa",
+          "mode": "managed",
+          "type": "google_service_account",
+          "name": "dataflow_sa",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "account_id": "dataflow-worker",
+            "project": "bigdata-demo",
+            "display_name": "Dataflow Worker SA"
+          }
+        },
+        {
+          "address": "google_service_account.dataproc_sa",
+          "mode": "managed",
+          "type": "google_service_account",
+          "name": "dataproc_sa",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "account_id": "dataproc-worker",
+            "project": "bigdata-demo",
+            "display_name": "Dataproc Worker SA"
+          }
+        },
+        {
+          "address": "google_monitoring_alert_policy.pipeline_lag",
+          "mode": "managed",
+          "type": "google_monitoring_alert_policy",
+          "name": "pipeline_lag",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "display_name": "Dataflow Pipeline Lag Alert",
+            "project": "bigdata-demo",
+            "combiner": "OR",
+            "conditions": [
+              {
+                "display_name": "Pub/Sub oldest message age",
+                "condition_threshold": {
+                  "filter": "resource.type=\"pubsub_subscription\" AND metric.type=\"pubsub.googleapis.com/subscription/oldest_unacked_message_age\"",
+                  "comparison": "COMPARISON_GT",
+                  "threshold_value": 300,
+                  "duration": "60s"
+                }
+              }
+            ],
+            "notification_channels": []
+          }
+        },
+        {
+          "address": "google_logging_metric.pipeline_errors",
+          "mode": "managed",
+          "type": "google_logging_metric",
+          "name": "pipeline_errors",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "pipeline-errors",
+            "project": "bigdata-demo",
+            "filter": "resource.type=\"dataflow_step\" AND severity>=ERROR",
+            "metric_descriptor": [
+              {
+                "metric_kind": "DELTA",
+                "value_type": "INT64"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "google_compute_network.vpc",
+      "mode": "managed",
+      "type": "google_compute_network",
+      "name": "vpc",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "bigdata-vpc",
+          "project": "bigdata-demo",
+          "auto_create_subnetworks": false
+        }
+      }
+    },
+    {
+      "address": "google_compute_subnetwork.data_subnet",
+      "mode": "managed",
+      "type": "google_compute_subnetwork",
+      "name": "data_subnet",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "data-subnet",
+          "region": "us-central1",
+          "network": "bigdata-vpc",
+          "ip_cidr_range": "10.10.0.0/24",
+          "private_ip_google_access": true
+        }
+      }
+    },
+    {
+      "address": "google_storage_bucket.raw_ingest",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "raw_ingest",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "bigdata-demo-raw-ingest",
+          "location": "US",
+          "project": "bigdata-demo",
+          "storage_class": "STANDARD",
+          "versioning": [
+            {
+              "enabled": true
+            }
+          ],
+          "lifecycle_rule": [
+            {
+              "action": [
+                {
+                  "type": "SetStorageClass",
+                  "storage_class": "NEARLINE"
+                }
+              ],
+              "condition": [
+                {
+                  "age": 30
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_storage_bucket.dataflow_staging",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "dataflow_staging",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "bigdata-demo-dataflow-staging",
+          "location": "US-CENTRAL1",
+          "project": "bigdata-demo",
+          "storage_class": "STANDARD",
+          "uniform_bucket_level_access": true
+        }
+      }
+    },
+    {
+      "address": "google_storage_bucket.dataproc_staging",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "dataproc_staging",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "bigdata-demo-dataproc-staging",
+          "location": "US-CENTRAL1",
+          "project": "bigdata-demo",
+          "storage_class": "STANDARD"
+        }
+      }
+    },
+    {
+      "address": "google_storage_bucket.output",
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "output",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "bigdata-demo-output",
+          "location": "US",
+          "project": "bigdata-demo",
+          "storage_class": "STANDARD"
+        }
+      }
+    },
+    {
+      "address": "google_pubsub_topic.events",
+      "mode": "managed",
+      "type": "google_pubsub_topic",
+      "name": "events",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw-events",
+          "project": "bigdata-demo",
+          "message_retention_duration": "86600s",
+          "labels": {
+            "env": "prod",
+            "tier": "ingest"
+          }
+        }
+      }
+    },
+    {
+      "address": "google_pubsub_topic.dlq",
+      "mode": "managed",
+      "type": "google_pubsub_topic",
+      "name": "dlq",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "raw-events-dlq",
+          "project": "bigdata-demo"
+        }
+      }
+    },
+    {
+      "address": "google_pubsub_subscription.dataflow_sub",
+      "mode": "managed",
+      "type": "google_pubsub_subscription",
+      "name": "dataflow_sub",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "dataflow-events-sub",
+          "project": "bigdata-demo",
+          "topic": "raw-events",
+          "ack_deadline_seconds": 60,
+          "message_retention_duration": "600s",
+          "dead_letter_policy": [
+            {
+              "dead_letter_topic": "raw-events-dlq",
+              "max_delivery_attempts": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_dataflow_job.streaming_pipeline",
+      "mode": "managed",
+      "type": "google_dataflow_job",
+      "name": "streaming_pipeline",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "streaming-events-to-bq",
+          "project": "bigdata-demo",
+          "region": "us-central1",
+          "zone": "us-central1-a",
+          "template_gcs_path": "gs://dataflow-templates/latest/PubSub_to_BigQuery",
+          "temp_gcs_location": "gs://bigdata-demo-dataflow-staging/tmp",
+          "machine_type": "n1-standard-4",
+          "max_workers": 10,
+          "num_workers": 2,
+          "parameters": {
+            "inputTopic": "projects/bigdata-demo/topics/raw-events",
+            "outputTableSpec": "bigdata-demo:analytics.events",
+            "outputDeadletterTable": "bigdata-demo:analytics.events_errors"
+          },
+          "labels": {
+            "pipeline": "streaming",
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "google_bigquery_dataset.analytics",
+      "mode": "managed",
+      "type": "google_bigquery_dataset",
+      "name": "analytics",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "dataset_id": "analytics",
+          "project": "bigdata-demo",
+          "location": "US",
+          "friendly_name": "Analytics Warehouse",
+          "description": "Main analytics dataset for processed events",
+          "default_table_expiration_ms": null,
+          "labels": {
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "google_bigquery_table.events",
+      "mode": "managed",
+      "type": "google_bigquery_table",
+      "name": "events",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "dataset_id": "analytics",
+          "project": "bigdata-demo",
+          "table_id": "events",
+          "friendly_name": "Raw Events",
+          "clustering": [
+            "event_type",
+            "user_id"
+          ],
+          "time_partitioning": [
+            {
+              "type": "DAY",
+              "field": "event_timestamp"
+            }
+          ],
+          "schema": "[{\"name\": \"event_id\", \"type\": \"STRING\", \"mode\": \"REQUIRED\"}, {\"name\": \"event_type\", \"type\": \"STRING\", \"mode\": \"REQUIRED\"}, {\"name\": \"user_id\", \"type\": \"STRING\", \"mode\": \"NULLABLE\"}, {\"name\": \"payload\", \"type\": \"JSON\", \"mode\": \"NULLABLE\"}, {\"name\": \"event_timestamp\", \"type\": \"TIMESTAMP\", \"mode\": \"REQUIRED\"}]"
+        }
+      }
+    },
+    {
+      "address": "google_bigquery_table.events_daily_agg",
+      "mode": "managed",
+      "type": "google_bigquery_table",
+      "name": "events_daily_agg",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "dataset_id": "analytics",
+          "project": "bigdata-demo",
+          "table_id": "events_daily_agg",
+          "friendly_name": "Daily Aggregations",
+          "time_partitioning": [
+            {
+              "type": "DAY"
+            }
+          ],
+          "view": [
+            {
+              "query": "SELECT DATE(event_timestamp) as date, event_type, COUNT(*) as cnt FROM `bigdata-demo.analytics.events` GROUP BY 1,2",
+              "use_legacy_sql": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_bigquery_dataset.staging",
+      "mode": "managed",
+      "type": "google_bigquery_dataset",
+      "name": "staging",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "dataset_id": "staging",
+          "project": "bigdata-demo",
+          "location": "US",
+          "default_table_expiration_ms": 604800000
+        }
+      }
+    },
+    {
+      "address": "google_dataproc_cluster.batch_cluster",
+      "mode": "managed",
+      "type": "google_dataproc_cluster",
+      "name": "batch_cluster",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "batch-spark-cluster",
+          "region": "us-central1",
+          "project": "bigdata-demo",
+          "cluster_config": [
+            {
+              "staging_bucket": "bigdata-demo-dataproc-staging",
+              "master_config": [
+                {
+                  "num_instances": 1,
+                  "machine_type": "n1-standard-4",
+                  "disk_config": [
+                    {
+                      "boot_disk_size_gb": 100
+                    }
+                  ]
+                }
+              ],
+              "worker_config": [
+                {
+                  "num_instances": 4,
+                  "machine_type": "n1-standard-4",
+                  "disk_config": [
+                    {
+                      "boot_disk_size_gb": 100
+                    }
+                  ]
+                }
+              ],
+              "preemptible_worker_config": [
+                {
+                  "num_instances": 2
+                }
+              ],
+              "software_config": [
+                {
+                  "image_version": "2.1-debian11",
+                  "optional_components": [
+                    "JUPYTER",
+                    "ZEPPELIN"
+                  ]
+                }
+              ],
+              "gce_cluster_config": [
+                {
+                  "subnetwork": "data-subnet",
+                  "internal_ip_only": true,
+                  "tags": [
+                    "dataproc"
+                  ]
+                }
+              ]
+            }
+          ],
+          "labels": {
+            "purpose": "batch-etl",
+            "env": "prod"
+          }
+        }
+      }
+    },
+    {
+      "address": "google_cloud_scheduler_job.nightly_batch",
+      "mode": "managed",
+      "type": "google_cloud_scheduler_job",
+      "name": "nightly_batch",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "nightly-spark-etl",
+          "project": "bigdata-demo",
+          "region": "us-central1",
+          "schedule": "0 2 * * *",
+          "time_zone": "America/New_York",
+          "description": "Trigger nightly Spark ETL",
+          "http_target": [
+            {
+              "uri": "https://dataproc.googleapis.com/v1/projects/bigdata-demo/regions/us-central1/jobs:submit",
+              "http_method": "POST"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_service_account.dataflow_sa",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "dataflow_sa",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "account_id": "dataflow-worker",
+          "project": "bigdata-demo",
+          "display_name": "Dataflow Worker SA"
+        }
+      }
+    },
+    {
+      "address": "google_service_account.dataproc_sa",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "dataproc_sa",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "account_id": "dataproc-worker",
+          "project": "bigdata-demo",
+          "display_name": "Dataproc Worker SA"
+        }
+      }
+    },
+    {
+      "address": "google_monitoring_alert_policy.pipeline_lag",
+      "mode": "managed",
+      "type": "google_monitoring_alert_policy",
+      "name": "pipeline_lag",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "display_name": "Dataflow Pipeline Lag Alert",
+          "project": "bigdata-demo",
+          "combiner": "OR",
+          "conditions": [
+            {
+              "display_name": "Pub/Sub oldest message age",
+              "condition_threshold": {
+                "filter": "resource.type=\"pubsub_subscription\" AND metric.type=\"pubsub.googleapis.com/subscription/oldest_unacked_message_age\"",
+                "comparison": "COMPARISON_GT",
+                "threshold_value": 300,
+                "duration": "60s"
+              }
+            }
+          ],
+          "notification_channels": []
+        }
+      }
+    },
+    {
+      "address": "google_logging_metric.pipeline_errors",
+      "mode": "managed",
+      "type": "google_logging_metric",
+      "name": "pipeline_errors",
+      "provider_name": "registry.terraform.io/hashicorp/google",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "pipeline-errors",
+          "project": "bigdata-demo",
+          "filter": "resource.type=\"dataflow_step\" AND severity>=ERROR",
+          "metric_descriptor": [
+            {
+              "metric_kind": "DELTA",
+              "value_type": "INT64"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

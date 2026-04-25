@@ -1,0 +1,657 @@
+{
+  "_readme": "GCP Production GKE Platform: VPC-native cluster with Autopilot mode, Workload Identity, Cloud Armor (WAF), Cloud CDN, Artifact Registry, Cloud SQL (Postgres HA), Memorystore (Redis), Secret Manager, Cloud Monitoring + Logging. Multi-zone production-grade Kubernetes setup.",
+  "format_version": "1.0",
+  "terraform_version": "1.6.6",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_compute_network.gke_vpc",
+          "mode": "managed",
+          "type": "google_compute_network",
+          "name": "gke_vpc",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-prod-vpc",
+            "project": "gke-demo",
+            "auto_create_subnetworks": false
+          }
+        },
+        {
+          "address": "google_compute_subnetwork.nodes",
+          "mode": "managed",
+          "type": "google_compute_subnetwork",
+          "name": "nodes",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-nodes",
+            "project": "gke-demo",
+            "region": "us-central1",
+            "network": "gke-prod-vpc",
+            "ip_cidr_range": "10.0.0.0/20",
+            "secondary_ip_range": [
+              {
+                "range_name": "pods",
+                "ip_cidr_range": "10.48.0.0/14"
+              },
+              {
+                "range_name": "services",
+                "ip_cidr_range": "10.52.0.0/20"
+              }
+            ],
+            "private_ip_google_access": true
+          },
+          "depends_on": [
+            "google_compute_network.gke_vpc"
+          ]
+        },
+        {
+          "address": "google_container_cluster.primary",
+          "mode": "managed",
+          "type": "google_container_cluster",
+          "name": "primary",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-prod-cluster",
+            "project": "gke-demo",
+            "location": "us-central1",
+            "enable_autopilot": true,
+            "network": "gke-prod-vpc",
+            "subnetwork": "gke-nodes",
+            "ip_allocation_policy": [
+              {
+                "cluster_secondary_range_name": "pods",
+                "services_secondary_range_name": "services"
+              }
+            ],
+            "workload_identity_config": [
+              {
+                "workload_pool": "gke-demo.svc.id.goog"
+              }
+            ],
+            "release_channel": [
+              {
+                "channel": "REGULAR"
+              }
+            ],
+            "maintenance_policy": [
+              {
+                "recurring_window": [
+                  {
+                    "start_time": "2024-01-01T09:00:00Z",
+                    "end_time": "2024-01-01T17:00:00Z",
+                    "recurrence": "FREQ=WEEKLY;BYDAY=SA,SU"
+                  }
+                ]
+              }
+            ]
+          },
+          "depends_on": [
+            "google_compute_subnetwork.nodes"
+          ]
+        },
+        {
+          "address": "google_artifact_registry_repository.images",
+          "mode": "managed",
+          "type": "google_artifact_registry_repository",
+          "name": "images",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "repository_id": "app-images",
+            "project": "gke-demo",
+            "location": "us-central1",
+            "format": "DOCKER",
+            "description": "Application container images"
+          }
+        },
+        {
+          "address": "google_sql_database_instance.postgres",
+          "mode": "managed",
+          "type": "google_sql_database_instance",
+          "name": "postgres",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-demo-postgres",
+            "project": "gke-demo",
+            "region": "us-central1",
+            "database_version": "POSTGRES_15",
+            "settings": [
+              {
+                "tier": "db-custom-4-16384",
+                "availability_type": "REGIONAL",
+                "backup_configuration": [
+                  {
+                    "enabled": true,
+                    "point_in_time_recovery_enabled": true
+                  }
+                ],
+                "ip_configuration": [
+                  {
+                    "ipv4_enabled": false,
+                    "private_network": "gke-prod-vpc"
+                  }
+                ],
+                "disk_size": 200,
+                "disk_autoresize": true
+              }
+            ]
+          },
+          "depends_on": [
+            "google_compute_network.gke_vpc"
+          ]
+        },
+        {
+          "address": "google_redis_instance.cache",
+          "mode": "managed",
+          "type": "google_redis_instance",
+          "name": "cache",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-demo-redis",
+            "project": "gke-demo",
+            "region": "us-central1",
+            "tier": "STANDARD_HA",
+            "memory_size_gb": 8,
+            "redis_version": "REDIS_7_0",
+            "auth_enabled": true,
+            "transit_encryption_mode": "SERVER_AUTHENTICATION",
+            "replica_count": 1,
+            "read_replicas_mode": "READ_REPLICAS_ENABLED"
+          }
+        },
+        {
+          "address": "google_secret_manager_secret.db_password",
+          "mode": "managed",
+          "type": "google_secret_manager_secret",
+          "name": "db_password",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "secret_id": "postgres-password",
+            "project": "gke-demo",
+            "replication": [
+              {
+                "auto": {}
+              }
+            ]
+          }
+        },
+        {
+          "address": "google_compute_security_policy.cloud_armor",
+          "mode": "managed",
+          "type": "google_compute_security_policy",
+          "name": "cloud_armor",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "gke-waf-policy",
+            "project": "gke-demo",
+            "description": "Cloud Armor WAF for GKE ingress",
+            "rule": [
+              {
+                "action": "deny(403)",
+                "priority": 1000,
+                "match": [
+                  {
+                    "expr": [
+                      {
+                        "expression": "evaluatePreconfiguredExpr('xss-stable')"
+                      }
+                    ]
+                  }
+                ],
+                "description": "Block XSS"
+              },
+              {
+                "action": "deny(403)",
+                "priority": 1001,
+                "match": [
+                  {
+                    "expr": [
+                      {
+                        "expression": "evaluatePreconfiguredExpr('sqli-stable')"
+                      }
+                    ]
+                  }
+                ],
+                "description": "Block SQLi"
+              },
+              {
+                "action": "allow",
+                "priority": 2147483647,
+                "match": [
+                  {
+                    "versioned_expr": "SRC_IPS_V1",
+                    "config": [
+                      {
+                        "src_ip_ranges": [
+                          "*"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "description": "Default allow"
+              }
+            ]
+          }
+        },
+        {
+          "address": "google_service_account.gke_sa",
+          "mode": "managed",
+          "type": "google_service_account",
+          "name": "gke_sa",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "account_id": "gke-workload-sa",
+            "project": "gke-demo",
+            "display_name": "GKE Workload Service Account"
+          }
+        },
+        {
+          "address": "google_monitoring_notification_channel.pagerduty",
+          "mode": "managed",
+          "type": "google_monitoring_notification_channel",
+          "name": "pagerduty",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "display_name": "PagerDuty On-Call",
+            "type": "pagerduty",
+            "project": "gke-demo",
+            "labels": {
+              "service_key": "PLACEHOLDER"
+            }
+          }
+        },
+        {
+          "address": "google_monitoring_alert_policy.pod_crash",
+          "mode": "managed",
+          "type": "google_monitoring_alert_policy",
+          "name": "pod_crash",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "display_name": "Pod CrashLoopBackOff Alert",
+            "project": "gke-demo",
+            "combiner": "OR",
+            "conditions": [
+              {
+                "display_name": "Container restart count",
+                "condition_threshold": {
+                  "filter": "resource.type=\"k8s_container\" AND metric.type=\"kubernetes.io/container/restart_count\"",
+                  "comparison": "COMPARISON_GT",
+                  "threshold_value": 5,
+                  "duration": "120s",
+                  "aggregations": [
+                    {
+                      "alignment_period": "60s",
+                      "per_series_aligner": "ALIGN_RATE"
+                    }
+                  ]
+                }
+              }
+            ],
+            "notification_channels": [
+              "google_monitoring_notification_channel.pagerduty"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "google_compute_network.gke_vpc",
+      "mode": "managed",
+      "type": "google_compute_network",
+      "name": "gke_vpc",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-prod-vpc",
+          "project": "gke-demo",
+          "auto_create_subnetworks": false
+        }
+      }
+    },
+    {
+      "address": "google_compute_subnetwork.nodes",
+      "mode": "managed",
+      "type": "google_compute_subnetwork",
+      "name": "nodes",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-nodes",
+          "project": "gke-demo",
+          "region": "us-central1",
+          "network": "gke-prod-vpc",
+          "ip_cidr_range": "10.0.0.0/20",
+          "secondary_ip_range": [
+            {
+              "range_name": "pods",
+              "ip_cidr_range": "10.48.0.0/14"
+            },
+            {
+              "range_name": "services",
+              "ip_cidr_range": "10.52.0.0/20"
+            }
+          ],
+          "private_ip_google_access": true
+        }
+      }
+    },
+    {
+      "address": "google_container_cluster.primary",
+      "mode": "managed",
+      "type": "google_container_cluster",
+      "name": "primary",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-prod-cluster",
+          "project": "gke-demo",
+          "location": "us-central1",
+          "enable_autopilot": true,
+          "network": "gke-prod-vpc",
+          "subnetwork": "gke-nodes",
+          "ip_allocation_policy": [
+            {
+              "cluster_secondary_range_name": "pods",
+              "services_secondary_range_name": "services"
+            }
+          ],
+          "workload_identity_config": [
+            {
+              "workload_pool": "gke-demo.svc.id.goog"
+            }
+          ],
+          "release_channel": [
+            {
+              "channel": "REGULAR"
+            }
+          ],
+          "maintenance_policy": [
+            {
+              "recurring_window": [
+                {
+                  "start_time": "2024-01-01T09:00:00Z",
+                  "end_time": "2024-01-01T17:00:00Z",
+                  "recurrence": "FREQ=WEEKLY;BYDAY=SA,SU"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_artifact_registry_repository.images",
+      "mode": "managed",
+      "type": "google_artifact_registry_repository",
+      "name": "images",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "repository_id": "app-images",
+          "project": "gke-demo",
+          "location": "us-central1",
+          "format": "DOCKER",
+          "description": "Application container images"
+        }
+      }
+    },
+    {
+      "address": "google_sql_database_instance.postgres",
+      "mode": "managed",
+      "type": "google_sql_database_instance",
+      "name": "postgres",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-demo-postgres",
+          "project": "gke-demo",
+          "region": "us-central1",
+          "database_version": "POSTGRES_15",
+          "settings": [
+            {
+              "tier": "db-custom-4-16384",
+              "availability_type": "REGIONAL",
+              "backup_configuration": [
+                {
+                  "enabled": true,
+                  "point_in_time_recovery_enabled": true
+                }
+              ],
+              "ip_configuration": [
+                {
+                  "ipv4_enabled": false,
+                  "private_network": "gke-prod-vpc"
+                }
+              ],
+              "disk_size": 200,
+              "disk_autoresize": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_redis_instance.cache",
+      "mode": "managed",
+      "type": "google_redis_instance",
+      "name": "cache",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-demo-redis",
+          "project": "gke-demo",
+          "region": "us-central1",
+          "tier": "STANDARD_HA",
+          "memory_size_gb": 8,
+          "redis_version": "REDIS_7_0",
+          "auth_enabled": true,
+          "transit_encryption_mode": "SERVER_AUTHENTICATION",
+          "replica_count": 1,
+          "read_replicas_mode": "READ_REPLICAS_ENABLED"
+        }
+      }
+    },
+    {
+      "address": "google_secret_manager_secret.db_password",
+      "mode": "managed",
+      "type": "google_secret_manager_secret",
+      "name": "db_password",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "secret_id": "postgres-password",
+          "project": "gke-demo",
+          "replication": [
+            {
+              "auto": {}
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_compute_security_policy.cloud_armor",
+      "mode": "managed",
+      "type": "google_compute_security_policy",
+      "name": "cloud_armor",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "name": "gke-waf-policy",
+          "project": "gke-demo",
+          "description": "Cloud Armor WAF for GKE ingress",
+          "rule": [
+            {
+              "action": "deny(403)",
+              "priority": 1000,
+              "match": [
+                {
+                  "expr": [
+                    {
+                      "expression": "evaluatePreconfiguredExpr('xss-stable')"
+                    }
+                  ]
+                }
+              ],
+              "description": "Block XSS"
+            },
+            {
+              "action": "deny(403)",
+              "priority": 1001,
+              "match": [
+                {
+                  "expr": [
+                    {
+                      "expression": "evaluatePreconfiguredExpr('sqli-stable')"
+                    }
+                  ]
+                }
+              ],
+              "description": "Block SQLi"
+            },
+            {
+              "action": "allow",
+              "priority": 2147483647,
+              "match": [
+                {
+                  "versioned_expr": "SRC_IPS_V1",
+                  "config": [
+                    {
+                      "src_ip_ranges": [
+                        "*"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "description": "Default allow"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "address": "google_service_account.gke_sa",
+      "mode": "managed",
+      "type": "google_service_account",
+      "name": "gke_sa",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "account_id": "gke-workload-sa",
+          "project": "gke-demo",
+          "display_name": "GKE Workload Service Account"
+        }
+      }
+    },
+    {
+      "address": "google_monitoring_notification_channel.pagerduty",
+      "mode": "managed",
+      "type": "google_monitoring_notification_channel",
+      "name": "pagerduty",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "display_name": "PagerDuty On-Call",
+          "type": "pagerduty",
+          "project": "gke-demo",
+          "labels": {
+            "service_key": "PLACEHOLDER"
+          }
+        }
+      }
+    },
+    {
+      "address": "google_monitoring_alert_policy.pod_crash",
+      "mode": "managed",
+      "type": "google_monitoring_alert_policy",
+      "name": "pod_crash",
+      "provider_name": "registry.terraform.io/hashicorp/azurerm",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "display_name": "Pod CrashLoopBackOff Alert",
+          "project": "gke-demo",
+          "combiner": "OR",
+          "conditions": [
+            {
+              "display_name": "Container restart count",
+              "condition_threshold": {
+                "filter": "resource.type=\"k8s_container\" AND metric.type=\"kubernetes.io/container/restart_count\"",
+                "comparison": "COMPARISON_GT",
+                "threshold_value": 5,
+                "duration": "120s",
+                "aggregations": [
+                  {
+                    "alignment_period": "60s",
+                    "per_series_aligner": "ALIGN_RATE"
+                  }
+                ]
+              }
+            }
+          ],
+          "notification_channels": [
+            "google_monitoring_notification_channel.pagerduty"
+          ]
+        }
+      }
+    }
+  ]
+}
