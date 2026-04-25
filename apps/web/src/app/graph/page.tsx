@@ -203,7 +203,7 @@ function AttributesPanel({ attributes }: { attributes: Readonly<Record<string, u
           type="text"
           placeholder="Filter attributes…"
           value={query}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery((e.target as HTMLInputElement).value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.currentTarget.value)}
           spellCheck={false}
         />
         {query && (
