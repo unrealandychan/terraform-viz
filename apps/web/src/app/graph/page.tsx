@@ -1446,7 +1446,7 @@ export default function GraphPage() {
               onNodeSelect={handleNodeSelect}
             />
           ) : viewMode === "2d" ? (
-            <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} />
+            <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} usageVersion={usageVersion} />
           ) : (
             <CompareView model={filteredModel ?? model} onNodeSelect={handleNodeSelect} />
           )}
