@@ -1,3 +1,6 @@
+// NOTE: Direct localStorage functions below are kept for applyUsageOverrides helper only.
+// Use useUsageStore (Zustand) for all state management.
+
 // Usage overrides: stored per nodeId in localStorage
 // Does NOT mutate the original plan
 

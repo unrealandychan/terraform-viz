@@ -12,7 +12,7 @@ import { useEffect, useRef, useCallback, memo } from "react";
 import * as d3 from "d3";
 import { ChangeAction, CloudProvider, ResourceLayer, type GraphModel, type GraphNode } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@/lib/pricing-estimates";
-import { loadUsageOverrides, applyUsageOverrides } from "@/lib/usage-store";
+import { applyUsageOverrides } from "@/lib/usage-store";
 import { useTheme } from "../layout/ThemeProvider";
 
 // ── Layer ordering (top → bottom in diagram) ───────────────────────────────
@@ -141,10 +141,10 @@ function buildLayout(
 interface TwoDGraphProps {
   model: GraphModel;
   onNodeSelect: (node: GraphNode) => void;
-  usageVersion?: number;
+  usageOverrides?: Record<string, Record<string, number>>;
 }
 
-function _TwoDGraph({ model, onNodeSelect, usageVersion }: TwoDGraphProps) {
+function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
   const { theme } = useTheme();
   const svgRef = useRef<SVGSVGElement>(null);
   const stableSelect = useCallback(onNodeSelect, [onNodeSelect]);
@@ -374,8 +374,7 @@ function _TwoDGraph({ model, onNodeSelect, usageVersion }: TwoDGraphProps) {
       }
 
       // Estimated monthly cost
-      const allOverrides = loadUsageOverrides();
-      const nodeOverrides = allOverrides[graphNode.id];
+      const nodeOverrides = usageOverrides?.[graphNode.id];
       const effectiveAttrs = applyUsageOverrides(
         (graphNode.attributes ?? {}) as Record<string, unknown>,
         nodeOverrides
@@ -497,7 +496,7 @@ function _TwoDGraph({ model, onNodeSelect, usageVersion }: TwoDGraphProps) {
   }, [stableSelect, theme]);
 
   // Redraw on model change
-  useEffect(() => { draw(); }, [draw, model, usageVersion]);
+  useEffect(() => { draw(); }, [draw, model, usageOverrides]);
 
   // Redraw on container resize (debounced)
   useEffect(() => {

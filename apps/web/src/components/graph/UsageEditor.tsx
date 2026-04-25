@@ -1,28 +1,23 @@
 "use client";
-import { useState, useEffect } from "react";
 import { getUsageParams, isUsageBased } from "@/lib/usage-params";
-import { loadUsageOverrides, saveUsageOverride, resetUsageOverride } from "@/lib/usage-store";
+import { useUsageStore } from "@/stores/useUsageStore";
 
 interface UsageEditorProps {
   nodeId: string;
   resourceType: string;
   attributes: Record<string, unknown>;
-  onUpdate: () => void; // called when any override changes so parent can re-render
+  onUpdate?: () => void; // optional — store handles reactivity
 }
 
 export function UsageEditor({ nodeId, resourceType, attributes, onUpdate }: UsageEditorProps) {
   const params = getUsageParams(resourceType);
-  const [overrides, setOverrides] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    const all = loadUsageOverrides();
-    setOverrides(all[nodeId] ?? {});
-  }, [nodeId]);
+  const overrides = useUsageStore((s) => s.overrides[nodeId] ?? {});
+  const setOverride = useUsageStore((s) => s.setOverride);
+  const resetNode = useUsageStore((s) => s.resetNode);
 
   if (!isUsageBased(resourceType)) return null;
 
   function getValue(key: string, defaultValue: number): number {
-    // Priority: override → attribute value → default
     if (overrides[key] !== undefined) return overrides[key]!;
     const attrVal = attributes[key];
     if (attrVal !== undefined && !isNaN(Number(attrVal))) return Number(attrVal);
@@ -30,16 +25,13 @@ export function UsageEditor({ nodeId, resourceType, attributes, onUpdate }: Usag
   }
 
   function handleChange(key: string, value: number) {
-    saveUsageOverride(nodeId, key, value);
-    const newOverrides = { ...overrides, [key]: value };
-    setOverrides(newOverrides);
-    onUpdate();
+    setOverride(nodeId, key, value);
+    onUpdate?.();
   }
 
   function handleReset() {
-    resetUsageOverride(nodeId);
-    setOverrides({});
-    onUpdate();
+    resetNode(nodeId);
+    onUpdate?.();
   }
 
   const hasOverrides = Object.keys(overrides).length > 0;

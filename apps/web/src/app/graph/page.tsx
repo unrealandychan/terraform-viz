@@ -10,7 +10,9 @@ import { loadPlan, savePlan, saveToHistory, loadHistory, type PlanHistoryEntry }
 import { estimateCost, costByProvider } from "@/lib/pricing-estimates";
 import { UsageEditor } from "@/components/graph/UsageEditor";
 import { isUsageBased } from "@/lib/usage-params";
-import { loadUsageOverrides, resetAllUsageOverrides, applyUsageOverrides } from "@/lib/usage-store";
+import { applyUsageOverrides } from "@/lib/usage-store";
+import { useUsageStore } from "@/stores/useUsageStore";
+import { useUIStore } from "@/stores/useUIStore";
 import { saveBaseline, loadBaseline, clearBaseline, type BaselineEntry } from "@/lib/baseline-store";
 import { diffPlans, type PlanDiff, type DiffKind } from "@/lib/plan-diff";
 import { encodePlan, decodePlan, PLAN_URL_PARAM } from "@/lib/plan-url";
@@ -45,9 +47,8 @@ const LAYER_LABELS: Record<ResourceLayer, string> = {
   [ResourceLayer.UNKNOWN]: "unknown",
 };
 
-const NodeDetail = memo(function NodeDetail({ node, onUsageUpdate }: { node: GraphNode; onUsageUpdate: () => void }) {
-  const allOverrides = loadUsageOverrides();
-  const nodeOverrides = allOverrides[node.id];
+const NodeDetail = memo(function NodeDetail({ node, onUsageUpdate }: { node: GraphNode; onUsageUpdate?: () => void }) {
+  const nodeOverrides = useUsageStore((s) => s.overrides[node.id]);
   const effectiveNode = nodeOverrides
     ? { ...node, attributes: applyUsageOverrides(node.attributes as Record<string, unknown>, nodeOverrides) }
     : node;
@@ -103,7 +104,7 @@ const NodeDetail = memo(function NodeDetail({ node, onUsageUpdate }: { node: Gra
           nodeId={node.id}
           resourceType={node.type}
           attributes={node.attributes as Record<string, unknown>}
-          onUpdate={onUsageUpdate}
+          onUpdate={onUsageUpdate ?? (() => {})}
         />
       )}
       <AttributesPanel attributes={node.attributes} />
@@ -516,14 +517,14 @@ const PROVIDER_DISPLAY: Record<string, { label: string; color: string }> = {
   UNKNOWN: { label: "Unknown",             color: "#6b7280" },
 };
 
-const CostBreakdown = memo(function CostBreakdown({ model, usageVersion, onResetAll }: { model: GraphModel; usageVersion: number; onResetAll: () => void }) {
+const CostBreakdown = memo(function CostBreakdown({ model, onResetAll }: { model: GraphModel; onResetAll?: () => void }) {
+  const overrides = useUsageStore((s) => s.overrides);
+  const resetAll = useUsageStore((s) => s.resetAll);
+
   const { monthly, byProvider, rows, free, unknown } = useMemo(() => {
     // Single pass over nodes — compute everything together
-    // usageVersion is referenced to bust the cache when overrides change
-    void usageVersion;
-    const allOverrides = loadUsageOverrides();
     const costs = model.nodes.map((n) => {
-      const nodeOverrides = allOverrides[n.id];
+      const nodeOverrides = overrides[n.id];
       const effectiveNode = nodeOverrides
         ? { ...n, attributes: applyUsageOverrides(n.attributes as Record<string, unknown>, nodeOverrides) }
         : n;
@@ -537,30 +538,25 @@ const CostBreakdown = memo(function CostBreakdown({ model, usageVersion, onReset
     const free = costs.filter((r) => r.monthly === 0).length;
     const unknown = costs.filter((r) => r.monthly === null).length;
     return { monthly, byProvider, rows, free, unknown };
-  }, [model]);
+  }, [model, overrides]);
+
+  const count = Object.values(overrides).filter((o) => Object.keys(o).length > 0).length;
 
   return (
     <aside className="cost-breakdown">
-      {(() => {
-        const allOverrides = loadUsageOverrides();
-        const count = Object.keys(allOverrides).filter(id =>
-          Object.keys(allOverrides[id] ?? {}).length > 0
-        ).length;
-        if (count === 0) return null;
-        return (
-          <div className="cost-customized-badge">
-            <span className="cost-customized-badge__text">
-              ✦ {count} resource{count > 1 ? "s" : ""} with custom usage
-            </span>
-            <button
-              className="cost-customized-badge__reset"
-              onClick={onResetAll}
-            >
-              Reset all
-            </button>
-          </div>
-        );
-      })()}
+      {count > 0 && (
+        <div className="cost-customized-badge">
+          <span className="cost-customized-badge__text">
+            ✦ {count} resource{count > 1 ? "s" : ""} with custom usage
+          </span>
+          <button
+            className="cost-customized-badge__reset"
+            onClick={() => { resetAll(); onResetAll?.(); }}
+          >
+            Reset all
+          </button>
+        </div>
+      )}
       <div className="cost-breakdown__header">
         <span className="cost-breakdown__total">
           {monthly === 0 ? "$0" : `~$${monthly.toFixed(0)}`}
@@ -957,12 +953,16 @@ const GraphFilterBar = memo(function GraphFilterBar({
 
 export default function GraphPage() {
   const [model, setModel] = useState<GraphModel | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("2d");
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const viewMode = useUIStore((s) => s.viewMode);
+  const setViewMode = useUIStore((s) => s.setViewMode);
+  const selectedNode = useUIStore((s) => s.selectedNode);
+  const setSelectedNode = useUIStore((s) => s.setSelectedNode);
+  const chatOpen = useUIStore((s) => s.isChatOpen);
+  const setChatOpen = useUIStore((s) => s.setChatOpen);
+  const activeTab = useUIStore((s) => s.activeTab);
+  const setActiveTab = useUIStore((s) => s.setActiveTab);
+  const usageOverrides = useUsageStore((s) => s.overrides);
   const [detailW, setDetailW] = useState(DEFAULT_DETAIL);
-  const [chatOpen, setChatOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<PanelTab>("cost");
-  const [usageVersion, setUsageVersion] = useState(0);
   const [filter, setFilter] = useState<GraphFilter>({
     actions: new Set(),
     layers: new Set(),
@@ -1082,7 +1082,7 @@ export default function GraphPage() {
     clearBaseline();
     startBaselineTransition(() => {
       setBaseline(null);
-      setViewMode((m) => (m === "diff" ? "2d" : m));
+      if (viewMode === "diff") setViewMode("2d");
     });
   }, [startBaselineTransition]);
 
@@ -1151,9 +1151,8 @@ export default function GraphPage() {
   }, []);
 
   const handleNodeSelect = useCallback((node: GraphNode) => {
-    setSelectedNode(node);
-    setActiveTab("detail");
-  }, []);
+    setSelectedNode(node); // useUIStore.setSelectedNode already sets activeTab to "detail"
+  }, [setSelectedNode]);
 
   if (model === null) {
     return (
@@ -1271,7 +1270,7 @@ export default function GraphPage() {
           {/* AI Chat — opens full chat page */}
           <button
             className={`btn ${chatOpen ? "btn--primary" : "btn--secondary"} graph-page__ai-btn`}
-            onClick={() => { setChatOpen((o) => !o); if (!chatOpen) setActiveTab("chat"); }}
+            onClick={() => { setChatOpen(!chatOpen); if (!chatOpen) setActiveTab("chat"); }}
             title="Toggle AI Chat"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1446,7 +1445,7 @@ export default function GraphPage() {
               onNodeSelect={handleNodeSelect}
             />
           ) : viewMode === "2d" ? (
-            <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} usageVersion={usageVersion} />
+            <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} usageOverrides={usageOverrides} />
           ) : (
             <CompareView model={filteredModel ?? model} onNodeSelect={handleNodeSelect} />
           )}
@@ -1501,12 +1500,10 @@ export default function GraphPage() {
               {activeTab === "cost" && (
                 <CostBreakdown
                   model={filteredModel ?? model}
-                  usageVersion={usageVersion}
-                  onResetAll={() => { resetAllUsageOverrides(); setUsageVersion(v => v + 1); }}
                 />
               )}
               {activeTab === "detail" && selectedNode !== null && (
-                <NodeDetail key={usageVersion} node={selectedNode} onUsageUpdate={() => setUsageVersion(v => v + 1)} />
+                <NodeDetail node={selectedNode} />
               )}
               {activeTab === "chat" && chatOpen && (
                 <ChatPanel
