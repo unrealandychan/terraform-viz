@@ -130,8 +130,8 @@ describe("estimateCost", () => {
       expect(estimateCost(makeNode("aws_apigatewayv2_api")).monthly).toBe(1.0);
     });
 
-    it("aws_api_gateway_rest_api costs $5.00", () => {
-      expect(estimateCost(makeNode("aws_api_gateway_rest_api")).monthly).toBe(5.0);
+    it("aws_api_gateway_rest_api costs $3.50 (1M calls default)", () => {
+      expect(estimateCost(makeNode("aws_api_gateway_rest_api")).monthly).toBe(3.5);
     });
 
     it("azurerm_public_ip costs $3.65", () => {

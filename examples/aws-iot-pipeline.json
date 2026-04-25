@@ -1,0 +1,226 @@
+{
+  "_readme": "Industrial IoT monitoring platform on AWS. Ingests telemetry from 10,000 devices via Kinesis streams. Lambda processes stream data in real-time, DynamoDB stores device state, Kinesis Firehose archives to S3, SNS sends alerts. Estimated $400-600/mo at stated usage.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_kinesis_stream.device_telemetry",
+          "mode": "managed", "type": "aws_kinesis_stream", "name": "device_telemetry",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "iot-device-telemetry",
+            "shard_count": 4,
+            "retention_period": 24,
+            "tags": { "component": "ingestion" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_function.stream_processor",
+          "mode": "managed", "type": "aws_lambda_function", "name": "stream_processor",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "iot-stream-processor",
+            "runtime": "python3.12",
+            "memory_size": 512,
+            "timeout": 60,
+            "_usage_requests_m": 30,
+            "_usage_avg_duration_ms": 50,
+            "tags": { "component": "processing" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_function.alerter",
+          "mode": "managed", "type": "aws_lambda_function", "name": "alerter",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "iot-alerter",
+            "runtime": "python3.12",
+            "memory_size": 256,
+            "timeout": 30,
+            "_usage_requests_m": 0.5,
+            "_usage_avg_duration_ms": 100,
+            "tags": { "component": "alerting" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_event_source_mapping.kinesis_trigger",
+          "mode": "managed", "type": "aws_lambda_event_source_mapping", "name": "kinesis_trigger",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "iot-stream-processor",
+            "starting_position": "LATEST",
+            "batch_size": 100
+          },
+          "depends_on": ["aws_lambda_function.stream_processor", "aws_kinesis_stream.device_telemetry"]
+        },
+        {
+          "address": "aws_dynamodb_table.device_state",
+          "mode": "managed", "type": "aws_dynamodb_table", "name": "device_state",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "iot-device-state",
+            "billing_mode": "PAY_PER_REQUEST",
+            "_usage_write_requests_m": 30,
+            "_usage_read_requests_m": 10,
+            "hash_key": "deviceId",
+            "attribute": [{ "name": "deviceId", "type": "S" }],
+            "tags": { "component": "state" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_kinesis_firehose_delivery_stream.archive",
+          "mode": "managed", "type": "aws_kinesis_firehose_delivery_stream", "name": "archive",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "iot-telemetry-archive",
+            "_usage_data_gb_per_month": 200,
+            "destination": "s3"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_s3_bucket.cold_storage",
+          "mode": "managed", "type": "aws_s3_bucket", "name": "cold_storage",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "iot-telemetry-cold-archive",
+            "_usage_storage_gb": 5000,
+            "_usage_put_requests_k": 100,
+            "_usage_get_requests_k": 50,
+            "tags": { "component": "archive" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_s3_bucket_lifecycle_configuration.cold_storage",
+          "mode": "managed", "type": "aws_s3_bucket_lifecycle_configuration", "name": "cold_storage",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "iot-telemetry-cold-archive"
+          },
+          "depends_on": ["aws_s3_bucket.cold_storage"]
+        },
+        {
+          "address": "aws_sns_topic.device_alerts",
+          "mode": "managed", "type": "aws_sns_topic", "name": "device_alerts",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "iot-device-alerts",
+            "_usage_publishes_m": 0.1,
+            "tags": { "component": "alerting" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_log_group.stream_processor",
+          "mode": "managed", "type": "aws_cloudwatch_log_group", "name": "stream_processor",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/aws/lambda/iot-stream-processor",
+            "retention_in_days": 7,
+            "_usage_ingest_gb_per_month": 20,
+            "_usage_store_gb": 30
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_log_group.alerter",
+          "mode": "managed", "type": "aws_cloudwatch_log_group", "name": "alerter",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/aws/lambda/iot-alerter",
+            "retention_in_days": 30,
+            "_usage_ingest_gb_per_month": 2,
+            "_usage_store_gb": 5
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_metric_alarm.processing_errors",
+          "mode": "managed", "type": "aws_cloudwatch_metric_alarm", "name": "processing_errors",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "alarm_name": "iot-processing-errors",
+            "metric_name": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": 60,
+            "evaluation_periods": 3,
+            "threshold": 10,
+            "comparison_operator": "GreaterThanThreshold"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_dashboard.iot_ops",
+          "mode": "managed", "type": "aws_cloudwatch_dashboard", "name": "iot_ops",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "dashboard_name": "IoT-Ops" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_iam_role.stream_processor_exec",
+          "mode": "managed", "type": "aws_iam_role", "name": "stream_processor_exec",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "iot-stream-processor-exec",
+            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_kms_key.telemetry_key",
+          "mode": "managed", "type": "aws_kms_key", "name": "telemetry_key",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "description": "IoT telemetry data encryption key" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_vpc.iot",
+          "mode": "managed", "type": "aws_vpc", "name": "iot",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": { "cidr_block": "10.0.0.0/16", "tags": { "Name": "iot-vpc" } },
+          "depends_on": []
+        },
+        {
+          "address": "aws_subnet.private_a",
+          "mode": "managed", "type": "aws_subnet", "name": "private_a",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": { "cidr_block": "10.0.1.0/24", "availability_zone": "us-east-1a" },
+          "depends_on": ["aws_vpc.iot"]
+        },
+        {
+          "address": "aws_nat_gateway.main",
+          "mode": "managed", "type": "aws_nat_gateway", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "connectivity_type": "public" },
+          "depends_on": []
+        }
+      ]
+    }
+  },
+  "resource_changes": []
+}

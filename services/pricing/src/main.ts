@@ -23,7 +23,15 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     };
     return P[String(a["instance_type"] ?? "")] ?? 36.50;
   },
-  aws_lambda_function: () => 5,
+  aws_lambda_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["memory_size"] ?? a["_usage_memory_mb"] ?? 256);
+    const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
+    const reqCost = Math.max(0, reqM - 1) * 0.20;
+    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000166667;
+    return Math.round((reqCost + computeCost) * 100) / 100;
+  },
   aws_eks_cluster: () => 73,
   aws_eks_node_group: (a) => 70.08 * Math.max(1, Number(a["desired_size"] ?? 2)),
   aws_autoscaling_group: (a) => 70.08 * Math.max(1, Number(a["desired_capacity"] ?? 2)),
@@ -56,9 +64,24 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     };
     return P[String(a["node_type"] ?? "")] ?? 55;
   },
-  aws_dynamodb_table: () => 25,
+  aws_dynamodb_table: (a) => {
+    const billing = String(a["billing_mode"] ?? "PAY_PER_REQUEST");
+    if (billing === "PROVISIONED") {
+      const wcu = Number(a["write_capacity"] ?? 5);
+      const rcu = Number(a["read_capacity"] ?? 5);
+      return Math.round((wcu * 0.47 + rcu * 0.09) * 100) / 100;
+    }
+    const writeM = Number(a["_usage_write_requests_m"] ?? 1);
+    const readM = Number(a["_usage_read_requests_m"] ?? 5);
+    return Math.round((writeM * 1.25 + readM * 0.25) * 100) / 100;
+  },
   // AWS Storage
-  aws_s3_bucket: () => 2.50,
+  aws_s3_bucket: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 50);
+    const putK = Number(a["_usage_put_requests_k"] ?? 100);
+    const getK = Number(a["_usage_get_requests_k"] ?? 1_000);
+    return Math.round((storageGb * 0.023 + putK * 0.005 + getK * 0.0004) * 100) / 100;
+  },
   aws_ebs_volume: (a) => {
     const sz = Math.max(1, Number(a["size"] ?? 20));
     const type = String(a["volume_type"] ?? "gp2");
@@ -100,11 +123,17 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_eip: () => 0,
   aws_vpc_endpoint: () => 0,
   // AWS API Gateway
-  aws_apigatewayv2_api: () => 1.00,
+  aws_apigatewayv2_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return Math.round(callsM * 1.00 * 100) / 100;
+  },
   aws_apigatewayv2_stage: () => 0,
   aws_apigatewayv2_integration: () => 0,
   aws_apigatewayv2_route: () => 0,
-  aws_api_gateway_rest_api: () => 5.00,
+  aws_api_gateway_rest_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return Math.round(callsM * 3.50 * 100) / 100;
+  },
   aws_api_gateway_stage: () => 0,
   aws_api_gateway_resource: () => 0,
   aws_api_gateway_method: () => 0,
@@ -112,7 +141,11 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_api_gateway_deployment: () => 0,
   aws_api_gateway_domain_name: () => 0,
   // AWS Observability
-  aws_cloudwatch_log_group: () => 2.50,
+  aws_cloudwatch_log_group: (a) => {
+    const ingestGb = Number(a["_usage_ingest_gb_per_month"] ?? 10);
+    const storeGb = Number(a["_usage_store_gb"] ?? 30);
+    return Math.round((ingestGb * 0.50 + storeGb * 0.03) * 100) / 100;
+  },
   aws_cloudwatch_metric_alarm: () => 0.10,
   aws_cloudwatch_dashboard: () => 3.00,
   aws_cloudwatch_log_metric_filter: () => 0,
@@ -162,7 +195,13 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_postgresql_flexible_server: () => 95,
   azurerm_mysql_server: () => 80,
   azurerm_redis_cache: () => 55,
-  azurerm_cosmosdb_account: () => 25,
+  azurerm_cosmosdb_account: (a) => {
+    const ruPerSec = Number(a["_usage_request_units_per_sec"] ?? 400);
+    const storageGb = Number(a["_usage_storage_gb"] ?? 10);
+    const ruCost = (ruPerSec / 100) * 6.00;
+    const storageCost = storageGb * 0.25;
+    return Math.round((ruCost + storageCost) * 100) / 100;
+  },
   // Azure Storage
   azurerm_storage_account: () => 20,
   azurerm_managed_disk: (a) => Math.max(1, Number(a["disk_size_gb"] ?? 128)) * 0.10,
@@ -193,7 +232,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_eventgrid_topic: () => 0.60,
   azurerm_eventgrid_event_subscription: () => 0.60,
   // Azure Data
-  azurerm_eventhub_namespace: () => 22,
+  azurerm_eventhub_namespace: (a) => {
+    const sku = String(a["sku"] ?? "Standard").toLowerCase();
+    const tu = Number(a["capacity"] ?? 1);
+    if (sku === "basic") return Math.round(tu * 10.77 * 100) / 100;
+    if (sku === "premium") return Math.round(tu * 710 * 100) / 100;
+    const gbIngested = Number(a["_usage_ingress_gb_per_month"] ?? 50);
+    return Math.round((tu * 21.50 + gbIngested * 0.028) * 100) / 100;
+  },
   azurerm_eventhub: () => 0,
   azurerm_databricks_workspace: () => 150,
   azurerm_data_factory: () => 10,
@@ -207,15 +253,37 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_container_cluster: () => 73,
   google_container_node_pool: (a) => 50 * Math.max(1, Number(a["initial_node_count"] ?? 2)),
   google_compute_instance: () => 50,
-  google_cloud_run_service: () => 5,
-  google_cloudfunctions_function: () => 5,
+  google_cloud_run_service: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const minInstances = Number(a["_usage_min_instances"] ?? 0);
+    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const idleCost = minInstances * 730 * 0.024;
+    return Math.round((reqCost + idleCost) * 100) / 100;
+  },
+  google_cloudfunctions_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["_usage_memory_mb"] ?? 256);
+    const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
+    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000100;
+    return Math.round((reqCost + computeCost) * 100) / 100;
+  },
   // GCP Database
   google_sql_database_instance: () => 100,
   google_spanner_instance: () => 300,
   google_redis_instance: () => 55,
   google_bigtable_instance: () => 200,
   // GCP Storage
-  google_storage_bucket: () => 2.50,
+  google_storage_bucket: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 50);
+    const classA = Number(a["_usage_class_a_ops_k"] ?? 100);
+    const classB = Number(a["_usage_class_b_ops_k"] ?? 1_000);
+    const storageClass = String(a["storage_class"] ?? "STANDARD").toUpperCase();
+    const gcpRates: Record<string, number> = { STANDARD: 0.020, NEARLINE: 0.010, COLDLINE: 0.004, ARCHIVE: 0.0012 };
+    const gcpRate = gcpRates[storageClass] ?? 0.020;
+    return Math.round((storageGb * gcpRate + classA * 0.005 + classB * 0.0004) * 100) / 100;
+  },
   google_compute_disk: (a) => Math.max(1, Number(a["size"] ?? 50)) * 0.04,
   google_filestore_instance: () => 200,
   // GCP Networking
@@ -243,15 +311,42 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_kms_key_ring: () => 0,
   google_kms_crypto_key: () => 6.00,
   // GCP Data
-  google_bigquery_dataset: () => 5,
-  google_bigquery_table: () => 5,
-  google_pubsub_topic: () => 0.40,
-  google_pubsub_subscription: () => 0.40,
-  google_dataflow_job: () => 100,
+  google_bigquery_dataset: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 0);
+    return Math.round(storageGb * 0.02 * 100) / 100;
+  },
+  google_bigquery_table: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 10);
+    const queriesTb = Number(a["_usage_queries_tb_per_month"] ?? 0.1);
+    return Math.round((storageGb * 0.02 + queriesTb * 5.00) * 100) / 100;
+  },
+  google_pubsub_topic: (a) => {
+    const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
+  },
+  google_pubsub_subscription: (a) => {
+    const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
+  },
+  google_dataflow_job: (a) => {
+    const numWorkers = Number(a["num_workers"] ?? 2);
+    const maxWorkers = Number(a["max_workers"] ?? numWorkers * 2);
+    const avgWorkers = (numWorkers + maxWorkers) / 2;
+    const hoursPerMonth = 730;
+    const vcpuCost = avgWorkers * hoursPerMonth * 0.056;
+    const memCost = avgWorkers * 4 * hoursPerMonth * 0.003375;
+    return Math.round((vcpuCost + memCost) * 100) / 100;
+  },
   google_composer_environment: () => 400,
   // GCP AI / Artifact Registry (Issue #6)
   google_artifact_registry_repository: () => 1,
-  google_cloud_run_v2_service: () => 5,
+  google_cloud_run_v2_service: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const minInstances = Number(a["_usage_min_instances"] ?? 0);
+    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const idleCost = minInstances * 730 * 0.024;
+    return Math.round((reqCost + idleCost) * 100) / 100;
+  },
   google_vertex_ai_endpoint: () => 150,
   google_notebooks_instance: () => 100,
 
@@ -271,26 +366,60 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_msk_cluster: (a) => Math.max(1, Number(a["number_of_broker_nodes"] ?? 3)) * 55,
   aws_msk_serverless_cluster: () => 60,
   aws_kinesis_stream: (a) => Math.max(1, Number(a["shard_count"] ?? 1)) * 10.95,
-  aws_kinesis_firehose_delivery_stream: () => 25,
+  aws_kinesis_firehose_delivery_stream: (a) => {
+    const gbPerMonth = Number(a["_usage_data_gb_per_month"] ?? 100);
+    return Math.round(gbPerMonth * 0.029 * 100) / 100;
+  },
   aws_kinesis_analytics_application: () => 110,
   aws_kinesisanalyticsv2_application: () => 110,
-  aws_glue_job: () => 50,
+  aws_glue_job: (a) => {
+    const workers = Number(a["number_of_workers"] ?? 2);
+    const hoursPerMonth = Number(a["_usage_hours_per_month"] ?? 20);
+    return Math.round(workers * hoursPerMonth * 0.44 * 100) / 100;
+  },
   aws_glue_catalog_database: () => 0,
   aws_glue_catalog_table: () => 0,
   aws_glue_crawler: () => 5,
   aws_emr_cluster: (a) => Math.max(1, Number((a["core_instance_group"] as Record<string,unknown>)?.["instance_count"] ?? 2)) * 70,
-  aws_athena_workgroup: () => 5,
+  aws_athena_workgroup: (a) => {
+    const scanTb = Number(a["_usage_scan_tb_per_month"] ?? 0.5);
+    return Math.round(scanTb * 5.00 * 100) / 100;
+  },
   aws_dax_cluster: (a) => Math.max(1, Number(a["replication_factor"] ?? 1)) * 100,
 
   // ── AWS: Messaging / Workflow ─────────────────────────────────────────────
-  aws_sqs_queue: () => 0.40,
+  aws_sqs_queue: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const fifo = String(a["name"] ?? "").endsWith(".fifo");
+    const rate = fifo ? 0.50 : 0.40;
+    return Math.round(Math.max(0, reqM - 1) * rate * 100) / 100;
+  },
   aws_sqs_queue_policy: () => 0,
-  aws_sns_topic: () => 0.50,
+  aws_sns_topic: (a) => {
+    const pubM = Number(a["_usage_publishes_m"] ?? 0.5);
+    return Math.round(Math.max(0, pubM - 1) * 0.50 * 100) / 100;
+  },
   aws_sns_topic_subscription: () => 0,
   aws_sns_topic_policy: () => 0,
   aws_mq_broker: (a) => String(a["engine_type"] ?? "ActiveMQ").toLowerCase().includes("rabbit") ? 60 : 80,
-  aws_sfn_state_machine: () => 1.00,
-  aws_step_functions_state_machine: () => 1.00,
+  aws_sfn_state_machine: (a) => {
+    const type = String(a["type"] ?? "STANDARD");
+    if (type === "EXPRESS") {
+      const reqM = Number(a["_usage_requests_m"] ?? 1);
+      return Math.round(reqM * 0.00001 * 1_000_000 * 100) / 100;
+    }
+    const transitions = Number(a["_usage_state_transitions_k"] ?? 1);
+    return Math.round(Math.max(0, transitions - 4_000) * 0.025 * 100) / 100;
+  },
+  aws_step_functions_state_machine: (a) => {
+    const type = String(a["type"] ?? "STANDARD");
+    if (type === "EXPRESS") {
+      const reqM = Number(a["_usage_requests_m"] ?? 1);
+      return Math.round(reqM * 0.00001 * 1_000_000 * 100) / 100;
+    }
+    const transitions = Number(a["_usage_state_transitions_k"] ?? 1);
+    return Math.round(Math.max(0, transitions - 4_000) * 0.025 * 100) / 100;
+  },
 
   // ── AWS: Security / Auth ─────────────────────────────────────────────────
   aws_wafv2_web_acl: () => 5.00,
@@ -351,10 +480,27 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_app_service: () => 0,
   azurerm_linux_web_app: () => 0,
   azurerm_windows_web_app: () => 0,
-  azurerm_function_app: () => 0,
-  azurerm_linux_function_app: () => 0,
-  azurerm_windows_function_app: () => 0,
-  azurerm_container_app: () => 15,
+  azurerm_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return Math.round(Math.max(0, execM - 1) * 0.20 * 100) / 100;
+  },
+  azurerm_linux_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return Math.round(Math.max(0, execM - 1) * 0.20 * 100) / 100;
+  },
+  azurerm_windows_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return Math.round(Math.max(0, execM - 1) * 0.20 * 100) / 100;
+  },
+  azurerm_container_app: (a) => {
+    const vcpu = Number(a["_usage_vcpu"] ?? 0.5);
+    const memGb = Number(a["_usage_memory_gb"] ?? 1);
+    const activeHrs = Number(a["_usage_active_hours_per_month"] ?? 200);
+    const minReplicas = Number(a["_usage_min_replicas"] ?? 0);
+    const activeCost = vcpu * activeHrs * 0.000024 * 3600 + memGb * activeHrs * 0.0000025 * 3600;
+    const idleCost = minReplicas * vcpu * 730 * 0.000024 * 3600;
+    return Math.round((activeCost + idleCost) * 100) / 100;
+  },
   azurerm_container_app_environment: () => 0,
 
   // ── Azure: Analytics / Data ───────────────────────────────────────────────
@@ -385,7 +531,10 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_logic_app_standard: () => 40,
   azurerm_signalr_service: (a) => String(a["sku"] ?? "Free_F1").toLowerCase().includes("free") ? 0 : 50,
   azurerm_cdn_profile: () => 0,
-  azurerm_cdn_endpoint: () => 8,
+  azurerm_cdn_endpoint: (a) => {
+    const gbOut = Number(a["_usage_egress_gb_per_month"] ?? 100);
+    return Math.round(gbOut * 0.0875 * 100) / 100;
+  },
   azurerm_frontdoor: () => 35,
   azurerm_frontdoor_firewall_policy: () => 0,
 
@@ -427,6 +576,143 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
 // ── Inline breakdown table ─────────────────────────────────────────────────────
 const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = {
   aws_sagemaker_endpoint: () => "ml.t3.medium × 730 hr est.",
+  aws_lambda_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["memory_size"] ?? a["_usage_memory_mb"] ?? 256);
+    const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
+    return `${reqM}M req/mo × ${memMb}MB × ${durMs}ms avg (default assumptions)`;
+  },
+  aws_s3_bucket: (a) => {
+    const gb = Number(a["_usage_storage_gb"] ?? 50);
+    const putK = Number(a["_usage_put_requests_k"] ?? 100);
+    const getK = Number(a["_usage_get_requests_k"] ?? 1_000);
+    return `${gb} GB stored + ${putK}K PUTs + ${getK}K GETs est.`;
+  },
+  aws_dynamodb_table: (a) => {
+    const billing = String(a["billing_mode"] ?? "PAY_PER_REQUEST");
+    if (billing === "PROVISIONED") {
+      return `${Number(a["write_capacity"] ?? 5)} WCU + ${Number(a["read_capacity"] ?? 5)} RCU provisioned`;
+    }
+    return `${Number(a["_usage_write_requests_m"] ?? 1)}M writes + ${Number(a["_usage_read_requests_m"] ?? 5)}M reads on-demand est.`;
+  },
+  aws_sqs_queue: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const fifo = String(a["name"] ?? "").endsWith(".fifo");
+    return `${reqM}M req/mo ${fifo ? "FIFO" : "Standard"} (first 1M free)`;
+  },
+  aws_sns_topic: (a) => {
+    const pubM = Number(a["_usage_publishes_m"] ?? 0.5);
+    return `${pubM}M publishes/mo (first 1M free)`;
+  },
+  aws_apigatewayv2_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return `${callsM}M calls/mo HTTP API @ $1.00/M`;
+  },
+  aws_api_gateway_rest_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return `${callsM}M calls/mo REST API @ $3.50/M`;
+  },
+  aws_cloudwatch_log_group: (a) => {
+    const ingestGb = Number(a["_usage_ingest_gb_per_month"] ?? 10);
+    const storeGb = Number(a["_usage_store_gb"] ?? 30);
+    return `${ingestGb} GB ingested + ${storeGb} GB stored est.`;
+  },
+  aws_kinesis_firehose_delivery_stream: (a) => {
+    const gb = Number(a["_usage_data_gb_per_month"] ?? 100);
+    return `${gb} GB/mo data ingestion @ $0.029/GB`;
+  },
+  aws_athena_workgroup: (a) => {
+    const tb = Number(a["_usage_scan_tb_per_month"] ?? 0.5);
+    return `${tb} TB scanned/mo @ $5.00/TB`;
+  },
+  aws_glue_job: (a) => {
+    const workers = Number(a["number_of_workers"] ?? 2);
+    const hrs = Number(a["_usage_hours_per_month"] ?? 20);
+    return `${workers} workers × ${hrs} hr/mo @ $0.44/DPU-hr`;
+  },
+  aws_sfn_state_machine: (a) => {
+    const type = String(a["type"] ?? "STANDARD");
+    if (type === "EXPRESS") {
+      const reqM = Number(a["_usage_requests_m"] ?? 1);
+      return `${reqM}M transitions/mo EXPRESS @ $0.00001/transition`;
+    }
+    const transitions = Number(a["_usage_state_transitions_k"] ?? 1);
+    return `${transitions}K transitions/mo STANDARD (first 4K free)`;
+  },
+  google_storage_bucket: (a) => {
+    const gb = Number(a["_usage_storage_gb"] ?? 50);
+    const cls = String(a["storage_class"] ?? "STANDARD");
+    return `${gb} GB ${cls} storage + ops est.`;
+  },
+  google_bigquery_dataset: (a) => {
+    const gb = Number(a["_usage_storage_gb"] ?? 0);
+    return gb > 0 ? `${gb} GB storage @ $0.02/GB` : "dataset container — tables billed separately";
+  },
+  google_bigquery_table: (a) => {
+    const gb = Number(a["_usage_storage_gb"] ?? 10);
+    const tb = Number(a["_usage_queries_tb_per_month"] ?? 0.1);
+    return `${gb} GB storage + ${tb} TB queries/mo`;
+  },
+  google_pubsub_topic: (a) => {
+    const gb = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return `${gb} GB messages/mo (first 10 GB free)`;
+  },
+  google_pubsub_subscription: (a) => {
+    const gb = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return `${gb} GB delivered/mo (first 10 GB free)`;
+  },
+  google_dataflow_job: (a) => {
+    const numWorkers = Number(a["num_workers"] ?? 2);
+    const maxWorkers = Number(a["max_workers"] ?? numWorkers * 2);
+    return `${numWorkers}–${maxWorkers} workers × 730 hr/mo est.`;
+  },
+  google_cloud_run_service: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const min = Number(a["_usage_min_instances"] ?? 0);
+    return `${reqM}M req/mo${min > 0 ? ` + ${min} min instances` : ""} (first 2M free)`;
+  },
+  google_cloud_run_v2_service: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const min = Number(a["_usage_min_instances"] ?? 0);
+    return `${reqM}M req/mo${min > 0 ? ` + ${min} min instances` : ""} (first 2M free)`;
+  },
+  google_cloudfunctions_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["_usage_memory_mb"] ?? 256);
+    return `${reqM}M invocations/mo × ${memMb}MB (first 2M free)`;
+  },
+  azurerm_cosmosdb_account: (a) => {
+    const ru = Number(a["_usage_request_units_per_sec"] ?? 400);
+    const gb = Number(a["_usage_storage_gb"] ?? 10);
+    return `${ru} RU/s throughput + ${gb} GB storage`;
+  },
+  azurerm_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return `${execM}M executions/mo consumption plan (first 1M free)`;
+  },
+  azurerm_linux_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return `${execM}M executions/mo consumption plan (first 1M free)`;
+  },
+  azurerm_windows_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return `${execM}M executions/mo consumption plan (first 1M free)`;
+  },
+  azurerm_container_app: (a) => {
+    const vcpu = Number(a["_usage_vcpu"] ?? 0.5);
+    const hrs = Number(a["_usage_active_hours_per_month"] ?? 200);
+    return `${vcpu} vCPU × ${hrs} active hr/mo est.`;
+  },
+  azurerm_cdn_endpoint: (a) => {
+    const gb = Number(a["_usage_egress_gb_per_month"] ?? 100);
+    return `${gb} GB egress/mo Zone 1 @ $0.0875/GB`;
+  },
+  azurerm_eventhub_namespace: (a) => {
+    const sku = String(a["sku"] ?? "Standard");
+    const tu = Number(a["capacity"] ?? 1);
+    const gb = Number(a["_usage_ingress_gb_per_month"] ?? 50);
+    return `${sku} ${tu} TU + ${gb} GB ingress/mo`;
+  },
   aws_sagemaker_endpoint_configuration: () => "free — billed via endpoint",
   aws_sagemaker_model: () => "free — model artifact storage only",
   aws_sagemaker_training_job: () => "ml.m5.xlarge × ≈100 hr/mo est.",
@@ -439,7 +725,6 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   azurerm_container_group: () => "1 vCPU × 1.5 GB × 730 hr est.",
   azurerm_cognitive_account: () => "S0 tier est.",
   google_artifact_registry_repository: () => "≈10 GB × $0.10/GB est.",
-  google_cloud_run_v2_service: () => "≈1M req/mo est.",
   google_vertex_ai_endpoint: () => "n1-standard-4 × 730 hr est.",
   google_notebooks_instance: () => "n1-standard-4 Notebooks est.",
 

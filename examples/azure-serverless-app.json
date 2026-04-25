@@ -1,0 +1,237 @@
+{
+  "_readme": "Azure serverless application stack. Azure Functions on consumption plan, Cosmos DB for NoSQL storage, Event Hubs for event streaming, Container Apps for background workers, API Management for the gateway layer. Estimated $250-400/mo at stated usage.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "azurerm_resource_group.main",
+          "mode": "managed", "type": "azurerm_resource_group", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-app-rg",
+            "location": "East US",
+            "tags": { "environment": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "azurerm_linux_function_app.api",
+          "mode": "managed", "type": "azurerm_linux_function_app", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-api-func",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "_usage_executions_m": 5,
+            "site_config": { "application_stack": { "node_version": "20" } },
+            "tags": { "component": "api" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_linux_function_app.worker",
+          "mode": "managed", "type": "azurerm_linux_function_app", "name": "worker",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-worker-func",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "_usage_executions_m": 2,
+            "site_config": { "application_stack": { "node_version": "20" } },
+            "tags": { "component": "worker" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_cosmosdb_account.main",
+          "mode": "managed", "type": "azurerm_cosmosdb_account", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-cosmos",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "offer_type": "Standard",
+            "kind": "GlobalDocumentDB",
+            "_usage_request_units_per_sec": 1000,
+            "_usage_storage_gb": 50,
+            "tags": { "component": "database" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_storage_account.functions",
+          "mode": "managed", "type": "azurerm_storage_account", "name": "functions",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverlessappstorage",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "account_tier": "Standard",
+            "account_replication_type": "LRS",
+            "tags": { "purpose": "function-storage" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_eventhub_namespace.events",
+          "mode": "managed", "type": "azurerm_eventhub_namespace", "name": "events",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-eventhub-ns",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "sku": "Standard",
+            "capacity": 2,
+            "_usage_ingress_gb_per_month": 20,
+            "tags": { "component": "events" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_eventhub.app_events",
+          "mode": "managed", "type": "azurerm_eventhub", "name": "app_events",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "app-events",
+            "namespace_name": "serverless-eventhub-ns",
+            "resource_group_name": "serverless-app-rg",
+            "partition_count": 4,
+            "message_retention": 7
+          },
+          "depends_on": ["azurerm_eventhub_namespace.events"]
+        },
+        {
+          "address": "azurerm_container_app_environment.main",
+          "mode": "managed", "type": "azurerm_container_app_environment", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-aca-env",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US"
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_container_app.processor",
+          "mode": "managed", "type": "azurerm_container_app", "name": "processor",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-event-processor",
+            "resource_group_name": "serverless-app-rg",
+            "container_app_environment_id": "azurerm_container_app_environment.main",
+            "_usage_vcpu": 1,
+            "_usage_memory_gb": 2,
+            "_usage_active_hours_per_month": 400,
+            "_usage_min_replicas": 1,
+            "tags": { "component": "processor" }
+          },
+          "depends_on": ["azurerm_container_app_environment.main"]
+        },
+        {
+          "address": "azurerm_api_management.gateway",
+          "mode": "managed", "type": "azurerm_api_management", "name": "gateway",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-apim",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "publisher_name": "Serverless App Team",
+            "publisher_email": "admin@example.com",
+            "sku_name": "Consumption_0",
+            "tags": { "component": "gateway" }
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_application_insights.main",
+          "mode": "managed", "type": "azurerm_application_insights", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-appinsights",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "application_type": "web"
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_key_vault.secrets",
+          "mode": "managed", "type": "azurerm_key_vault", "name": "secrets",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-keyvault",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "sku_name": "standard",
+            "tenant_id": "00000000-0000-0000-0000-000000000000"
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_servicebus_namespace.main",
+          "mode": "managed", "type": "azurerm_servicebus_namespace", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-servicebus",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "sku": "Standard"
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_servicebus_queue.jobs",
+          "mode": "managed", "type": "azurerm_servicebus_queue", "name": "jobs",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "background-jobs",
+            "namespace_id": "azurerm_servicebus_namespace.main"
+          },
+          "depends_on": ["azurerm_servicebus_namespace.main"]
+        },
+        {
+          "address": "azurerm_log_analytics_workspace.main",
+          "mode": "managed", "type": "azurerm_log_analytics_workspace", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 3,
+          "values": {
+            "name": "serverless-log-workspace",
+            "resource_group_name": "serverless-app-rg",
+            "location": "East US",
+            "sku": "PerGB2018",
+            "retention_in_days": 30
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        },
+        {
+          "address": "azurerm_dns_zone.main",
+          "mode": "managed", "type": "azurerm_dns_zone", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/azurerm",
+          "schema_version": 0,
+          "values": {
+            "name": "serverless-app.example.com",
+            "resource_group_name": "serverless-app-rg"
+          },
+          "depends_on": ["azurerm_resource_group.main"]
+        }
+      ]
+    }
+  },
+  "resource_changes": []
+}

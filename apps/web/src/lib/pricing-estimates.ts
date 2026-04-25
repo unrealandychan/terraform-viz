@@ -14,7 +14,15 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     };
     return P[String(a["instance_type"] ?? "")] ?? 36.50;
   },
-  aws_lambda_function: () => 5,
+  aws_lambda_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["memory_size"] ?? a["_usage_memory_mb"] ?? 256);
+    const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
+    const reqCost = Math.max(0, reqM - 1) * 0.20;
+    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000166667;
+    return Math.round((reqCost + computeCost) * 100) / 100;
+  },
   aws_eks_cluster: () => 73,
   aws_eks_node_group: (a) => 70.08 * Math.max(1, Number(a["desired_size"] ?? 2)),
   aws_autoscaling_group: (a) => 70.08 * Math.max(1, Number(a["desired_capacity"] ?? 2)),
@@ -48,10 +56,25 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     };
     return P[String(a["node_type"] ?? "")] ?? 55;
   },
-  aws_dynamodb_table: () => 25,
+  aws_dynamodb_table: (a) => {
+    const billing = String(a["billing_mode"] ?? "PAY_PER_REQUEST");
+    if (billing === "PROVISIONED") {
+      const wcu = Number(a["write_capacity"] ?? 5);
+      const rcu = Number(a["read_capacity"] ?? 5);
+      return Math.round((wcu * 0.47 + rcu * 0.09) * 100) / 100;
+    }
+    const writeM = Number(a["_usage_write_requests_m"] ?? 1);
+    const readM = Number(a["_usage_read_requests_m"] ?? 5);
+    return Math.round((writeM * 1.25 + readM * 0.25) * 100) / 100;
+  },
 
   // ── AWS Storage ────────────────────────────────────────────────────────
-  aws_s3_bucket: () => 2.50,
+  aws_s3_bucket: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 50);
+    const putK = Number(a["_usage_put_requests_k"] ?? 100);
+    const getK = Number(a["_usage_get_requests_k"] ?? 1_000);
+    return Math.round((storageGb * 0.023 + putK * 0.005 + getK * 0.0004) * 100) / 100;
+  },
   aws_ebs_volume: (a) => {
     const sz = Math.max(1, Number(a["size"] ?? 20));
     const type = String(a["volume_type"] ?? "gp2");
@@ -98,11 +121,17 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_vpc_endpoint: () => 0,
 
   // ── AWS API Gateway ───────────────────────────────────────────────────
-  aws_apigatewayv2_api: () => 1.00,
+  aws_apigatewayv2_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return Math.round(callsM * 1.00 * 100) / 100;
+  },
   aws_apigatewayv2_stage: () => 0,
   aws_apigatewayv2_integration: () => 0,
   aws_apigatewayv2_route: () => 0,
-  aws_api_gateway_rest_api: () => 5.00,
+  aws_api_gateway_rest_api: (a) => {
+    const callsM = Number(a["_usage_calls_m"] ?? 1);
+    return Math.round(callsM * 3.50 * 100) / 100;
+  },
   aws_api_gateway_stage: () => 0,
   aws_api_gateway_resource: () => 0,
   aws_api_gateway_method: () => 0,
@@ -147,12 +176,27 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_s3_bucket_acl: () => 0,
   aws_s3_object: () => 0,
 
-  // ── AWS Data / Analytics ────────────────────────────────────────────────
+  // ── AWS Data / Analytics ────────────────────────────────────────────────────
   aws_kinesis_stream: () => 15,
-  aws_kinesis_firehose_delivery_stream: () => 10,
-  aws_sqs_queue: () => 0.40,
-  aws_sns_topic: () => 0.50,
-  aws_glue_job: () => 44,
+  aws_kinesis_firehose_delivery_stream: (a) => {
+    const gbPerMonth = Number(a["_usage_data_gb_per_month"] ?? 100);
+    return Math.round(gbPerMonth * 0.029 * 100) / 100;
+  },
+  aws_sqs_queue: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const fifo = String(a["name"] ?? "").endsWith(".fifo");
+    const rate = fifo ? 0.50 : 0.40;
+    return Math.round(Math.max(0, reqM - 1) * rate * 100) / 100;
+  },
+  aws_sns_topic: (a) => {
+    const pubM = Number(a["_usage_publishes_m"] ?? 0.5);
+    return Math.round(Math.max(0, pubM - 1) * 0.50 * 100) / 100;
+  },
+  aws_glue_job: (a) => {
+    const workers = Number(a["number_of_workers"] ?? 2);
+    const hoursPerMonth = Number(a["_usage_hours_per_month"] ?? 20);
+    return Math.round(workers * hoursPerMonth * 0.44 * 100) / 100;
+  },
   aws_glue_catalog_database: () => 1,
   aws_redshift_cluster: () => 180,
   aws_msk_cluster: () => 350,
@@ -173,7 +217,10 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_virtual_machine: () => 70,
   azurerm_linux_virtual_machine: () => 70,
   azurerm_windows_virtual_machine: () => 90,
-  azurerm_function_app: () => 5,
+  azurerm_function_app: (a) => {
+    const execM = Number(a["_usage_executions_m"] ?? 1);
+    return Math.round(Math.max(0, execM - 1) * 0.20 * 100) / 100;
+  },
   azurerm_app_service_plan: () => 55,
   azurerm_app_service: () => 5,
 
@@ -184,7 +231,13 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_postgresql_flexible_server: () => 95,
   azurerm_mysql_server: () => 80,
   azurerm_redis_cache: () => 55,
-  azurerm_cosmosdb_account: () => 25,
+  azurerm_cosmosdb_account: (a) => {
+    const ruPerSec = Number(a["_usage_request_units_per_sec"] ?? 400);
+    const storageGb = Number(a["_usage_storage_gb"] ?? 10);
+    const ruCost = (ruPerSec / 100) * 6.00;
+    const storageCost = storageGb * 0.25;
+    return Math.round((ruCost + storageCost) * 100) / 100;
+  },
 
   // ── Azure Storage ──────────────────────────────────────────────────────
   azurerm_storage_account: () => 20,
@@ -236,8 +289,22 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_container_cluster: () => 73,
   google_container_node_pool: (a) => 50 * Math.max(1, Number(a["initial_node_count"] ?? 2)),
   google_compute_instance: () => 50,
-  google_cloud_run_service: () => 5,
-  google_cloudfunctions_function: () => 5,
+  google_cloud_run_service: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const minInstances = Number(a["_usage_min_instances"] ?? 0);
+    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const idleCost = minInstances * 730 * 0.024;
+    return Math.round((reqCost + idleCost) * 100) / 100;
+  },
+  google_cloudfunctions_function: (a) => {
+    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const memMb = Number(a["_usage_memory_mb"] ?? 256);
+    const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
+    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000100;
+    return Math.round((reqCost + computeCost) * 100) / 100;
+  },
 
   // ── GCP Database ──────────────────────────────────────────────────────
   google_sql_database_instance: () => 100,
@@ -246,7 +313,15 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_bigtable_instance: () => 200,
 
   // ── GCP Storage ───────────────────────────────────────────────────────
-  google_storage_bucket: () => 2.50,
+  google_storage_bucket: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 50);
+    const classA = Number(a["_usage_class_a_ops_k"] ?? 100);
+    const classB = Number(a["_usage_class_b_ops_k"] ?? 1_000);
+    const storageClass = String(a["storage_class"] ?? "STANDARD").toUpperCase();
+    const gcpRates: Record<string, number> = { STANDARD: 0.020, NEARLINE: 0.010, COLDLINE: 0.004, ARCHIVE: 0.0012 };
+    const gcpRate = gcpRates[storageClass] ?? 0.020;
+    return Math.round((storageGb * gcpRate + classA * 0.005 + classB * 0.0004) * 100) / 100;
+  },
   google_compute_disk: (a) => Math.max(1, Number(a["size"] ?? 50)) * 0.04,
   google_filestore_instance: () => 200,
 
@@ -277,11 +352,32 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_kms_crypto_key: () => 6.00,
 
   // ── GCP Data / Analytics ─────────────────────────────────────────────
-  google_bigquery_dataset: () => 5,
-  google_bigquery_table: () => 5,
-  google_pubsub_topic: () => 0.40,
-  google_pubsub_subscription: () => 0.40,
-  google_dataflow_job: () => 100,
+  google_bigquery_dataset: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 0);
+    return Math.round(storageGb * 0.02 * 100) / 100;
+  },
+  google_bigquery_table: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 10);
+    const queriesTb = Number(a["_usage_queries_tb_per_month"] ?? 0.1);
+    return Math.round((storageGb * 0.02 + queriesTb * 5.00) * 100) / 100;
+  },
+  google_pubsub_topic: (a) => {
+    const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
+  },
+  google_pubsub_subscription: (a) => {
+    const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
+    return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
+  },
+  google_dataflow_job: (a) => {
+    const numWorkers = Number(a["num_workers"] ?? 2);
+    const maxWorkers = Number(a["max_workers"] ?? numWorkers * 2);
+    const avgWorkers = (numWorkers + maxWorkers) / 2;
+    const hoursPerMonth = 730;
+    const vcpuCost = avgWorkers * hoursPerMonth * 0.056;
+    const memCost = avgWorkers * 4 * hoursPerMonth * 0.003375;
+    return Math.round((vcpuCost + memCost) * 100) / 100;
+  },
   google_composer_environment: () => 400,
 
   // ── GCP AI / Artifact Registry (Issue #6) ──────────────────────────────

@@ -1,0 +1,249 @@
+{
+  "_readme": "High-traffic SaaS platform at scale. Growing startup handling millions of users. Multiple Lambda functions, ElastiCache caching layer, RDS for relational data, SQS job queues. Estimated $500-800/mo at stated usage.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_cloudfront_distribution.cdn",
+          "mode": "managed", "type": "aws_cloudfront_distribution", "name": "cdn",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": { "comment": "SaaS CDN", "enabled": true },
+          "depends_on": []
+        },
+        {
+          "address": "aws_s3_bucket.assets",
+          "mode": "managed", "type": "aws_s3_bucket", "name": "assets",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "saas-user-assets",
+            "_usage_storage_gb": 500,
+            "_usage_put_requests_k": 5000,
+            "_usage_get_requests_k": 50000,
+            "tags": { "env": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_apigatewayv2_api.api",
+          "mode": "managed", "type": "aws_apigatewayv2_api", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-api",
+            "protocol_type": "HTTP",
+            "_usage_calls_m": 50
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_function.api_handler",
+          "mode": "managed", "type": "aws_lambda_function", "name": "api_handler",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "saas-api-handler",
+            "runtime": "nodejs20.x",
+            "memory_size": 512,
+            "timeout": 30,
+            "_usage_requests_m": 50,
+            "_usage_avg_duration_ms": 300,
+            "tags": { "component": "api" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_function.background_jobs",
+          "mode": "managed", "type": "aws_lambda_function", "name": "background_jobs",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "saas-background-jobs",
+            "runtime": "nodejs20.x",
+            "memory_size": 1024,
+            "timeout": 300,
+            "_usage_requests_m": 5,
+            "_usage_avg_duration_ms": 2000,
+            "tags": { "component": "worker" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_function.image_processor",
+          "mode": "managed", "type": "aws_lambda_function", "name": "image_processor",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "saas-image-processor",
+            "runtime": "python3.12",
+            "memory_size": 2048,
+            "timeout": 60,
+            "_usage_requests_m": 2,
+            "_usage_avg_duration_ms": 800,
+            "tags": { "component": "media" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_dynamodb_table.sessions",
+          "mode": "managed", "type": "aws_dynamodb_table", "name": "sessions",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "saas-sessions",
+            "billing_mode": "PAY_PER_REQUEST",
+            "_usage_write_requests_m": 20,
+            "_usage_read_requests_m": 100,
+            "hash_key": "sessionId",
+            "attribute": [{ "name": "sessionId", "type": "S" }]
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_db_instance.primary",
+          "mode": "managed", "type": "aws_db_instance", "name": "primary",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 2,
+          "values": {
+            "identifier": "saas-postgres-primary",
+            "engine": "postgres",
+            "engine_version": "15.4",
+            "instance_class": "db.m5.large",
+            "allocated_storage": 200,
+            "multi_az": true,
+            "tags": { "component": "database" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_elasticache_replication_group.cache",
+          "mode": "managed", "type": "aws_elasticache_replication_group", "name": "cache",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "replication_group_id": "saas-redis",
+            "description": "Session and API response cache",
+            "node_type": "cache.m5.large",
+            "num_cache_clusters": 2
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sqs_queue.job_queue",
+          "mode": "managed", "type": "aws_sqs_queue", "name": "job_queue",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-job-queue",
+            "_usage_requests_m": 10,
+            "visibility_timeout_seconds": 300
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sqs_queue.image_queue",
+          "mode": "managed", "type": "aws_sqs_queue", "name": "image_queue",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-image-queue",
+            "_usage_requests_m": 3,
+            "visibility_timeout_seconds": 120
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sns_topic.notifications",
+          "mode": "managed", "type": "aws_sns_topic", "name": "notifications",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-user-notifications",
+            "_usage_publishes_m": 5
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_log_group.api",
+          "mode": "managed", "type": "aws_cloudwatch_log_group", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/aws/lambda/saas-api-handler",
+            "retention_in_days": 30,
+            "_usage_ingest_gb_per_month": 50,
+            "_usage_store_gb": 150
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_nat_gateway.main",
+          "mode": "managed", "type": "aws_nat_gateway", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "connectivity_type": "public" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lb.api",
+          "mode": "managed", "type": "aws_lb", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-api-alb",
+            "load_balancer_type": "application",
+            "internal": false
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_dashboard.ops",
+          "mode": "managed", "type": "aws_cloudwatch_dashboard", "name": "ops",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "dashboard_name": "SaaS-Ops" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_kms_key.data_key",
+          "mode": "managed", "type": "aws_kms_key", "name": "data_key",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "description": "Customer data encryption key" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_wafv2_web_acl.api_waf",
+          "mode": "managed", "type": "aws_wafv2_web_acl", "name": "api_waf",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "saas-api-waf",
+            "scope": "REGIONAL"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_route53_zone.main",
+          "mode": "managed", "type": "aws_route53_zone", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "name": "saas-app.example.com" },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cognito_user_pool.users",
+          "mode": "managed", "type": "aws_cognito_user_pool", "name": "users",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": { "name": "saas-users" },
+          "depends_on": []
+        }
+      ]
+    }
+  },
+  "resource_changes": []
+}

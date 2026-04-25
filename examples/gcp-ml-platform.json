@@ -1,0 +1,218 @@
+{
+  "_readme": "ML/AI Platform on GCP. Trains and serves machine learning models at scale. GCS for model weights and training data, BigQuery for evaluation metrics, Dataflow for feature pipelines, Pub/Sub for inference queuing, Cloud Run for the serving API. Estimated $800-1200/mo.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "google_storage_bucket.models",
+          "mode": "managed", "type": "google_storage_bucket", "name": "models",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-platform-models",
+            "location": "US",
+            "storage_class": "STANDARD",
+            "_usage_storage_gb": 2000,
+            "_usage_class_a_ops_k": 50,
+            "_usage_class_b_ops_k": 500,
+            "labels": { "purpose": "model-weights" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_storage_bucket.training_data",
+          "mode": "managed", "type": "google_storage_bucket", "name": "training_data",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-platform-training-data",
+            "location": "US",
+            "storage_class": "NEARLINE",
+            "_usage_storage_gb": 10000,
+            "_usage_class_a_ops_k": 10,
+            "_usage_class_b_ops_k": 200,
+            "labels": { "purpose": "training-datasets" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_bigquery_dataset.ml_metrics",
+          "mode": "managed", "type": "google_bigquery_dataset", "name": "ml_metrics",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "ml_metrics",
+            "description": "Model evaluation and performance metrics",
+            "_usage_storage_gb": 0
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_bigquery_table.eval_results",
+          "mode": "managed", "type": "google_bigquery_table", "name": "eval_results",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "ml_metrics",
+            "table_id": "evaluation_results",
+            "description": "Model evaluation results per training run",
+            "_usage_storage_gb": 500,
+            "_usage_queries_tb_per_month": 5
+          },
+          "depends_on": ["google_bigquery_dataset.ml_metrics"]
+        },
+        {
+          "address": "google_bigquery_table.feature_store",
+          "mode": "managed", "type": "google_bigquery_table", "name": "feature_store",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "dataset_id": "ml_metrics",
+            "table_id": "feature_store",
+            "description": "Computed feature vectors for training",
+            "_usage_storage_gb": 200,
+            "_usage_queries_tb_per_month": 2
+          },
+          "depends_on": ["google_bigquery_dataset.ml_metrics"]
+        },
+        {
+          "address": "google_dataflow_job.feature_pipeline",
+          "mode": "managed", "type": "google_dataflow_job", "name": "feature_pipeline",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-feature-pipeline",
+            "template_gcs_path": "gs://ml-platform-models/templates/feature-pipeline",
+            "temp_gcs_location": "gs://ml-platform-models/temp",
+            "num_workers": 4,
+            "max_workers": 20,
+            "machine_type": "n1-standard-4"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_pubsub_topic.inference_requests",
+          "mode": "managed", "type": "google_pubsub_topic", "name": "inference_requests",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-inference-requests",
+            "_usage_message_gb_per_month": 50,
+            "labels": { "component": "inference" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_pubsub_subscription.inference_worker",
+          "mode": "managed", "type": "google_pubsub_subscription", "name": "inference_worker",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-inference-worker-sub",
+            "topic": "ml-inference-requests",
+            "_usage_message_gb_per_month": 50,
+            "ack_deadline_seconds": 60
+          },
+          "depends_on": ["google_pubsub_topic.inference_requests"]
+        },
+        {
+          "address": "google_cloud_run_v2_service.serving_api",
+          "mode": "managed", "type": "google_cloud_run_v2_service", "name": "serving_api",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-serving-api",
+            "location": "us-central1",
+            "_usage_requests_m": 10,
+            "_usage_min_instances": 2,
+            "labels": { "component": "serving" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_vertex_ai_endpoint.model_endpoint",
+          "mode": "managed", "type": "google_vertex_ai_endpoint", "name": "model_endpoint",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "display_name": "ml-production-endpoint",
+            "location": "us-central1",
+            "labels": { "env": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_artifact_registry_repository.models",
+          "mode": "managed", "type": "google_artifact_registry_repository", "name": "models",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "repository_id": "ml-models",
+            "location": "us-central1",
+            "format": "DOCKER",
+            "description": "ML model containers"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_cloudbuild_trigger.train_pipeline",
+          "mode": "managed", "type": "google_cloudbuild_trigger", "name": "train_pipeline",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-training-pipeline",
+            "description": "Trigger model retraining on data updates"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_secret_manager_secret.api_key",
+          "mode": "managed", "type": "google_secret_manager_secret", "name": "api_key",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "secret_id": "ml-platform-api-key",
+            "replication": { "automatic": {} }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_monitoring_alert_policy.model_latency",
+          "mode": "managed", "type": "google_monitoring_alert_policy", "name": "model_latency",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "display_name": "Model Serving Latency",
+            "combiner": "OR"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_kms_key_ring.ml_keyring",
+          "mode": "managed", "type": "google_kms_key_ring", "name": "ml_keyring",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-platform-keyring",
+            "location": "us-central1"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "google_kms_crypto_key.data_key",
+          "mode": "managed", "type": "google_kms_crypto_key", "name": "data_key",
+          "provider_name": "registry.terraform.io/hashicorp/google",
+          "schema_version": 0,
+          "values": {
+            "name": "ml-data-encryption-key",
+            "rotation_period": "2592000s"
+          },
+          "depends_on": ["google_kms_key_ring.ml_keyring"]
+        }
+      ]
+    }
+  },
+  "resource_changes": []
+}

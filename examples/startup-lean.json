@@ -1,0 +1,202 @@
+{
+  "_readme": "Lean MVP startup on AWS. Cost-conscious architecture serving early customers. CloudFront CDN + S3 static site + API Gateway v2 + Lambda + DynamoDB + SES + CloudWatch. Estimated ~$15-30/mo at low traffic.",
+  "format_version": "1.0",
+  "terraform_version": "1.7.5",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "aws_cloudfront_distribution.cdn",
+          "mode": "managed", "type": "aws_cloudfront_distribution", "name": "cdn",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "comment": "MVP CDN distribution",
+            "enabled": true,
+            "default_root_object": "index.html",
+            "tags": { "env": "prod" }
+          },
+          "depends_on": ["aws_s3_bucket.static_site"]
+        },
+        {
+          "address": "aws_s3_bucket.static_site",
+          "mode": "managed", "type": "aws_s3_bucket", "name": "static_site",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "mvp-static-site-assets",
+            "_usage_storage_gb": 5,
+            "_usage_put_requests_k": 10,
+            "_usage_get_requests_k": 100,
+            "tags": { "purpose": "static-assets" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_s3_bucket_website_configuration.static_site",
+          "mode": "managed", "type": "aws_s3_bucket_website_configuration", "name": "static_site",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "bucket": "mvp-static-site-assets",
+            "index_document": { "suffix": "index.html" },
+            "error_document": { "key": "error.html" }
+          },
+          "depends_on": ["aws_s3_bucket.static_site"]
+        },
+        {
+          "address": "aws_apigatewayv2_api.api",
+          "mode": "managed", "type": "aws_apigatewayv2_api", "name": "api",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "mvp-api",
+            "protocol_type": "HTTP",
+            "_usage_calls_m": 0.5,
+            "tags": { "env": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_apigatewayv2_stage.default",
+          "mode": "managed", "type": "aws_apigatewayv2_stage", "name": "default",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "$default",
+            "auto_deploy": true
+          },
+          "depends_on": ["aws_apigatewayv2_api.api"]
+        },
+        {
+          "address": "aws_lambda_function.api_handler",
+          "mode": "managed", "type": "aws_lambda_function", "name": "api_handler",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "mvp-api-handler",
+            "runtime": "nodejs20.x",
+            "memory_size": 256,
+            "timeout": 10,
+            "_usage_requests_m": 0.5,
+            "_usage_avg_duration_ms": 150,
+            "tags": { "env": "prod" }
+          },
+          "depends_on": ["aws_iam_role.lambda_exec"]
+        },
+        {
+          "address": "aws_iam_role.lambda_exec",
+          "mode": "managed", "type": "aws_iam_role", "name": "lambda_exec",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "mvp-lambda-exec",
+            "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"lambda.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_dynamodb_table.users",
+          "mode": "managed", "type": "aws_dynamodb_table", "name": "users",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 1,
+          "values": {
+            "name": "mvp-users",
+            "billing_mode": "PAY_PER_REQUEST",
+            "_usage_write_requests_m": 0.1,
+            "_usage_read_requests_m": 0.5,
+            "hash_key": "userId",
+            "attribute": [{ "name": "userId", "type": "S" }],
+            "tags": { "env": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_log_group.api_lambda",
+          "mode": "managed", "type": "aws_cloudwatch_log_group", "name": "api_lambda",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "/aws/lambda/mvp-api-handler",
+            "retention_in_days": 14,
+            "_usage_ingest_gb_per_month": 1,
+            "_usage_store_gb": 3
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_route53_zone.main",
+          "mode": "managed", "type": "aws_route53_zone", "name": "main",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "mvp-app.example.com",
+            "tags": { "env": "prod" }
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_acm_certificate.cert",
+          "mode": "managed", "type": "aws_acm_certificate", "name": "cert",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "domain_name": "mvp-app.example.com",
+            "validation_method": "DNS"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_sns_topic.alerts",
+          "mode": "managed", "type": "aws_sns_topic", "name": "alerts",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "mvp-alerts",
+            "_usage_publishes_m": 0.01
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_cloudwatch_metric_alarm.lambda_errors",
+          "mode": "managed", "type": "aws_cloudwatch_metric_alarm", "name": "lambda_errors",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "alarm_name": "lambda-error-rate",
+            "metric_name": "Errors",
+            "namespace": "AWS/Lambda",
+            "period": 300,
+            "evaluation_periods": 2,
+            "threshold": 5,
+            "comparison_operator": "GreaterThanThreshold"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_secretsmanager_secret.app_secrets",
+          "mode": "managed", "type": "aws_secretsmanager_secret", "name": "app_secrets",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "name": "mvp/app-secrets",
+            "description": "App secrets for MVP"
+          },
+          "depends_on": []
+        },
+        {
+          "address": "aws_lambda_event_source_mapping.not_used",
+          "mode": "managed", "type": "aws_lambda_event_source_mapping", "name": "not_used",
+          "provider_name": "registry.terraform.io/hashicorp/aws",
+          "schema_version": 0,
+          "values": {
+            "function_name": "mvp-api-handler",
+            "enabled": false
+          },
+          "depends_on": ["aws_lambda_function.api_handler"]
+        }
+      ]
+    }
+  },
+  "resource_changes": []
+}
