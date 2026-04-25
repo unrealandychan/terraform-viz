@@ -235,13 +235,13 @@ function loadSettings(): LlmSettings {
 /** Parse inline markdown: **bold**, *italic*, `code`, ~~strike~~, [link](url) */
 function inlineMd(text: string, baseKey = 0): ReactNode {
   const patterns: [RegExp, (m: RegExpMatchArray, k: number) => ReactNode][] = [
-    [/\*\*(.+?)\*\*/s,             (m, k) => <strong key={k}>{inlineMd(m[1], k * 100)}</strong>],
-    [/__(.+?)__/s,                  (m, k) => <strong key={k}>{inlineMd(m[1], k * 100)}</strong>],
-    [/\*(.+?)\*/s,                  (m, k) => <em key={k}>{inlineMd(m[1], k * 100)}</em>],
-    [/_([^_\s][^_]*)_/s,            (m, k) => <em key={k}>{inlineMd(m[1], k * 100)}</em>],
-    [/~~(.+?)~~/s,                  (m, k) => <del key={k}>{m[1]}</del>],
-    [/`([^`]+)`/,                   (m, k) => <code key={k}>{m[1]}</code>],
-    [/\[([^\]]+)\]\(([^)]+)\)/,     (m, k) => <a key={k} href={m[2]} target="_blank" rel="noopener noreferrer">{m[1]}</a>],
+    [/\*\*(.+?)\*\*/s,             (m, k) => <strong key={k}>{inlineMd(m[1] ?? "", k * 100)}</strong>],
+    [/__(.+?)__/s,                  (m, k) => <strong key={k}>{inlineMd(m[1] ?? "", k * 100)}</strong>],
+    [/\*(.+?)\*/s,                  (m, k) => <em key={k}>{inlineMd(m[1] ?? "", k * 100)}</em>],
+    [/_([^_\s][^_]*)_/s,            (m, k) => <em key={k}>{inlineMd(m[1] ?? "", k * 100)}</em>],
+    [/~~(.+?)~~/s,                  (m, k) => <del key={k}>{m[1] ?? ""}</del>],
+    [/`([^`]+)`/,                   (m, k) => <code key={k}>{m[1] ?? ""}</code>],
+    [/\[([^\]]+)\]\(([^)]+)\)/,     (m, k) => <a key={k} href={m[2] ?? "#"} target="_blank" rel="noopener noreferrer">{m[1] ?? ""}</a>],
   ];
 
   const nodes: ReactNode[] = [];
@@ -274,6 +274,7 @@ function parseMarkdown(md: string): ReactNode {
 
   while (i < lines.length) {
     const line = lines[i];
+    if (line === undefined) break;
 
     // Empty line
     if (!line.trim()) { i++; continue; }
@@ -283,7 +284,7 @@ function parseMarkdown(md: string): ReactNode {
       const lang = line.slice(3).trim();
       const code: string[] = [];
       i++;
-      while (i < lines.length && !lines[i].startsWith("```")) { code.push(lines[i]); i++; }
+      while (i < lines.length && !(lines[i] ?? "").startsWith("```")) { code.push(lines[i] ?? ""); i++; }
       i++;
       result.push(
         <pre key={key++}>
@@ -296,9 +297,9 @@ function parseMarkdown(md: string): ReactNode {
     // ATX Heading
     const hm = /^(#{1,4})\s+(.+)$/.exec(line);
     if (hm) {
-      const lvl = hm[1].length;
+      const lvl = (hm[1] ?? "#").length;
       const Tag = `h${lvl}` as "h1" | "h2" | "h3" | "h4";
-      result.push(<Tag key={key++}>{inlineMd(hm[2])}</Tag>);
+      result.push(<Tag key={key++}>{inlineMd(hm[2] ?? "")}</Tag>);
       i++; continue;
     }
 
@@ -311,8 +312,8 @@ function parseMarkdown(md: string): ReactNode {
     // Blockquote
     if (line.startsWith("> ") || line === ">") {
       const qlines: string[] = [];
-      while (i < lines.length && (lines[i].startsWith("> ") || lines[i] === ">")) {
-        qlines.push(lines[i].replace(/^>\s?/, ""));
+      while (i < lines.length && ((lines[i] ?? "").startsWith("> ") || lines[i] === ">")) {
+        qlines.push((lines[i] ?? "").replace(/^>\s?/, ""));
         i++;
       }
       result.push(
@@ -326,8 +327,8 @@ function parseMarkdown(md: string): ReactNode {
     // Unordered list
     if (/^[-*+]\s/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^[-*+]\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^[-*+]\s+/, ""));
+      while (i < lines.length && /^[-*+]\s/.test(lines[i] ?? "")) {
+        items.push((lines[i] ?? "").replace(/^[-*+]\s+/, ""));
         i++;
       }
       result.push(
@@ -339,8 +340,8 @@ function parseMarkdown(md: string): ReactNode {
     // Ordered list
     if (/^\d+\.\s/.test(line)) {
       const items: string[] = [];
-      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s+/, ""));
+      while (i < lines.length && /^\d+\.\s/.test(lines[i] ?? "")) {
+        items.push((lines[i] ?? "").replace(/^\d+\.\s+/, ""));
         i++;
       }
       result.push(
@@ -353,15 +354,15 @@ function parseMarkdown(md: string): ReactNode {
     const paraLines: string[] = [];
     while (
       i < lines.length &&
-      lines[i].trim() &&
-      !lines[i].startsWith("#") &&
-      !lines[i].startsWith("```") &&
-      !lines[i].startsWith("> ") &&
-      !/^[-*+]\s/.test(lines[i]) &&
-      !/^\d+\.\s/.test(lines[i]) &&
-      !/^(\*{3,}|-{3,}|_{3,})$/.test(lines[i].trim())
+      (lines[i] ?? "").trim() &&
+      !(lines[i] ?? "").startsWith("#") &&
+      !(lines[i] ?? "").startsWith("```") &&
+      !(lines[i] ?? "").startsWith("> ") &&
+      !/^[-*+]\s/.test(lines[i] ?? "") &&
+      !/^\d+\.\s/.test(lines[i] ?? "") &&
+      !/^(\*{3,}|-{3,}|_{3,})$/.test((lines[i] ?? "").trim())
     ) {
-      paraLines.push(lines[i]);
+      paraLines.push(lines[i] ?? "");
       i++;
     }
     if (paraLines.length > 0) {

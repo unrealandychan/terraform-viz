@@ -37,10 +37,10 @@ export function PlanUpload() {
   /** Start cycling through worker step labels every ~10 s */
   const startStepTicker = useCallback(() => {
     let step = 0;
-    setLoadingLabel(WORKER_STEPS[0]);
+    setLoadingLabel(WORKER_STEPS[0] ?? "");
     stepTimerRef.current = setInterval(() => {
       step = Math.min(step + 1, WORKER_STEPS.length - 1);
-      setLoadingLabel(WORKER_STEPS[step]);
+      setLoadingLabel(WORKER_STEPS[step] ?? "");
     }, 10_000);
   }, []);
 
@@ -141,7 +141,7 @@ export function PlanUpload() {
             const bytes = new Uint8Array(result);
             let binary = "";
             for (let i = 0; i < bytes.byteLength; i++) {
-              binary += String.fromCharCode(bytes[i]);
+              binary += String.fromCharCode(bytes[i] ?? 0);
             }
             void runAndRedirect(btoa(binary), fileName);
           }

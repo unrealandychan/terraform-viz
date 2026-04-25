@@ -203,7 +203,7 @@ function AttributesPanel({ attributes }: { attributes: Readonly<Record<string, u
           type="text"
           placeholder="Filter attributes…"
           value={query}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery((e.target as HTMLInputElement).value)}
           spellCheck={false}
         />
         {query && (
@@ -531,7 +531,8 @@ const CostBreakdown = memo(function CostBreakdown({ model }: { model: GraphModel
           <div className="cost-breakdown__section-title">By Provider</div>
           <div className="cost-breakdown__providers">
             {byProvider.map(({ provider, monthly: pm }) => {
-              const cfg = PROVIDER_DISPLAY[provider] ?? PROVIDER_DISPLAY.UNKNOWN;
+              const cfg = PROVIDER_DISPLAY[provider] ?? PROVIDER_DISPLAY["UNKNOWN"];
+              if (!cfg) return null;
               const pct = monthly > 0 ? Math.round((pm / monthly) * 100) : 0;
               return (
                 <div key={provider} className="cost-breakdown__provider-row">
