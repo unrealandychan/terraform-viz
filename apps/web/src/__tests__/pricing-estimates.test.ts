@@ -74,8 +74,32 @@ describe("estimateCost", () => {
       expect(estimateCost(makeNode("aws_nat_gateway")).monthly).toBe(36.5);
     });
 
-    it("aws_lb costs $22.27", () => {
+    it("aws_lb costs $22.27 (default ALB)", () => {
       expect(estimateCost(makeNode("aws_lb")).monthly).toBe(22.27);
+    });
+
+    it("aws_lb with load_balancer_type='network' costs $13.14", () => {
+      expect(estimateCost(makeNode("aws_lb", { load_balancer_type: "network" })).monthly).toBe(13.14);
+    });
+
+    it("aws_ebs_volume with no attrs defaults to gp2 rate = $2.00", () => {
+      expect(estimateCost(makeNode("aws_ebs_volume")).monthly).toBeCloseTo(2.00, 5);
+    });
+
+    it("aws_ebs_volume size=100, type=gp3 = $8.00", () => {
+      expect(estimateCost(makeNode("aws_ebs_volume", { size: 100, volume_type: "gp3" })).monthly).toBeCloseTo(8.00, 5);
+    });
+
+    it("aws_ebs_volume size=100, type=gp2 = $10.00", () => {
+      expect(estimateCost(makeNode("aws_ebs_volume", { size: 100, volume_type: "gp2" })).monthly).toBeCloseTo(10.00, 5);
+    });
+
+    it("aws_ebs_volume size=100, type=st1 = $4.50", () => {
+      expect(estimateCost(makeNode("aws_ebs_volume", { size: 100, volume_type: "st1" })).monthly).toBeCloseTo(4.50, 5);
+    });
+
+    it("aws_ebs_volume size=100, type=io1, iops=3000 = $207.50", () => {
+      expect(estimateCost(makeNode("aws_ebs_volume", { size: 100, volume_type: "io1", iops: 3000 })).monthly).toBeCloseTo(207.50, 5);
     });
 
     it("aws_route53_zone costs $0.50", () => {

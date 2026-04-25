@@ -1,52 +1,109 @@
-# terraform-viz
+# 🌐 TerraViz
 
-A multi-cloud web application that parses Terraform plans and turns them into visual infrastructure graphs, estimated monthly costs, plan comparisons, and an AI chat assistant — all before you run `terraform apply`.
+> **Visualise, cost-estimate, and diff your Terraform plans — before you run `apply`.**
 
-## Features
+[![CI](https://github.com/unrealandychan/terraform-viz/actions/workflows/ci.yml/badge.svg)](https://github.com/unrealandychan/terraform-viz/actions/workflows/ci.yml)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
 
-| Feature | Description |
-|---|---|
-| **Graph visualization** | Parses `terraform plan -json` output and renders an interactive 2D architecture diagram with filters by action, provider, layer, and tag |
-| **Cost estimation** | Maps resource attributes to a pricing catalog and returns per-resource estimates, subtotals, and totals for AWS, Azure, and GCP |
-| **Plan comparison** | Diffs a plan against a pinned baseline, highlights created / updated / replaced / deleted resources, and shows the estimated monthly cost delta |
-| **AI chat** | Streaming LLM assistant with preset analyses (cost saving, security review, architecture overview, destruction risk, etc.) — works with any OpenAI-compatible endpoint |
-| **History & sharing** | Keeps a browser-side history of loaded plans; share plans via URL-encoded links |
-| **Zip upload** | Drop a `.zip` of a Terraform project — the worker runs `init + plan + show -json` automatically and returns the graph |
+TerraViz is a multi-cloud web application that parses Terraform plan JSON and turns it into an interactive architecture diagram, accurate monthly cost estimates, side-by-side plan diffs, and an AI-powered chat assistant — all in your browser, zero infrastructure required.
 
-## Supported clouds
+---
+
+## ✨ Features
+
+| | Feature | Description |
+|---|---|---|
+| 🗺️ | **Graph Visualisation** | Parses `terraform plan -json` output and renders an interactive 2D swimlane diagram, grouped by layer (Network → Compute → Database → Storage → Data), with filters by action, provider, layer, and tag |
+| 💰 | **Cost Estimation** | Per-resource monthly estimates with full breakdowns — EBS volume types (gp2/gp3/io1/io2/st1/sc1), ALB vs NLB differentiation, RDS Multi-AZ, and more |
+| 📊 | **Plan Comparison** | Diff a plan against a pinned baseline — highlights created / updated / replaced / deleted resources and shows the estimated monthly cost delta |
+| 🤖 | **AI Chat Assistant** | Streaming LLM assistant with preset analyses (cost saving, security review, architecture overview, destruction risk) — works with any OpenAI-compatible endpoint |
+| 📜 | **History & Sharing** | Browser-side history of loaded plans; share plans via URL-encoded deep links |
+| 📦 | **Zip Upload** | Drop a `.zip` of a Terraform project — the sandboxed worker runs `init → plan → show -json` automatically |
+
+---
+
+## ☁️ Supported Clouds
 
 | Cloud | Compute | Database | Storage | Networking | Data / Analytics |
 |---|---|---|---|---|---|
-| **AWS** | EC2, Lambda, EKS, ECS, Auto Scaling | RDS, Aurora, ElastiCache, DynamoDB | S3, EBS, EFS | VPC, NAT GW, ALB/NLB, CloudFront, Route 53 | Kinesis, SQS, SNS, Glue, Redshift, MSK |
+| **AWS** | EC2, Lambda, EKS, ECS, Auto Scaling | RDS, Aurora, ElastiCache, DynamoDB | S3, EBS (gp2/gp3/io1/io2/st1/sc1), EFS | VPC, NAT GW, ALB/NLB, CloudFront, Route 53 | Kinesis, SQS, SNS, Glue, Redshift, MSK |
 | **Azure** | VMs, AKS, Function App, App Service | SQL, PostgreSQL, MySQL, Redis, Cosmos DB | Storage Account, Managed Disk | VNet, Load Balancer | Event Hubs, Databricks, Data Factory |
-| **GCP** | Compute Engine, GKE, Cloud Run, Cloud Functions | Cloud SQL, Spanner, Redis, Bigtable | GCS, Persistent Disk, Filestore | VPC, Subnets | BigQuery, Pub/Sub, Dataflow, Composer |
+| **GCP** | Compute Engine, GKE, Cloud Run, Cloud Functions | Cloud SQL, Spanner, Redis, Bigtable | GCS, Persistent Disk, Filestore | VPC, Subnets, Forwarding Rules | BigQuery, Pub/Sub, Dataflow, Composer |
 
-## Input formats
+---
 
-- `terraform show -json` JSON output (primary — paste or upload a `.json` file)
-- `.zip` archive of a Terraform project directory (worker runs `init + plan + show -json` for you)
-
-## Architecture
+## 🏗️ Architecture
 
 ```
 terraform-viz/
 ├── apps/
-│   ├── web/               # Next.js frontend (upload, graph, cost, diff, AI chat)
-│   └── terraform-worker/  # Sandboxed terraform init + plan + show -json runner
+│   ├── web/                # Next.js frontend (upload, graph, cost, diff, AI chat)
+│   └── terraform-worker/   # Sandboxed terraform init + plan + show -json runner
 ├── services/
-│   ├── parser/            # Normalises Terraform JSON → cloud-agnostic GraphModel
-│   ├── pricing/           # Monthly estimate engine backed by JSON catalogs
-│   ├── comparison/        # Plan snapshot diffs
-│   └── llm/               # LLM proxy service
+│   ├── parser/             # Normalises Terraform JSON → cloud-agnostic GraphModel
+│   ├── pricing/            # Monthly estimate engine backed by JSON catalogs
+│   ├── comparison/         # Plan snapshot diffs
+│   └── llm/                # LLM proxy service
 ├── packages/
-│   ├── graph-schema/      # Shared TypeScript types (GraphModel, GraphNode, …)
-│   ├── llm-types/         # Shared LLM request/response types
-│   └── pricing-types/     # Shared cost estimate types
+│   ├── graph-schema/       # Shared TypeScript types (GraphModel, GraphNode, …)
+│   ├── llm-types/          # Shared LLM request/response types
+│   └── pricing-types/      # Shared cost estimate types
 └── pricing/
-    └── data/              # aws.json · azure.json · gcp.json pricing catalogs
+    └── data/               # aws.json · azure.json · gcp.json pricing catalogs
 ```
 
-## Milestones
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** 20+
+- **Docker + Docker Compose** (for the full service stack)
+- **Terraform CLI** 1.6+ (only required inside the Docker worker image)
+
+### Quickstart
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/unrealandychan/terraform-viz.git
+cd terraform-viz
+
+# 2. Install all workspace dependencies
+npm install
+
+# 3. Start all services (web, parser, pricing, comparison, llm, worker)
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000) and upload a `terraform show -json` output.
+
+### Other commands
+
+```bash
+# Type-check the full monorepo
+npm run typecheck
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Lint
+npm run lint
+```
+
+### Input formats
+
+- `terraform show -json` output — paste or upload a `.json` file
+- `.zip` archive of a Terraform project directory — the worker handles `init + plan + show -json`
+
+---
+
+## 🗺️ Milestones
 
 | Milestone | Scope | Status |
 |---|---|---|
@@ -55,73 +112,19 @@ terraform-viz/
 | **M3** | Plan comparison, graph diff, monthly cost delta | ✅ Shipped |
 | **M4** | AI chat assistant with streaming LLM + preset analysis templates | ✅ Shipped |
 | **M5** | Zip upload via terraform worker, expanded pricing catalog, test coverage | 🚧 In progress |
+| **M6** | CI/CD pipeline, automated testing, EBS/LB pricing accuracy improvements | 🚧 In progress |
 
-## Getting started
+---
 
-### Prerequisites
+## 🤝 Contributing
 
-- Node.js 20+
-- Docker + Docker Compose (for the full service stack)
-- Terraform CLI 1.6+ (only required inside the Docker worker image)
+1. Fork the repo and create a feature branch: `git checkout -b feat/my-feature`
+2. Follow [Conventional Commits](https://www.conventionalcommits.org/) for commit messages
+3. Run `npm test` and `npm run lint` before pushing
+4. Open a Pull Request — the CI pipeline will validate your changes automatically
 
-### Development
+---
 
-```bash
-# Install all workspace dependencies
-npm install
+## 📄 License
 
-# Start all services (web, parser, pricing, comparison, llm, worker)
-npm run dev
-
-# Type-check the full monorepo
-npm run typecheck
-
-# Run tests
-npm test
-```
-
-The web app runs on **http://localhost:3000** by default.
-
-Service ports:
-
-| Service | Port |
-|---|---|
-| web (Next.js) | 3000 |
-| parser | 3001 |
-| pricing | 3002 |
-| comparison | 3003 |
-| llm | 3004 |
-| terraform-worker | 3005 |
-
-### Environment variables
-
-Copy `.env.example` to `.env.local` in `apps/web/` and set:
-
-```bash
-# LLM provider (any OpenAI-compatible endpoint)
-LLM_API_KEY=sk-...
-OPENAI_BASE_URL=https://api.openai.com/v1   # or your local Ollama / vLLM URL
-LLM_MODEL=gpt-4o-mini
-
-# Service URLs (defaults match docker-compose)
-PARSER_URL=http://localhost:3001
-WORKER_URL=http://localhost:3005
-```
-
-## Pricing catalog
-
-Pricing data lives in `pricing/data/` as provider-split JSON files:
-
-- `pricing/data/aws.json`
-- `pricing/data/azure.json`
-- `pricing/data/gcp.json`
-
-Each entry maps a Terraform resource type to monthly cost rules keyed by instance size, SKU, or configuration attribute. Estimates are flagged as approximate when usage-based inputs (data transfer, request counts) are unavailable.
-
-## Contributing
-
-See [docs/plan.md](docs/plan.md) for the full product plan and functional requirements.
-
-## License
-
-MIT
+MIT © [unrealandychan](https://github.com/unrealandychan)

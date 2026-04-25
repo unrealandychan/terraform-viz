@@ -52,7 +52,17 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
 
   // ── AWS Storage ────────────────────────────────────────────────────────
   aws_s3_bucket: () => 2.50,
-  aws_ebs_volume: (a) => Math.max(1, Number(a["size"] ?? 20)) * 0.08,
+  aws_ebs_volume: (a) => {
+    const sz = Math.max(1, Number(a["size"] ?? 20));
+    const type = String(a["volume_type"] ?? "gp2");
+    const rates: Record<string, number> = { gp2: 0.10, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
+    const rate = rates[type] ?? 0.10;
+    let cost = sz * rate;
+    if (type === "io1" || type === "io2") {
+      cost += Number(a["iops"] ?? 0) * 0.065;
+    }
+    return cost;
+  },
   aws_efs_file_system: () => 30,
 
   // ── AWS Containers ──────────────────────────────────────────────────────
@@ -66,8 +76,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_subnet: () => 0,
   aws_internet_gateway: () => 0,
   aws_nat_gateway: () => 36.50,
-  aws_lb: () => 22.27,
-  aws_alb: () => 22.27,
+  aws_lb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
+  aws_alb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
   aws_elb: () => 20,
   aws_lb_listener: () => 0,
   aws_alb_listener: () => 0,
@@ -291,7 +301,14 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   aws_s3_bucket: () => "≈25 GB storage + requests est.",
   aws_ebs_volume: (a) => {
     const sz = Math.max(1, Number(a["size"] ?? 20));
-    return `${sz} GB × $0.08/GB (gp2, us-east-1)`;
+    const type = String(a["volume_type"] ?? "gp2");
+    const rates: Record<string, number> = { gp2: 0.10, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
+    const rate = rates[type] ?? 0.10;
+    if (type === "io1" || type === "io2") {
+      const iops = Number(a["iops"] ?? 0);
+      return `${sz} GB × $${rate}/GB (${type}) + ${iops} IOPS × $0.065/IOPS`;
+    }
+    return `${sz} GB × $${rate}/GB (${type})`;
   },
   aws_efs_file_system: () => "≈10 GB × $0.30/GB est.",
   // AWS Network
@@ -299,8 +316,14 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   aws_subnet: () => "free",
   aws_internet_gateway: () => "free",
   aws_nat_gateway: () => "$0.045/hr × 730 hr + data transfer est.",
-  aws_lb: () => "$0.0225 base/hr + LCU charges est. (ALB)",
-  aws_alb: () => "$0.0225 base/hr + LCU charges est. (ALB)",
+  aws_lb: (a) => {
+    const isNLB = String(a["load_balancer_type"]) === "network";
+    return isNLB ? "NLB: $0.018/hr base ($13.14/mo est.)" : "ALB: $0.0225/hr base + LCU charges est. ($22.27/mo)";
+  },
+  aws_alb: (a) => {
+    const isNLB = String(a["load_balancer_type"]) === "network";
+    return isNLB ? "NLB: $0.018/hr base ($13.14/mo est.)" : "ALB: $0.0225/hr base + LCU charges est. ($22.27/mo)";
+  },
   aws_elb: () => "$0.025/hr Classic LB est.",
   aws_lb_listener: () => "free — billed via load balancer",
   aws_alb_listener: () => "free — billed via load balancer",

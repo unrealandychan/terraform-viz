@@ -113,7 +113,7 @@ export function Sidebar() {
           <span className="sidebar__logo-icon">
             <LogoIcon />
           </span>
-          <span>Terraform Viz</span>
+          <span>TerraViz</span>
         </Link>
       </div>
 
