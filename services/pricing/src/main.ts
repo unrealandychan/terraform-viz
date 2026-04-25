@@ -146,14 +146,6 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_s3_bucket_acl: () => 0,
   aws_s3_object: () => 0,
   // AWS Data
-  aws_kinesis_stream: () => 15,
-  aws_kinesis_firehose_delivery_stream: () => 10,
-  aws_sqs_queue: () => 0.40,
-  aws_sns_topic: () => 0.50,
-  aws_glue_job: () => 44,
-  aws_glue_catalog_database: () => 1,
-  aws_redshift_cluster: () => 180,
-  aws_msk_cluster: () => 350,
   // AWS SageMaker (Issue #6)
   aws_sagemaker_endpoint: () => 156,
   aws_sagemaker_endpoint_configuration: () => 0,
@@ -163,14 +155,6 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_apprunner_service: () => 25,
   awscc_apprunner_service: () => 25,
   // Azure Compute
-  azurerm_kubernetes_cluster: () => 73,
-  azurerm_kubernetes_cluster_node_pool: (a) => 70 * Math.max(1, Number(a["node_count"] ?? 2)),
-  azurerm_virtual_machine: () => 70,
-  azurerm_linux_virtual_machine: () => 70,
-  azurerm_windows_virtual_machine: () => 90,
-  azurerm_function_app: () => 5,
-  azurerm_app_service_plan: () => 55,
-  azurerm_app_service: () => 5,
   // Azure Database
   azurerm_sql_server: () => 0,
   azurerm_mssql_database: () => 150,
@@ -270,6 +254,174 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_cloud_run_v2_service: () => 5,
   google_vertex_ai_endpoint: () => 150,
   google_notebooks_instance: () => 100,
+
+  // ── AWS: Compute / Containers ─────────────────────────────────────────────
+  aws_elasticbeanstalk_environment: () => 35,
+  aws_elasticbeanstalk_application: () => 0,
+  aws_batch_compute_environment: () => 70,
+  aws_batch_job_queue: () => 0,
+  aws_batch_job_definition: () => 0,
+  aws_workspaces_workspace: () => 35,
+
+  // ── AWS: Data / Analytics ─────────────────────────────────────────────────
+  aws_redshift_cluster: (a) => Math.max(1, Number(a["number_of_nodes"] ?? 1)) * 180,
+  aws_redshift_serverless_workgroup: () => 360,
+  aws_opensearch_domain: (a) => Math.max(1, Number((a["cluster_config"] as Record<string,unknown>)?.["instance_count"] ?? 1)) * 90,
+  aws_elasticsearch_domain: (a) => Math.max(1, Number((a["cluster_config"] as Record<string,unknown>)?.["instance_count"] ?? 1)) * 90,
+  aws_msk_cluster: (a) => Math.max(1, Number(a["number_of_broker_nodes"] ?? 3)) * 55,
+  aws_msk_serverless_cluster: () => 60,
+  aws_kinesis_stream: (a) => Math.max(1, Number(a["shard_count"] ?? 1)) * 10.95,
+  aws_kinesis_firehose_delivery_stream: () => 25,
+  aws_kinesis_analytics_application: () => 110,
+  aws_kinesisanalyticsv2_application: () => 110,
+  aws_glue_job: () => 50,
+  aws_glue_catalog_database: () => 0,
+  aws_glue_catalog_table: () => 0,
+  aws_glue_crawler: () => 5,
+  aws_emr_cluster: (a) => Math.max(1, Number((a["core_instance_group"] as Record<string,unknown>)?.["instance_count"] ?? 2)) * 70,
+  aws_athena_workgroup: () => 5,
+  aws_dax_cluster: (a) => Math.max(1, Number(a["replication_factor"] ?? 1)) * 100,
+
+  // ── AWS: Messaging / Workflow ─────────────────────────────────────────────
+  aws_sqs_queue: () => 0.40,
+  aws_sqs_queue_policy: () => 0,
+  aws_sns_topic: () => 0.50,
+  aws_sns_topic_subscription: () => 0,
+  aws_sns_topic_policy: () => 0,
+  aws_mq_broker: (a) => String(a["engine_type"] ?? "ActiveMQ").toLowerCase().includes("rabbit") ? 60 : 80,
+  aws_sfn_state_machine: () => 1.00,
+  aws_step_functions_state_machine: () => 1.00,
+
+  // ── AWS: Security / Auth ─────────────────────────────────────────────────
+  aws_wafv2_web_acl: () => 5.00,
+  aws_wafv2_rule_group: () => 1.00,
+  aws_wafv2_web_acl_association: () => 0,
+  aws_wafv2_ip_set: () => 0,
+  aws_cognito_user_pool: () => 1,
+  aws_cognito_user_pool_client: () => 0,
+  aws_cognito_identity_pool: () => 0,
+  aws_shield_protection: () => 3000,
+  aws_shield_protection_group: () => 0,
+
+  // ── AWS: DevOps / CI-CD ───────────────────────────────────────────────────
+  aws_codebuild_project: () => 10,
+  aws_codepipeline: () => 1.00,
+  aws_codecommit_repository: () => 0,
+  aws_codedeploy_app: () => 0,
+  aws_codedeploy_deployment_group: () => 0,
+  aws_transfer_server: () => 216,
+  aws_transfer_workflow: () => 0,
+  aws_backup_plan: () => 5,
+  aws_backup_vault: () => 0,
+  aws_backup_selection: () => 0,
+
+  // ── Azure: Compute / PaaS ────────────────────────────────────────────────
+  azurerm_linux_virtual_machine: (a) => {
+    const size = String(a["size"] ?? "Standard_B2s").toLowerCase();
+    if (size.includes("_b1s")) return 7.59;
+    if (size.includes("_b2s") || size.includes("_b2ms")) return 30.37;
+    if (size.includes("_d2s") || size.includes("_d2_v")) return 70.08;
+    if (size.includes("_d4s") || size.includes("_d4_v")) return 140.16;
+    if (size.includes("_d8s") || size.includes("_d8_v")) return 280.32;
+    return 50;
+  },
+  azurerm_windows_virtual_machine: (a) => {
+    const size = String(a["size"] ?? "Standard_B2s").toLowerCase();
+    if (size.includes("_b2s") || size.includes("_b2ms")) return 50;
+    if (size.includes("_d2s") || size.includes("_d2_v")) return 100;
+    if (size.includes("_d4s") || size.includes("_d4_v")) return 200;
+    return 80;
+  },
+  azurerm_virtual_machine: (a) => String(a["vm_size"] ?? "").toLowerCase().includes("_d4") ? 140 : 70,
+  azurerm_kubernetes_cluster: (a) => Math.max(1, Number((a["default_node_pool"] as Record<string,unknown>)?.["node_count"] ?? 2)) * 70,
+  azurerm_kubernetes_cluster_node_pool: (a) => Math.max(1, Number(a["node_count"] ?? 1)) * 70,
+  azurerm_app_service_plan: (a) => {
+    const sku = String(a["sku_name"] ?? (a["sku"] as Record<string,unknown>)?.["tier"] ?? "B1").toUpperCase();
+    if (sku.startsWith("F") || sku === "FREE") return 0;
+    if (sku.startsWith("D1") || sku === "SHARED") return 9.49;
+    if (sku.startsWith("B1")) return 13.14;
+    if (sku.startsWith("B2")) return 26.28;
+    if (sku.startsWith("B3")) return 52.56;
+    if (sku.startsWith("S1")) return 73.00;
+    if (sku.startsWith("S2")) return 146.00;
+    if (sku.startsWith("P1")) return 83.95;
+    if (sku.startsWith("P2")) return 167.90;
+    return 50;
+  },
+  azurerm_app_service: () => 0,
+  azurerm_linux_web_app: () => 0,
+  azurerm_windows_web_app: () => 0,
+  azurerm_function_app: () => 0,
+  azurerm_linux_function_app: () => 0,
+  azurerm_windows_function_app: () => 0,
+  azurerm_container_app: () => 15,
+  azurerm_container_app_environment: () => 0,
+
+  // ── Azure: Analytics / Data ───────────────────────────────────────────────
+  azurerm_synapse_workspace: () => 150,
+  azurerm_synapse_sql_pool: (a) => Math.max(100, Number(String(a["sku_name"] ?? "100").replace(/\D/g, "") || 100)) * 1.20,
+  azurerm_synapse_spark_pool: () => 50,
+  azurerm_hdinsight_hadoop_cluster: () => 200,
+  azurerm_hdinsight_spark_cluster: () => 200,
+  azurerm_search_service: (a) => {
+    const sku = String(a["sku"] ?? "basic").toLowerCase();
+    if (sku === "free") return 0;
+    if (sku === "standard") return 250;
+    return 75;
+  },
+  azurerm_log_analytics_workspace: () => 25,
+  azurerm_monitor_diagnostic_setting: () => 0,
+  azurerm_application_insights: () => 10,
+
+  // ── Azure: Integration / API ──────────────────────────────────────────────
+  azurerm_api_management: (a) => {
+    const sku = String(a["sku_name"] ?? "Consumption").toLowerCase();
+    if (sku.includes("consumption")) return 0;
+    if (sku.includes("developer")) return 50;
+    if (sku.includes("standard")) return 700;
+    return 140;
+  },
+  azurerm_logic_app_workflow: () => 10,
+  azurerm_logic_app_standard: () => 40,
+  azurerm_signalr_service: (a) => String(a["sku"] ?? "Free_F1").toLowerCase().includes("free") ? 0 : 50,
+  azurerm_cdn_profile: () => 0,
+  azurerm_cdn_endpoint: () => 8,
+  azurerm_frontdoor: () => 35,
+  azurerm_frontdoor_firewall_policy: () => 0,
+
+  // ── Azure: AI / IoT ───────────────────────────────────────────────────────
+  azurerm_machine_learning_workspace: () => 50,
+  azurerm_iot_hub: (a) => {
+    const sku = String((a["sku"] as Record<string,unknown>)?.["name"] ?? "S1").toUpperCase();
+    if (sku === "F1") return 0;
+    if (sku === "B1") return 10;
+    if (sku === "S2") return 250;
+    if (sku === "S3") return 2500;
+    return 25;
+  },
+  azurerm_iothub: (a) => {
+    const sku = String((a["sku"] as Record<string,unknown>)?.["name"] ?? "S1").toUpperCase();
+    return sku === "S2" ? 250 : sku === "S3" ? 2500 : 25;
+  },
+
+  // ── GCP: Compute / Data ───────────────────────────────────────────────────
+  google_dataproc_cluster: (a) => Math.max(2, Number((((a["cluster_config"] as Record<string,unknown>)?.["worker_config"]) as Record<string,unknown>)?.["num_instances"] ?? 2)) * 70,
+  google_alloydb_cluster: () => 300,
+  google_alloydb_instance: () => 300,
+  google_datastream_stream: () => 50,
+
+  // ── GCP: Operations / DevOps ──────────────────────────────────────────────
+  google_cloudbuild_trigger: () => 0,
+  google_monitoring_alert_policy: () => 0,
+  google_monitoring_uptime_check_config: () => 0,
+  google_logging_metric: () => 0,
+  google_cloud_tasks_queue: () => 1.00,
+  google_cloud_scheduler_job: () => 0.10,
+
+  // ── GCP: AI / IoT ────────────────────────────────────────────────────────
+  google_healthcare_dataset: () => 10,
+  google_healthcare_fhir_store: () => 10,
+  google_cloudiot_registry: () => 5,
 };
 
 // ── Inline breakdown table ─────────────────────────────────────────────────────
@@ -290,6 +442,7 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   google_cloud_run_v2_service: () => "≈1M req/mo est.",
   google_vertex_ai_endpoint: () => "n1-standard-4 × 730 hr est.",
   google_notebooks_instance: () => "n1-standard-4 Notebooks est.",
+
 };
 
 function estimateNode(node: GraphNode): { monthlyCostUsd: number; breakdown: string; confidence: ConfidenceLevel } {
