@@ -21,21 +21,27 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem(THEME_KEY) as Theme;
     if (stored === "light" || stored === "dark") {
       setThemeState(stored);
-      document.documentElement.setAttribute("data-theme", stored);
+      applyTheme(stored);
     } else {
-      // Default to dark or system preference
       const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-      if (prefersLight) {
-        setThemeState("light");
-        document.documentElement.setAttribute("data-theme", "light");
-      }
+      const initialTheme = prefersLight ? "light" : "dark";
+      setThemeState(initialTheme);
+      applyTheme(initialTheme);
     }
   }, []);
+
+  const applyTheme = (t: Theme) => {
+    if (t === "light") {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  };
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem(THEME_KEY, newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
+    applyTheme(newTheme);
   };
 
   const toggleTheme = () => {
