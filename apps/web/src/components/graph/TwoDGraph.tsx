@@ -152,6 +152,14 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
   const modelRef = useRef(model);
   modelRef.current = model;
 
+  // Stable usage-overrides ref so draw() always reads the latest value
+  const usageOverridesRef = useRef(usageOverrides);
+  usageOverridesRef.current = usageOverrides;
+
+  // Persist zoom/pan state across redraws
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const transformRef = useRef<d3.ZoomTransform | null>(null);
+
   const draw = useCallback(() => {
     const el = svgRef.current;
     if (!el) return;
@@ -195,11 +203,18 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
 
     // ── Canvas & zoom ─────────────────────────────────────────────────────
     const g = svg.append("g");
-    svg.call(
-      d3.zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.12, 4])
-        .on("zoom", (ev) => g.attr("transform", ev.transform.toString())),
-    );
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.12, 4])
+      .on("zoom", (ev) => {
+        transformRef.current = ev.transform;
+        g.attr("transform", ev.transform.toString());
+      });
+    zoomRef.current = zoom;
+    svg.call(zoom);
+    // Restore previous zoom/pan position if one exists (preserves state across redraws)
+    if (transformRef.current) {
+      svg.call(zoom.transform, transformRef.current);
+    }
 
     // ── Layout ─────────────────────────────────────────────────────────────
     const { bands, nodeMap, totalH } = buildLayout(model, svgW);
@@ -374,7 +389,7 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
       }
 
       // Estimated monthly cost
-      const nodeOverrides = usageOverrides?.[graphNode.id];
+      const nodeOverrides = usageOverridesRef.current?.[graphNode.id];
       const effectiveAttrs = applyUsageOverrides(
         (graphNode.attributes ?? {}) as Record<string, unknown>,
         nodeOverrides
