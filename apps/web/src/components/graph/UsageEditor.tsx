@@ -11,7 +11,7 @@ interface UsageEditorProps {
 
 export function UsageEditor({ nodeId, resourceType, attributes, onUpdate }: UsageEditorProps) {
   const params = getUsageParams(resourceType);
-  const overrides = useUsageStore((s) => s.overrides[nodeId] ?? {});
+  const overrides = useUsageStore((s) => s.overrides[nodeId])  ?? {};
   const setOverride = useUsageStore((s) => s.setOverride);
   const resetNode = useUsageStore((s) => s.resetNode);
 
