@@ -70,6 +70,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_ecs_task_definition: () => 0,
   aws_ecs_service: () => 0,
   aws_lambda_event_source_mapping: () => 0,
+  aws_ecs_capacity_provider: () => 0,
+  aws_fargate_profile: () => 0,
 
   // ── AWS Network ────────────────────────────────────────────────────────
   aws_vpc: () => 0,
@@ -155,6 +157,16 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_redshift_cluster: () => 180,
   aws_msk_cluster: () => 350,
 
+  // ── AWS SageMaker (Issue #6) ────────────────────────────────────────────
+  aws_sagemaker_endpoint: () => 156,
+  aws_sagemaker_endpoint_configuration: () => 0,
+  aws_sagemaker_model: () => 0,
+  aws_sagemaker_training_job: () => 200,
+
+  // ── AWS AppRunner (Issue #6) ────────────────────────────────────────────
+  aws_apprunner_service: () => 25,
+  awscc_apprunner_service: () => 25,
+
   // ── Azure Compute ──────────────────────────────────────────────────────
   azurerm_kubernetes_cluster: () => 73,
   azurerm_kubernetes_cluster_node_pool: (a) => 70 * Math.max(1, Number(a["node_count"] ?? 2)),
@@ -214,6 +226,12 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_data_factory: () => 10,
   azurerm_stream_analytics_job: () => 80,
 
+  // ── Azure AI / Containers (Issue #6) ───────────────────────────────────
+  azurerm_application_gateway: () => 55,
+  azurerm_container_registry: () => 5,
+  azurerm_container_group: () => 30,
+  azurerm_cognitive_account: () => 10,
+
   // ── GCP Compute ───────────────────────────────────────────────────────
   google_container_cluster: () => 73,
   google_container_node_pool: (a) => 50 * Math.max(1, Number(a["initial_node_count"] ?? 2)),
@@ -265,6 +283,12 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_pubsub_subscription: () => 0.40,
   google_dataflow_job: () => 100,
   google_composer_environment: () => 400,
+
+  // ── GCP AI / Artifact Registry (Issue #6) ──────────────────────────────
+  google_artifact_registry_repository: () => 1,
+  google_cloud_run_v2_service: () => 5,
+  google_vertex_ai_endpoint: () => 150,
+  google_notebooks_instance: () => 100,
 };
 
 // ── Human-readable computation breakdown per resource type ─────────────────
@@ -504,6 +528,25 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   google_secret_manager_secret_version: () => "free — billed via Secret Manager secret",
   google_kms_key_ring: () => "free",
   google_kms_crypto_key: () => "$6.00/key/mo est.",
+  // AWS SageMaker / AppRunner / Fargate (Issue #6)
+  aws_sagemaker_endpoint: () => "ml.t3.medium × 730 hr est.",
+  aws_sagemaker_endpoint_configuration: () => "free — billed via endpoint",
+  aws_sagemaker_model: () => "free — model artifact storage only",
+  aws_sagemaker_training_job: () => "ml.m5.xlarge × ≈100 hr/mo est.",
+  aws_ecs_capacity_provider: () => "free — capacity provider itself has no charge",
+  aws_apprunner_service: () => "1 vCPU × 2 GB RAM × ≈730 hr est.",
+  awscc_apprunner_service: () => "1 vCPU × 2 GB RAM × ≈730 hr est.",
+  aws_fargate_profile: () => "free — Fargate compute billed via ECS tasks",
+  // Azure AI / Containers (Issue #6)
+  azurerm_application_gateway: () => "WAF_v2 Small, 1 instance × $0.075/hr est.",
+  azurerm_container_registry: () => "Basic tier est.",
+  azurerm_container_group: () => "1 vCPU × 1.5 GB × 730 hr est.",
+  azurerm_cognitive_account: () => "S0 tier est.",
+  // GCP AI / Artifact Registry (Issue #6)
+  google_artifact_registry_repository: () => "≈10 GB × $0.10/GB est.",
+  google_cloud_run_v2_service: () => "≈1M req/mo est.",
+  google_vertex_ai_endpoint: () => "n1-standard-4 × 730 hr est.",
+  google_notebooks_instance: () => "n1-standard-4 Notebooks est.",
 };
 
 export interface CostEstimate {
