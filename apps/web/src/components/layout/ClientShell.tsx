@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
 import { Sidebar } from "./Sidebar";
 import { ResizeHandle } from "./ResizeHandle";
+import { StorageWarningBanner } from "@/components/ui/StorageWarningBanner";
+import { getStoredTheme, applyTheme } from "@/lib/theme-store";
 
 const SIDEBAR_KEY = "tf-viz:panel:sidebar";
 const MIN_SIDEBAR = 160;
@@ -11,6 +13,11 @@ const DEFAULT_SIDEBAR = 220;
 
 export default function ClientShell({ children }: { children: ReactNode }) {
   const [sidebarW, setSidebarW] = useState(DEFAULT_SIDEBAR);
+
+  // Apply stored theme on mount
+  useEffect(() => {
+    applyTheme(getStoredTheme());
+  }, []);
 
   // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
@@ -36,7 +43,10 @@ export default function ClientShell({ children }: { children: ReactNode }) {
     >
       <Sidebar />
       <ResizeHandle onResize={handleResize} className="resize-handle--sidebar" />
-      <main className="app-content">{children}</main>
+      <div className="app-content">
+        <StorageWarningBanner />
+        <main className="app-content-inner">{children}</main>
+      </div>
     </div>
   );
 }

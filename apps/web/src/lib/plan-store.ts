@@ -3,6 +3,35 @@ import type { GraphModel } from "@terraform-viz/graph-schema";
 export const PLAN_STORAGE_KEY = "terraform-viz:plan";
 export const HISTORY_STORAGE_KEY = "terraform-viz:history";
 const MAX_HISTORY = 6;
+const QUOTA_WARN_BYTES = 4 * 1024 * 1024; // warn at 4 MB
+
+export class StorageQuotaError extends Error {
+  constructor() {
+    super("localStorage quota exceeded");
+    this.name = "StorageQuotaError";
+  }
+}
+
+export function estimateLocalStorageUsage(): number {
+  try {
+    let total = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) total += key.length + (localStorage.getItem(key)?.length ?? 0);
+    }
+    return total * 2; // UTF-16 chars = 2 bytes each
+  } catch {
+    return 0;
+  }
+}
+
+export function isApproachingQuota(): boolean {
+  return estimateLocalStorageUsage() > QUOTA_WARN_BYTES;
+}
+
+export function isAtQuota(): boolean {
+  return estimateLocalStorageUsage() > QUOTA_WARN_BYTES * 1.25;
+}
 
 export interface PlanHistoryEntry {
   id: string;
@@ -14,6 +43,18 @@ export interface PlanHistoryEntry {
 
 export function savePlan(model: GraphModel): void {
   try {
+    // Evict oldest history entry if at quota before saving
+    if (isAtQuota()) {
+      const history = loadHistory();
+      if (history.length > 0) {
+        const trimmed = history.slice(0, history.length - 1);
+        try {
+          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(trimmed));
+        } catch {
+          // ignore
+        }
+      }
+    }
     localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(model));
   } catch {
     // quota exceeded — skip silently

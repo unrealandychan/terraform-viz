@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   savePlan, loadPlan, clearPlan, saveToHistory, loadHistory, removeHistoryEntry,
-  PLAN_STORAGE_KEY, HISTORY_STORAGE_KEY,
+  estimateLocalStorageUsage, isApproachingQuota, PLAN_STORAGE_KEY, HISTORY_STORAGE_KEY,
 } from "../lib/plan-store";
 import type { GraphModel } from "@terraform-viz/graph-schema";
 
@@ -121,6 +121,16 @@ describe("plan-store", () => {
     it("loadHistory returns [] for corrupted JSON", () => {
       localStorageMock.setItem(HISTORY_STORAGE_KEY, "[bad");
       expect(loadHistory()).toEqual([]);
+    });
+  });
+
+  describe("quota utilities", () => {
+    it("estimateLocalStorageUsage returns a number >= 0", () => {
+      expect(estimateLocalStorageUsage()).toBeGreaterThanOrEqual(0);
+    });
+
+    it("isApproachingQuota returns false when storage is near-empty", () => {
+      expect(isApproachingQuota()).toBe(false);
     });
   });
 });
