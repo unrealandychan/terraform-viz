@@ -156,8 +156,16 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
 
     const viewW = el.clientWidth || 960;
     const viewH = el.clientHeight || 700;
-    const svgW = Math.max(viewW, 960);
     const model = modelRef.current;
+
+    // Expand the canvas width so nodes never overflow their boundary when
+    // a layer has many resources (each node needs at least MIN_SPACE px).
+    const maxNodesInLayer = Math.max(
+      1,
+      ...LAYER_ORDER.map((l) => model.nodes.filter((n) => n.layer === l).length),
+    );
+    const requiredW = LABEL_COL + H_PAD * 2 + maxNodesInLayer * MIN_SPACE;
+    const svgW = Math.max(viewW, 960, requiredW);
 
     const isLight = theme === "light";
 

@@ -346,6 +346,41 @@ body {
 }
 .upload-form__file-input { display: none; }
 
+.upload-form__vars-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.upload-form__vars-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+}
+.upload-form__vars-toggle:hover { color: var(--color-text); }
+.upload-form__vars-hint { color: var(--color-text-muted); font-weight: 400; }
+.upload-form__vars-textarea {
+  width: 100%;
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  color: var(--color-text);
+  font-family: "SF Mono", "Cascadia Code", monospace;
+  font-size: 12px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.upload-form__vars-textarea:focus { border-color: var(--color-primary); }
+
 .upload-form__divider {
   text-align: center;
   color: var(--color-text-muted);
