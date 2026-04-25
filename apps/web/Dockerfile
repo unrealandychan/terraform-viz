@@ -16,9 +16,14 @@ RUN cd apps/web && npm run build
 
 FROM base AS runner
 ENV NODE_ENV=production
-COPY --from=builder /app/apps/web/.next ./apps/web/.next
-COPY --from=builder /app/apps/web/public ./apps/web/public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
-WORKDIR /app/apps/web
-CMD ["npm", "start"]
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Standalone Next.js output
+COPY --from=builder --chown=appuser:appgroup /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=appuser:appgroup /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=appuser:appgroup /app/apps/web/public ./apps/web/public
+WORKDIR /app
+USER appuser
+EXPOSE 3000
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=20s \
+  CMD wget -qO- http://localhost:3000/api/health || exit 1
+CMD ["node", "apps/web/server.js"]

@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
+  output: "standalone",
   env: {
     PARSER_URL: process.env["PARSER_URL"] ?? "http://localhost:3001",
     PRICING_URL: process.env["PRICING_URL"] ?? "http://localhost:3002",

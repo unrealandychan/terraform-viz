@@ -16,8 +16,13 @@ RUN cd services/parser && npm run build
 
 FROM base AS runner
 ENV NODE_ENV=production
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder /app/services/parser/dist ./services/parser/dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/services/parser/package.json ./services/parser/package.json
 WORKDIR /app/services/parser
+USER appuser
+EXPOSE 3001
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=10s \
+  CMD wget -qO- http://localhost:3001/health || exit 1
 CMD ["node", "dist/main.js"]

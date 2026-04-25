@@ -28,8 +28,13 @@ RUN cd apps/terraform-worker && npm run build
 
 FROM base AS runner
 ENV NODE_ENV=production
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder /app/apps/terraform-worker/dist ./apps/terraform-worker/dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/terraform-worker/package.json ./apps/terraform-worker/package.json
 WORKDIR /app/apps/terraform-worker
+USER appuser
+EXPOSE 3005
+HEALTHCHECK --interval=10s --timeout=5s --retries=3 --start-period=15s \
+  CMD wget -qO- http://localhost:3005/health || exit 1
 CMD ["node", "dist/main.js"]
