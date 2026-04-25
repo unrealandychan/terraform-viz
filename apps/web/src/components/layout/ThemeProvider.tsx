@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 
 type Theme = "dark" | "light";
 
@@ -17,6 +17,14 @@ const THEME_KEY = "tf-viz:theme";
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
 
+  const applyTheme = useCallback((t: Theme) => {
+    if (t === "light") {
+      document.documentElement.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+    }
+  }, []);
+
   useEffect(() => {
     const stored = localStorage.getItem(THEME_KEY) as Theme;
     if (stored === "light" || stored === "dark") {
@@ -28,15 +36,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       setThemeState(initialTheme);
       applyTheme(initialTheme);
     }
-  }, []);
-
-  const applyTheme = (t: Theme) => {
-    if (t === "light") {
-      document.documentElement.classList.add("light");
-    } else {
-      document.documentElement.classList.remove("light");
-    }
-  };
+  }, [applyTheme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

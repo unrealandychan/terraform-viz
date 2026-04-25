@@ -49,9 +49,10 @@ export function ThemeToggle() {
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       className="sidebar__nav-item"
-      style={{ background: "transparent", border: "none", width: "100%", justifyContent: "flex-start" }}
+      style={{ border: "none", width: "100%", justifyContent: "flex-start" }}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
     >
       {theme === "dark" ? <IconSun /> : <IconMoon />}

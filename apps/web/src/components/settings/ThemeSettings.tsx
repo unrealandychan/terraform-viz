@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "../../components/layout/ThemeProvider";
+import { useTheme } from "../layout/ThemeProvider";
 
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
@@ -16,16 +16,16 @@ export function ThemeSettings() {
         <label>Theme</label>
         <div className="settings-presets">
           <button
+            type="button"
             onClick={() => setTheme("light")}
             className={`settings-preset-btn${theme === "light" ? " settings-preset-btn--active" : ""}`}
-            style={theme === "light" ? { borderColor: "var(--color-primary)", color: "var(--color-primary)", background: "rgba(79, 142, 247, 0.06)" } : {}}
           >
             Light
           </button>
           <button
+            type="button"
             onClick={() => setTheme("dark")}
             className={`settings-preset-btn${theme === "dark" ? " settings-preset-btn--active" : ""}`}
-            style={theme === "dark" ? { borderColor: "var(--color-primary)", color: "var(--color-primary)", background: "rgba(79, 142, 247, 0.06)" } : {}}
           >
             Dark
           </button>

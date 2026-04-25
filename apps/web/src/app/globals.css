@@ -1001,7 +1001,13 @@ body {
 .settings-preset-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-  background: rgba(79, 142, 247, 0.06);
+  background: var(--color-active-bg);
+}
+
+.settings-preset-btn--active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-active-bg);
 }
 
 .settings-save-row {
