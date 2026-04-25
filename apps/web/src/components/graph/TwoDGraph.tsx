@@ -12,6 +12,7 @@ import { useEffect, useRef, useCallback, memo } from "react";
 import * as d3 from "d3";
 import { ChangeAction, CloudProvider, ResourceLayer, type GraphModel, type GraphNode } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@/lib/pricing-estimates";
+import { useTheme } from "../layout/ThemeProvider";
 
 // ── Layer ordering (top → bottom in diagram) ───────────────────────────────
 const LAYER_ORDER: ResourceLayer[] = [
@@ -142,6 +143,7 @@ interface TwoDGraphProps {
 }
 
 function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
+  const { theme } = useTheme();
   const svgRef = useRef<SVGSVGElement>(null);
   const stableSelect = useCallback(onNodeSelect, [onNodeSelect]);
   // Stable model ref so the ResizeObserver callback can always read current model
@@ -157,6 +159,8 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
     const svgW = Math.max(viewW, 960);
     const model = modelRef.current;
 
+    const isLight = theme === "light";
+
     const svg = d3.select<SVGSVGElement, unknown>(el);
     svg.selectAll("*").remove();
 
@@ -169,7 +173,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
       .attr("refX", 9).attr("refY", 0)
       .attr("markerWidth", 5).attr("markerHeight", 5)
       .attr("orient", "auto")
-      .append("path").attr("d", "M0,-4L9,0L0,4").attr("fill", "#4a5568");
+      .append("path").attr("d", "M0,-4L9,0L0,4").attr("fill", isLight ? "#94a3b8" : "#4a5568");
 
     const filter = defs.append("filter")
       .attr("id", "node-shadow")
@@ -177,7 +181,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
       .attr("width", "160%").attr("height", "160%");
     filter.append("feDropShadow")
       .attr("dx", 0).attr("dy", 2).attr("stdDeviation", 4)
-      .attr("flood-color", "#000").attr("flood-opacity", 0.35);
+      .attr("flood-color", "#000").attr("flood-opacity", isLight ? 0.15 : 0.35);
 
     // ── Canvas & zoom ─────────────────────────────────────────────────────
     const g = svg.append("g");
@@ -203,15 +207,15 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
         .attr("x", LABEL_COL).attr("y", y + 6)
         .attr("width", svgW - LABEL_COL - 10).attr("height", BAND_H - 12)
         .attr("rx", 12).attr("fill", bg)
-        .attr("stroke", color).attr("stroke-width", 1).attr("stroke-opacity", 0.3);
+        .attr("stroke", color).attr("stroke-width", 1).attr("stroke-opacity", isLight ? 0.2 : 0.3);
 
       // Label column background
       g.append("rect")
         .attr("x", 4).attr("y", y + 6)
         .attr("width", LABEL_COL - 12).attr("height", BAND_H - 12)
         .attr("rx", 8)
-        .attr("fill", "rgba(255,255,255,0.015)")
-        .attr("stroke", color).attr("stroke-width", 0.5).attr("stroke-opacity", 0.25);
+        .attr("fill", isLight ? "rgba(0,0,0,0.02)" : "rgba(255,255,255,0.015)")
+        .attr("stroke", color).attr("stroke-width", 0.5).attr("stroke-opacity", isLight ? 0.15 : 0.25);
 
       // Accent left bar
       g.append("rect")
@@ -253,7 +257,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
       g.append("path")
         .attr("d", `M ${stX} ${stY} C ${stX} ${stY + cp}, ${endX} ${endY - cp}, ${endX} ${endY}`)
         .attr("fill", "none")
-        .attr("stroke", "#3a4155").attr("stroke-width", 1.5).attr("opacity", 0.65)
+        .attr("stroke", isLight ? "#cbd5e1" : "#3a4155").attr("stroke-width", 1.5).attr("opacity", 0.65)
         .attr("marker-end", "url(#arrowhead)");
     }
 
@@ -276,7 +280,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
 
       // Drop shadow
       nodeG.append("circle")
-        .attr("r", NODE_R + 2).attr("fill", "rgba(0,0,0,0.28)").attr("cy", 3);
+        .attr("r", NODE_R + 2).attr("fill", isLight ? "rgba(0,0,0,0.1)" : "rgba(0,0,0,0.28)").attr("cy", 3);
 
       // Main circle — border uses action colour when changed
       nodeG.append("circle")
@@ -300,7 +304,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
           .attr("r", badgeR)
           .attr("cx", bx).attr("cy", by)
           .attr("fill", actColor)
-          .attr("stroke", "#0d0f18").attr("stroke-width", 1.5);
+          .attr("stroke", isLight ? "#fff" : "#0d0f18").attr("stroke-width", 1.5);
         nodeG.append("text")
           .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
           .attr("x", bx).attr("y", by)
@@ -334,7 +338,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
         ? graphNode.name.slice(0, 12) + "…" : graphNode.name;
       nodeG.append("text")
         .attr("text-anchor", "middle").attr("y", NODE_R + 14)
-        .attr("font-size", 9.5).attr("fill", "#cbd5e1").attr("pointer-events", "none")
+        .attr("font-size", 9.5).attr("fill", isLight ? "#334155" : "#cbd5e1").attr("pointer-events", "none")
         .attr("font-family", "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
         .attr("font-weight", "600")
         .text(displayName);
@@ -392,15 +396,15 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
     legendG.append("rect")
       .attr("width", lgW).attr("height", lgH)
       .attr("rx", 7)
-      .attr("fill", "rgba(13,15,24,0.88)")
-      .attr("stroke", "rgba(255,255,255,0.09)").attr("stroke-width", 1);
+      .attr("fill", isLight ? "rgba(255,255,255,0.92)" : "rgba(13,15,24,0.88)")
+      .attr("stroke", isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.09)").attr("stroke-width", 1);
 
     legendItems.forEach(({ color, symbol, label }, i) => {
       const ly = lgPad + i * lgItemH + lgItemH / 2;
       legendG.append("circle")
         .attr("r", 8).attr("cx", lgPad + 8).attr("cy", ly)
         .attr("fill", color)
-        .attr("stroke", "#0d0f18").attr("stroke-width", 1);
+        .attr("stroke", isLight ? "#fff" : "#0d0f18").attr("stroke-width", 1);
       legendG.append("text")
         .attr("x", lgPad + 8).attr("y", ly)
         .attr("text-anchor", "middle").attr("dominant-baseline", "middle")
@@ -412,7 +416,7 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
         .attr("x", lgPad + 22).attr("y", ly)
         .attr("dominant-baseline", "middle")
         .attr("font-size", 10.5)
-        .attr("fill", "#94a3b8")
+        .attr("fill", isLight ? "#475569" : "#94a3b8")
         .attr("font-family", "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
         .text(label);
     });
@@ -437,13 +441,13 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
       plgG.append("rect")
         .attr("width", plgW).attr("height", plgH)
         .attr("rx", 7)
-        .attr("fill", "rgba(13,15,24,0.88)")
-        .attr("stroke", "rgba(255,255,255,0.09)").attr("stroke-width", 1);
+        .attr("fill", isLight ? "rgba(255,255,255,0.92)" : "rgba(13,15,24,0.88)")
+        .attr("stroke", isLight ? "rgba(0,0,0,0.1)" : "rgba(255,255,255,0.09)").attr("stroke-width", 1);
       plgG.append("text")
         .attr("x", plgPad).attr("y", plgPad + 9)
         .attr("font-size", 8.5).attr("font-weight", "700")
         .attr("letter-spacing", "0.5")
-        .attr("fill", "#475569")
+        .attr("fill", isLight ? "#64748b" : "#475569")
         .attr("font-family", "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
         .text("PROVIDERS");
 
@@ -468,12 +472,12 @@ function _TwoDGraph({ model, onNodeSelect }: TwoDGraphProps) {
           .attr("x", plgPad + 30).attr("y", py)
           .attr("dominant-baseline", "middle")
           .attr("font-size", 10)
-          .attr("fill", "#94a3b8")
+          .attr("fill", isLight ? "#475569" : "#94a3b8")
           .attr("font-family", "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif")
           .text(label);
       });
     }
-  }, [stableSelect]);
+  }, [stableSelect, theme]);
 
   // Redraw on model change
   useEffect(() => { draw(); }, [draw, model]);
