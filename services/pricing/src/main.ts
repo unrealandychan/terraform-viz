@@ -3,6 +3,7 @@ import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ConfidenceLevel, type PricingResult, type ResourceEstimate } from "@terraform-viz/pricing-types";
 import { readFile } from "fs/promises";
 import { join } from "path";
+import { z } from "zod";
 
 const PORT = Number(process.env["PORT"] ?? 3002);
 const CATALOG_DIR = process.env["CATALOG_DIR"] ?? join(process.cwd(), "../../pricing/data");
@@ -11,6 +12,10 @@ const app = express();
 app.use(express.json({ limit: "10mb" }));
 
 import { COST_TABLE, BREAKDOWN_TABLE } from "@terraform-viz/pricing-engine";
+
+const estimateSchema = z.object({
+  model: z.object({ nodes: z.array(z.unknown()), edges: z.array(z.unknown()) }),
+});
 
 function estimateNode(node: GraphNode): { monthlyCostUsd: number; breakdown: string; confidence: ConfidenceLevel } {
   const fn = COST_TABLE[node.type];

@@ -22,6 +22,7 @@ import { ENTERPRISE_MIGRATION } from "@/lib/example-enterprise";
 import { MULTI_CLOUD_PLATFORM } from "@/lib/example-multicloud";
 import { useUsageStore } from "@/stores/useUsageStore";
 import { useUIStore } from "@/stores/useUIStore";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const DETAIL_KEY = "tf-viz:panel:detail";
 const MIN_DETAIL = 220;
@@ -254,15 +255,21 @@ export default function GraphPage() {
       <div className="graph-page__canvas-area">
         <div className="graph-page__canvas">
           {viewMode === "diff" && diff !== null ? (
-            <DiffView
-              diff={diff}
-              baselineName={baseline!.name}
-              onNodeSelect={handleNodeSelect}
-            />
+            <ErrorBoundary name="DiffView">
+              <DiffView
+                diff={diff}
+                baselineName={baseline!.name}
+                onNodeSelect={handleNodeSelect}
+              />
+            </ErrorBoundary>
           ) : viewMode === "2d" ? (
-            <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} usageOverrides={usageOverrides} />
+            <ErrorBoundary name="TwoDGraph">
+              <TwoDGraph model={filteredModel ?? model} onNodeSelect={handleNodeSelect} usageOverrides={usageOverrides} />
+            </ErrorBoundary>
           ) : (
-            <CompareView model={filteredModel ?? model} onNodeSelect={handleNodeSelect} />
+            <ErrorBoundary name="CompareView">
+              <CompareView model={filteredModel ?? model} onNodeSelect={handleNodeSelect} />
+            </ErrorBoundary>
           )}
         </div>
 
@@ -312,19 +319,25 @@ export default function GraphPage() {
 
               {/* Panel content */}
               {activeTab === "cost" && (
-                <CostBreakdown
-                  model={filteredModel ?? model}
-                />
+                <ErrorBoundary name="CostBreakdown">
+                  <CostBreakdown
+                    model={filteredModel ?? model}
+                  />
+                </ErrorBoundary>
               )}
               {activeTab === "detail" && selectedNode !== null && (
-                <NodeDetail node={selectedNode} />
+                <ErrorBoundary name="NodeDetail">
+                  <NodeDetail node={selectedNode} />
+                </ErrorBoundary>
               )}
               {activeTab === "chat" && chatOpen && (
-                <ChatPanel
-                  nodeContext={selectedNode}
-                  plan={model}
-                  compact
-                />
+                <ErrorBoundary name="ChatPanel">
+                  <ChatPanel
+                    nodeContext={selectedNode}
+                    plan={model}
+                    compact
+                  />
+                </ErrorBoundary>
               )}
             </div>
           </>

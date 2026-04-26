@@ -1,9 +1,17 @@
 import { Router, type Request, type Response } from "express";
+import { z } from "zod";
 import { parsePlanUseCase } from "../../application/parse-plan.use-case.js";
 
 export const parserRouter = Router();
 
+const parseSchema = z.object({ plan: z.record(z.unknown()) });
+
 parserRouter.post("/parse", (request: Request, response: Response): void => {
+  const parsed = parseSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    return;
+  }
   const result = parsePlanUseCase(request.body);
 
   if (result.success) {

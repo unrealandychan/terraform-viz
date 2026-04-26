@@ -27,26 +27,35 @@ interface RunRequest {
   vars?: string[];
 }
 
+const runSchema = z.object({ archiveBase64: z.string().min(1), vars: z.array(z.string()).optional() });
+
 // POST /run
 // Accepts a base64-encoded zip of a Terraform project, runs terraform init + plan + show -json
 // using the portable terraform binary on the host PATH, and returns the plan JSON.
 // Each step has an independent timeout of STEP_TIMEOUT_MS.
 app.post("/run", async (request: Request, response: Response): Promise<void> => {
-  const body = request.body as Partial<RunRequest>;
-
-  if (typeof body.archiveBase64 !== "string") {
-    response.status(400).json({ error: "archiveBase64 is required" });
+  const parsed = runSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
     return;
   }
 
+  const body = parsed.data;
   const workDir = await mkdtemp(join(tmpdir(), "tfworker-"));
 
   try {
     const archivePath = join(workDir, "project.zip");
     await writeFile(archivePath, Buffer.from(body.archiveBase64, "base64"));
 
+    // Validate zip entries for path traversal before extracting
+    const { stdout: zipList } = await execFileAsync('unzip', ['-Z1', 'project.zip'], { cwd: workDir });
+    const entries = zipList.split('\n').filter(Boolean);
+    if (entries.some(e => e.includes('../') || e.startsWith('/'))) {
+      throw new Error('Archive contains path traversal entries — rejecting upload');
+    }
+
     // Extract the archive in-place using the system unzip tool
-    await execFileAsync("unzip", ["-q", "project.zip"], {
+    await execFileAsync("unzip", ["-q", "project.zip", "-d", "."], {
       cwd: workDir,
       timeout: 30_000,
     });

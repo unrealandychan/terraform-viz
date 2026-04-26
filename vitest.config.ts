@@ -14,6 +14,7 @@ export default defineConfig({
       "@terraform-viz/graph-schema": resolve(__dirname, "packages/graph-schema/src/index.ts"),
       "@terraform-viz/llm-types": resolve(__dirname, "packages/llm-types/src/index.ts"),
       "@terraform-viz/pricing-types": resolve(__dirname, "packages/pricing-types/src/index.ts"),
+      "@terraform-viz/pricing-engine": resolve(__dirname, "packages/pricing-engine/src/index.ts"),
     },
   },
 });
