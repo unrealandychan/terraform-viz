@@ -7,24 +7,24 @@ import { z } from "zod";
 const PORT = Number(process.env["PORT"] ?? 3003);
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
 
-async function fetchWithTimeout(url: string, opts: RequestInit, timeoutMs = 30_000): Promise<Response> {
+async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 30_000): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(url, { ...opts, signal: controller.signal });
+    const res = await fetch(url, { ...options, signal: controller.signal });
     clearTimeout(timer);
     return res;
-  } catch (e) {
+  } catch (error) {
     clearTimeout(timer);
-    if (e instanceof Error && e.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
-    throw e;
+    if (error instanceof Error && error.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
+    throw error;
   }
 }
 
 const app = express();
 app.use(express.json({ limit: "20mb" }));
 
-app.get("/health", (_req: Request, response: Response): void => {
+app.get("/health", (_request: Request, response: Response): void => {
   response.json({ status: "ok", service: "comparison" });
 });
 
@@ -90,7 +90,7 @@ app.post("/diff", (request: Request, response: Response): void => {
     const previousTotal = body.previous!.nodes.reduce((s, n) => {
       return s + (usePricing ? (priceMap.get(n.id) ?? roughMonthlyFallback(n)) : roughMonthlyFallback(n));
     }, 0);
-    const costDeltaUsd = parseFloat((currentTotal - previousTotal).toFixed(2));
+    const costDeltaUsd = Number.parseFloat((currentTotal - previousTotal).toFixed(2));
 
     response.json({
       createdAt: new Date().toISOString(),

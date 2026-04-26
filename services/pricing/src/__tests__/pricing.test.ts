@@ -5,7 +5,7 @@ import type { GraphNode } from '@terraform-viz/graph-schema';
 
 function node(
   type: string,
-  attrs: Record<string, unknown> = {},
+  attributes: Record<string, unknown> = {},
   provider = CloudProvider.AWS,
 ): GraphNode {
   return {
@@ -16,7 +16,7 @@ function node(
     provider,
     layer: ResourceLayer.COMPUTE,
     changeAction: ChangeAction.NO_OP,
-    attributes: attrs,
+    attributes: attributes,
     moduleAddress: null,
   };
 }
@@ -61,7 +61,7 @@ describe('estimateCost – fixed costs', () => {
   it('aws_efs_file_system is $30/mo', () => expect(estimateCost(node('aws_efs_file_system')).monthly).toBe(30));
   it('aws_cloudwatch_log_group default is ~$0.59/mo (1GB ingestion, 90d retention)', () => expect(estimateCost(node('aws_cloudwatch_log_group')).monthly).toBeCloseTo(0.59, 2));
   it('aws_cloudwatch_metric_alarm is $0.10/mo', () => expect(estimateCost(node('aws_cloudwatch_metric_alarm')).monthly).toBe(0.1));
-  it('aws_kms_key is $1.00/mo', () => expect(estimateCost(node('aws_kms_key')).monthly).toBe(1.0));
+  it('aws_kms_key is $1.00/mo', () => expect(estimateCost(node('aws_kms_key')).monthly).toBe(1));
   it('aws_secretsmanager_secret is $0.40/mo', () => expect(estimateCost(node('aws_secretsmanager_secret')).monthly).toBe(0.4));
   it('aws_route53_zone is $0.50/mo', () => expect(estimateCost(node('aws_route53_zone')).monthly).toBe(0.5));
   it('aws_cloudfront_distribution is $10/mo', () => expect(estimateCost(node('aws_cloudfront_distribution')).monthly).toBe(10));
@@ -80,7 +80,7 @@ describe('estimateCost – aws_instance instance type lookup', () => {
   it('t3.micro → $7.59', () => expect(estimateCost(node('aws_instance', { instance_type: 't3.micro' })).monthly).toBe(7.59));
   it('t3.small → $15.18', () => expect(estimateCost(node('aws_instance', { instance_type: 't3.small' })).monthly).toBe(15.18));
   it('m5.large → $70.08', () => expect(estimateCost(node('aws_instance', { instance_type: 'm5.large' })).monthly).toBe(70.08));
-  it('c5.xlarge → $124.10', () => expect(estimateCost(node('aws_instance', { instance_type: 'c5.xlarge' })).monthly).toBe(124.10));
+  it('c5.xlarge → $124.10', () => expect(estimateCost(node('aws_instance', { instance_type: 'c5.xlarge' })).monthly).toBe(124.1));
   it('r5.large → $91.98', () => expect(estimateCost(node('aws_instance', { instance_type: 'r5.large' })).monthly).toBe(91.98));
   it('unknown instance type → $36.50 fallback', () => expect(estimateCost(node('aws_instance', { instance_type: 'p4d.24xlarge' })).monthly).toBe(36.5));
   it('no instance_type → $36.50 fallback', () => expect(estimateCost(node('aws_instance')).monthly).toBe(36.5));
@@ -93,7 +93,7 @@ describe('estimateCost – aws_db_instance instance class lookup', () => {
 });
 
 describe('estimateCost – aws_ebs_volume volume types', () => {
-  it('gp2 20GB → $2.00', () => expect(estimateCost(node('aws_ebs_volume', { size: 20, volume_type: 'gp2' })).monthly).toBe(2.0));
+  it('gp2 20GB → $2.00', () => expect(estimateCost(node('aws_ebs_volume', { size: 20, volume_type: 'gp2' })).monthly).toBe(2));
   it('gp3 20GB → $1.60', () => expect(estimateCost(node('aws_ebs_volume', { size: 20, volume_type: 'gp3' })).monthly).toBe(1.6));
   it('st1 500GB → $22.50', () => expect(estimateCost(node('aws_ebs_volume', { size: 500, volume_type: 'st1' })).monthly).toBe(22.5));
   it('sc1 500GB → $12.50', () => expect(estimateCost(node('aws_ebs_volume', { size: 500, volume_type: 'sc1' })).monthly).toBe(12.5));
@@ -105,7 +105,7 @@ describe('estimateCost – aws_ebs_volume volume types', () => {
     expect(estimateCost(node('aws_ebs_volume', { size: 100, volume_type: 'io2', iops: 0 })).monthly).toBeCloseTo(12.5);
   });
   it('default type (gp2) 20GB → $2.00', () => {
-    expect(estimateCost(node('aws_ebs_volume', { size: 20 })).monthly).toBe(2.0);
+    expect(estimateCost(node('aws_ebs_volume', { size: 20 })).monthly).toBe(2);
   });
 });
 
@@ -168,11 +168,11 @@ describe('estimateCost – GCP resources', () => {
     expect(result.monthly).toBeGreaterThan(0);
   });
   it('google_compute_disk 100GB → 100*0.04 = $4', () =>
-    expect(estimateCost(node('google_compute_disk', { size: 100 }, CloudProvider.GCP)).monthly).toBeCloseTo(4.0));
+    expect(estimateCost(node('google_compute_disk', { size: 100 }, CloudProvider.GCP)).monthly).toBeCloseTo(4));
   it('google_dns_managed_zone → $0.20', () =>
-    expect(estimateCost(node('google_dns_managed_zone', {}, CloudProvider.GCP)).monthly).toBe(0.20));
+    expect(estimateCost(node('google_dns_managed_zone', {}, CloudProvider.GCP)).monthly).toBe(0.2));
   it('google_kms_crypto_key → $6.00', () =>
-    expect(estimateCost(node('google_kms_crypto_key', {}, CloudProvider.GCP)).monthly).toBe(6.0));
+    expect(estimateCost(node('google_kms_crypto_key', {}, CloudProvider.GCP)).monthly).toBe(6));
   it('google_vertex_ai_endpoint → $150', () =>
     expect(estimateCost(node('google_vertex_ai_endpoint', {}, CloudProvider.GCP)).monthly).toBe(150));
 });
@@ -199,7 +199,7 @@ describe('estimateCost – Azure resources', () => {
   it('azurerm_public_ip → $3.65', () =>
     expect(estimateCost(node('azurerm_public_ip', {}, CloudProvider.AZURE)).monthly).toBe(3.65));
   it('azurerm_key_vault → $5.00', () =>
-    expect(estimateCost(node('azurerm_key_vault', {}, CloudProvider.AZURE)).monthly).toBe(5.0));
+    expect(estimateCost(node('azurerm_key_vault', {}, CloudProvider.AZURE)).monthly).toBe(5));
   it('azurerm_resource_group is free', () =>
     expect(estimateCost(node('azurerm_resource_group', {}, CloudProvider.AZURE)).monthly).toBe(0));
   it('azurerm_databricks_workspace → $150', () =>

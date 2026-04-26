@@ -5,22 +5,22 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   // ── AWS Compute ────────────────────────────────────────────────────────
   aws_instance: (a) => {
     const P: Record<string, number> = {
-      "t3.nano": 3.80, "t3.micro": 7.59, "t3.small": 15.18, "t3.medium": 30.37,
+      "t3.nano": 3.8, "t3.micro": 7.59, "t3.small": 15.18, "t3.medium": 30.37,
       "t3.large": 60.74, "t3.xlarge": 121.47, "t3.2xlarge": 242.94,
       "m5.large": 70.08, "m5.xlarge": 140.16, "m5.2xlarge": 280.32,
-      "c5.large": 62.05, "c5.xlarge": 124.10, "c5.2xlarge": 248.20,
+      "c5.large": 62.05, "c5.xlarge": 124.1, "c5.2xlarge": 248.2,
       "r5.large": 91.98, "r5.xlarge": 183.96, "r5.2xlarge": 367.92,
     };
-    return P[String(a["instance_type"] ?? "")] ?? 36.50;
+    return P[String(a["instance_type"] ?? "")] ?? 36.5;
   },
   aws_lambda_function: (a) => {
-    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const requestM = Number(a["_usage_requests_m"] ?? 1);
     const memMb = Number(a["memory_size"] ?? a["_usage_memory_mb"] ?? 256);
     const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
-    const reqCost = Math.max(0, reqM - 1) * 0.20;
-    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
-    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000166667;
-    return Math.round((reqCost + computeCost) * 100) / 100;
+    const requestCost = Math.max(0, requestM - 1) * 0.2;
+    const gbSec = requestM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.000_016_666_7;
+    return Math.round((requestCost + computeCost) * 100) / 100;
   },
   aws_eks_cluster: () => 73,
   aws_eks_node_group: (a) => 70.08 * Math.max(1, Number(a["desired_size"] ?? 2)),
@@ -31,14 +31,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     const P: Record<string, number> = {
       "db.t3.micro": 12.41, "db.t3.small": 24.82, "db.t3.medium": 49.64,
       "db.t3.large": 99.28, "db.m5.large": 124.83, "db.m5.xlarge": 249.66,
-      "db.r5.large": 175.20, "db.r5.xlarge": 350.40,
+      "db.r5.large": 175.2, "db.r5.xlarge": 350.4,
     };
     return P[String(a["instance_class"] ?? "")] ?? 50;
   },
   aws_rds_cluster: () => 150,
   aws_rds_cluster_instance: (a) => {
     const P: Record<string, number> = {
-      "db.t3.medium": 49.64, "db.r5.large": 175.20, "db.r5.2xlarge": 700.80,
+      "db.t3.medium": 49.64, "db.r5.large": 175.2, "db.r5.2xlarge": 700.8,
     };
     return P[String(a["instance_class"] ?? "")] ?? 80;
   },
@@ -71,14 +71,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_s3_bucket: (a) => {
     const storageGb = Number(a["_usage_storage_gb"] ?? 50);
     const putK = Number(a["_usage_put_requests_k"] ?? 100);
-    const getK = Number(a["_usage_get_requests_k"] ?? 1_000);
+    const getK = Number(a["_usage_get_requests_k"] ?? 1000);
     return Math.round((storageGb * 0.023 + putK * 0.005 + getK * 0.0004) * 100) / 100;
   },
   aws_ebs_volume: (a) => {
     const sz = Math.max(1, Number(a["size"] ?? 20));
     const type = String(a["volume_type"] ?? "gp2");
-    const rates: Record<string, number> = { gp2: 0.10, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
-    const rate = rates[type] ?? 0.10;
+    const rates: Record<string, number> = { gp2: 0.1, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
+    const rate = rates[type] ?? 0.1;
     let cost = sz * rate;
     if (type === "io1" || type === "io2") {
       cost += Number(a["iops"] ?? 0) * 0.065;
@@ -99,7 +99,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_vpc: () => 0,
   aws_subnet: () => 0,
   aws_internet_gateway: () => 0,
-  aws_nat_gateway: () => 36.50,
+  aws_nat_gateway: () => 36.5,
   aws_lb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
   aws_alb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
   aws_elb: () => 20,
@@ -111,7 +111,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_security_group_rule: () => 0,
   aws_route_table: () => 0,
   aws_route_table_association: () => 0,
-  aws_route53_zone: () => 0.50,
+  aws_route53_zone: () => 0.5,
   aws_route53_record: () => 0,
   aws_cloudfront_distribution: () => 10,
   aws_cloudfront_origin_access_control: () => 0,
@@ -122,14 +122,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   // ── AWS API Gateway ───────────────────────────────────────────────────
   aws_apigatewayv2_api: (a) => {
     const callsM = Number(a["_usage_calls_m"] ?? 1);
-    return Math.round(callsM * 1.00 * 100) / 100;
+    return Math.round(callsM * 1 * 100) / 100;
   },
   aws_apigatewayv2_stage: () => 0,
   aws_apigatewayv2_integration: () => 0,
   aws_apigatewayv2_route: () => 0,
   aws_api_gateway_rest_api: (a) => {
     const callsM = Number(a["_usage_calls_m"] ?? 1);
-    return Math.round(callsM * 3.50 * 100) / 100;
+    return Math.round(callsM * 3.5 * 100) / 100;
   },
   aws_api_gateway_stage: () => 0,
   aws_api_gateway_resource: () => 0,
@@ -146,10 +146,10 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     const effectiveRetentionDays = retentionDays > 0 ? retentionDays : 90; // default estimate
     const ingestionGb = Number(a["_usage_ingestion_gb_mo"] ?? 1); // default 1 GB/mo ingestion
     const storedGb = ingestionGb * (effectiveRetentionDays / 30);
-    return ingestionGb * 0.50 + storedGb * 0.03;
+    return ingestionGb * 0.5 + storedGb * 0.03;
   },
-  aws_cloudwatch_metric_alarm: () => 0.10,
-  aws_cloudwatch_dashboard: () => 3.00,
+  aws_cloudwatch_metric_alarm: () => 0.1,
+  aws_cloudwatch_dashboard: () => 3,
   aws_cloudwatch_log_metric_filter: () => 0,
   aws_cloudwatch_event_rule: () => 0,
   aws_cloudwatch_event_target: () => 0,
@@ -165,9 +165,9 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_iam_user: () => 0,
   aws_iam_group: () => 0,
   aws_iam_group_membership: () => 0,
-  aws_kms_key: () => 1.00,
+  aws_kms_key: () => 1,
   aws_kms_alias: () => 0,
-  aws_secretsmanager_secret: () => 0.40,
+  aws_secretsmanager_secret: () => 0.4,
   aws_secretsmanager_secret_version: () => 0,
   aws_ssm_parameter: () => 0,
 
@@ -190,14 +190,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     return Math.round(gbPerMonth * 0.029 * 100) / 100;
   },
   aws_sqs_queue: (a) => {
-    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const requestM = Number(a["_usage_requests_m"] ?? 1);
     const fifo = String(a["name"] ?? "").endsWith(".fifo");
-    const rate = fifo ? 0.50 : 0.40;
-    return Math.round(Math.max(0, reqM - 1) * rate * 100) / 100;
+    const rate = fifo ? 0.5 : 0.4;
+    return Math.round(Math.max(0, requestM - 1) * rate * 100) / 100;
   },
   aws_sns_topic: (a) => {
     const pubM = Number(a["_usage_publishes_m"] ?? 0.5);
-    return Math.round(Math.max(0, pubM - 1) * 0.50 * 100) / 100;
+    return Math.round(Math.max(0, pubM - 1) * 0.5 * 100) / 100;
   },
   aws_glue_job: (a) => {
     const workers = Number(a["number_of_workers"] ?? 2);
@@ -226,7 +226,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_windows_virtual_machine: () => 90,
   azurerm_function_app: (a) => {
     const execM = Number(a["_usage_executions_m"] ?? 1);
-    return Math.round(Math.max(0, execM - 1) * 0.20 * 100) / 100;
+    return Math.round(Math.max(0, execM - 1) * 0.2 * 100) / 100;
   },
   azurerm_app_service_plan: () => 55,
   azurerm_app_service: () => 5,
@@ -241,14 +241,14 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_cosmosdb_account: (a) => {
     const ruPerSec = Number(a["_usage_request_units_per_sec"] ?? 400);
     const storageGb = Number(a["_usage_storage_gb"] ?? 10);
-    const ruCost = (ruPerSec / 100) * 6.00;
+    const ruCost = (ruPerSec / 100) * 6;
     const storageCost = storageGb * 0.25;
     return Math.round((ruCost + storageCost) * 100) / 100;
   },
 
   // ── Azure Storage ──────────────────────────────────────────────────────
   azurerm_storage_account: () => 20,
-  azurerm_managed_disk: (a) => Math.max(1, Number(a["disk_size_gb"] ?? 128)) * 0.10,
+  azurerm_managed_disk: (a) => Math.max(1, Number(a["disk_size_gb"] ?? 128)) * 0.1,
 
   // ── Azure Networking ─────────────────────────────────────────────────
   azurerm_resource_group: () => 0,
@@ -262,11 +262,11 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_load_balancer_backend_address_pool: () => 0,
   azurerm_load_balancer_rule: () => 0,
   azurerm_load_balancer_probe: () => 0,
-  azurerm_dns_zone: () => 0.90,
+  azurerm_dns_zone: () => 0.9,
   azurerm_dns_a_record: () => 0,
 
   // ── Azure Security / IAM ──────────────────────────────────────────────
-  azurerm_key_vault: () => 5.00,
+  azurerm_key_vault: () => 5,
   azurerm_key_vault_secret: () => 0,
   azurerm_key_vault_key: () => 0,
   azurerm_role_assignment: () => 0,
@@ -276,8 +276,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_servicebus_namespace: () => 10,
   azurerm_servicebus_queue: () => 0,
   azurerm_servicebus_topic: () => 0,
-  azurerm_eventgrid_topic: () => 0.60,
-  azurerm_eventgrid_event_subscription: () => 0.60,
+  azurerm_eventgrid_topic: () => 0.6,
+  azurerm_eventgrid_event_subscription: () => 0.6,
 
   // ── Azure Data / Analytics ────────────────────────────────────────────
   azurerm_eventhub_namespace: () => 22,
@@ -297,20 +297,20 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_container_node_pool: (a) => 50 * Math.max(1, Number(a["initial_node_count"] ?? 2)),
   google_compute_instance: () => 50,
   google_cloud_run_service: (a) => {
-    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const requestM = Number(a["_usage_requests_m"] ?? 1);
     const minInstances = Number(a["_usage_min_instances"] ?? 0);
-    const reqCost = Math.max(0, reqM - 2) * 0.40;
+    const requestCost = Math.max(0, requestM - 2) * 0.4;
     const idleCost = minInstances * 730 * 0.024;
-    return Math.round((reqCost + idleCost) * 100) / 100;
+    return Math.round((requestCost + idleCost) * 100) / 100;
   },
   google_cloudfunctions_function: (a) => {
-    const reqM = Number(a["_usage_requests_m"] ?? 1);
+    const requestM = Number(a["_usage_requests_m"] ?? 1);
     const memMb = Number(a["_usage_memory_mb"] ?? 256);
     const durMs = Number(a["_usage_avg_duration_ms"] ?? 200);
-    const reqCost = Math.max(0, reqM - 2) * 0.40;
-    const gbSec = reqM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
-    const computeCost = Math.max(0, gbSec - 400_000) * 0.0000100;
-    return Math.round((reqCost + computeCost) * 100) / 100;
+    const requestCost = Math.max(0, requestM - 2) * 0.4;
+    const gbSec = requestM * 1_000_000 * (durMs / 1000) * (memMb / 1024);
+    const computeCost = Math.max(0, gbSec - 400_000) * 0.000_01;
+    return Math.round((requestCost + computeCost) * 100) / 100;
   },
 
   // ── GCP Database ──────────────────────────────────────────────────────
@@ -323,10 +323,10 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_storage_bucket: (a) => {
     const storageGb = Number(a["_usage_storage_gb"] ?? 50);
     const classA = Number(a["_usage_class_a_ops_k"] ?? 100);
-    const classB = Number(a["_usage_class_b_ops_k"] ?? 1_000);
+    const classB = Number(a["_usage_class_b_ops_k"] ?? 1000);
     const storageClass = String(a["storage_class"] ?? "STANDARD").toUpperCase();
-    const gcpRates: Record<string, number> = { STANDARD: 0.020, NEARLINE: 0.010, COLDLINE: 0.004, ARCHIVE: 0.0012 };
-    const gcpRate = gcpRates[storageClass] ?? 0.020;
+    const gcpRates: Record<string, number> = { STANDARD: 0.02, NEARLINE: 0.01, COLDLINE: 0.004, ARCHIVE: 0.0012 };
+    const gcpRate = gcpRates[storageClass] ?? 0.02;
     return Math.round((storageGb * gcpRate + classA * 0.005 + classB * 0.0004) * 100) / 100;
   },
   google_compute_disk: (a) => Math.max(1, Number(a["size"] ?? 50)) * 0.04,
@@ -336,8 +336,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_compute_network: () => 0,
   google_compute_subnetwork: () => 0,
   google_compute_router: () => 0,
-  google_compute_address: () => 7.30,
-  google_compute_global_address: () => 7.30,
+  google_compute_address: () => 7.3,
+  google_compute_global_address: () => 7.3,
   google_compute_firewall: () => 0,
   google_compute_forwarding_rule: () => 18.25,
   google_compute_url_map: () => 0,
@@ -345,7 +345,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_compute_health_check: () => 0,
   google_compute_target_https_proxy: () => 0,
   google_compute_managed_ssl_certificate: () => 0,
-  google_dns_managed_zone: () => 0.20,
+  google_dns_managed_zone: () => 0.2,
   google_dns_record_set: () => 0,
 
   // ── GCP Security / IAM ────────────────────────────────────────────────
@@ -356,7 +356,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_secret_manager_secret: () => 0.06,
   google_secret_manager_secret_version: () => 0,
   google_kms_key_ring: () => 0,
-  google_kms_crypto_key: () => 6.00,
+  google_kms_crypto_key: () => 6,
 
   // ── GCP Data / Analytics ─────────────────────────────────────────────
   google_bigquery_dataset: (a) => {
@@ -366,7 +366,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_bigquery_table: (a) => {
     const storageGb = Number(a["_usage_storage_gb"] ?? 10);
     const queriesTb = Number(a["_usage_queries_tb_per_month"] ?? 0.1);
-    return Math.round((storageGb * 0.02 + queriesTb * 5.00) * 100) / 100;
+    return Math.round((storageGb * 0.02 + queriesTb * 5) * 100) / 100;
   },
   google_pubsub_topic: (a) => {
     const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
@@ -377,12 +377,12 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
   },
   google_dataflow_job: (a) => {
-    const numWorkers = Number(a["num_workers"] ?? 2);
-    const maxWorkers = Number(a["max_workers"] ?? numWorkers * 2);
-    const avgWorkers = (numWorkers + maxWorkers) / 2;
+    const numberWorkers = Number(a["num_workers"] ?? 2);
+    const maxWorkers = Number(a["max_workers"] ?? numberWorkers * 2);
+    const avgWorkers = (numberWorkers + maxWorkers) / 2;
     const hoursPerMonth = 730;
     const vcpuCost = avgWorkers * hoursPerMonth * 0.056;
-    const memCost = avgWorkers * 4 * hoursPerMonth * 0.003375;
+    const memCost = avgWorkers * 4 * hoursPerMonth * 0.003_375;
     return Math.round((vcpuCost + memCost) * 100) / 100;
   },
   google_composer_environment: () => 400,
@@ -429,8 +429,8 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   aws_ebs_volume: (a) => {
     const sz = Math.max(1, Number(a["size"] ?? 20));
     const type = String(a["volume_type"] ?? "gp2");
-    const rates: Record<string, number> = { gp2: 0.10, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
-    const rate = rates[type] ?? 0.10;
+    const rates: Record<string, number> = { gp2: 0.1, gp3: 0.08, st1: 0.045, sc1: 0.025, io1: 0.125, io2: 0.125 };
+    const rate = rates[type] ?? 0.1;
     if (type === "io1" || type === "io2") {
       const iops = Number(a["iops"] ?? 0);
       return `${sz} GB × $${rate}/GB (${type}) + ${iops} IOPS × $0.065/IOPS`;
@@ -490,7 +490,7 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
     const effectiveRetentionDays = retentionDays > 0 ? retentionDays : 90;
     const ingestionGb = Number(a["_usage_ingestion_gb_mo"] ?? 1);
     const storedGb = ingestionGb * (effectiveRetentionDays / 30);
-    const ingestionCost = (ingestionGb * 0.50).toFixed(2);
+    const ingestionCost = (ingestionGb * 0.5).toFixed(2);
     const storageCost = (storedGb * 0.03).toFixed(2);
     return `$${ingestionCost} ingest (${ingestionGb} GB) + $${storageCost} storage (${storedGb.toFixed(1)} GB × $0.03/GB)`;
   },

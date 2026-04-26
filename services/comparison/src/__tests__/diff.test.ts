@@ -52,12 +52,12 @@ function diffModels(current: GraphModel, previous: GraphModel): DiffResult {
 
 describe("diffModels — created resources", () => {
   it("detects newly added resource", () => {
-    const prev = makeModel([makeNode({ address: "aws_instance.old", type: "aws_instance" })]);
-    const curr = makeModel([
+    const previous = makeModel([makeNode({ address: "aws_instance.old", type: "aws_instance" })]);
+    const current = makeModel([
       makeNode({ address: "aws_instance.old", type: "aws_instance" }),
       makeNode({ address: "aws_instance.new", type: "aws_instance" }),
     ]);
-    const { created } = diffModels(curr, prev);
+    const { created } = diffModels(current, previous);
     expect(created).toContain("aws_instance.new");
     expect(created).not.toContain("aws_instance.old");
   });
@@ -71,12 +71,12 @@ describe("diffModels — created resources", () => {
 
 describe("diffModels — deleted resources", () => {
   it("detects removed resource", () => {
-    const prev = makeModel([
+    const previous = makeModel([
       makeNode({ address: "aws_instance.old", type: "aws_instance" }),
       makeNode({ address: "aws_instance.gone", type: "aws_instance" }),
     ]);
-    const curr = makeModel([makeNode({ address: "aws_instance.old", type: "aws_instance" })]);
-    const { deleted } = diffModels(curr, prev);
+    const current = makeModel([makeNode({ address: "aws_instance.old", type: "aws_instance" })]);
+    const { deleted } = diffModels(current, previous);
     expect(deleted).toContain("aws_instance.gone");
     expect(deleted).not.toContain("aws_instance.old");
   });
@@ -84,11 +84,11 @@ describe("diffModels — deleted resources", () => {
 
 describe("diffModels — changed resources", () => {
   it("detects UPDATE changeAction", () => {
-    const prev = makeModel([makeNode({ address: "aws_instance.app", type: "aws_instance" })]);
-    const curr = makeModel([
+    const previous = makeModel([makeNode({ address: "aws_instance.app", type: "aws_instance" })]);
+    const current = makeModel([
       makeNode({ address: "aws_instance.app", type: "aws_instance", changeAction: ChangeAction.UPDATE }),
     ]);
-    const { changed } = diffModels(curr, prev);
+    const { changed } = diffModels(current, previous);
     expect(changed).toContain("aws_instance.app");
   });
 
@@ -99,28 +99,28 @@ describe("diffModels — changed resources", () => {
   });
 
   it("detects REPLACE changeAction", () => {
-    const prev = makeModel([makeNode({ address: "aws_db_instance.db", type: "aws_db_instance" })]);
-    const curr = makeModel([
+    const previous = makeModel([makeNode({ address: "aws_db_instance.db", type: "aws_db_instance" })]);
+    const current = makeModel([
       makeNode({ address: "aws_db_instance.db", type: "aws_db_instance", changeAction: ChangeAction.REPLACE }),
     ]);
-    const { changed } = diffModels(curr, prev);
+    const { changed } = diffModels(current, previous);
     expect(changed).toContain("aws_db_instance.db");
   });
 });
 
 describe("diffModels — combined scenarios", () => {
   it("handles all three categories at once", () => {
-    const prev = makeModel([
+    const previous = makeModel([
       makeNode({ address: "aws_instance.keep", type: "aws_instance" }),
       makeNode({ address: "aws_instance.update", type: "aws_instance" }),
       makeNode({ address: "aws_instance.remove", type: "aws_instance" }),
     ]);
-    const curr = makeModel([
+    const current = makeModel([
       makeNode({ address: "aws_instance.keep", type: "aws_instance" }),
       makeNode({ address: "aws_instance.update", type: "aws_instance", changeAction: ChangeAction.UPDATE }),
       makeNode({ address: "aws_instance.add", type: "aws_instance" }),
     ]);
-    const result = diffModels(curr, prev);
+    const result = diffModels(current, previous);
     expect(result.created).toContain("aws_instance.add");
     expect(result.deleted).toContain("aws_instance.remove");
     expect(result.changed).toContain("aws_instance.update");

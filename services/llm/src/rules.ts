@@ -6,7 +6,7 @@ import {
   RecommendationSource,
   type Recommendation,
 } from "@terraform-viz/llm-types";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 
 export function checkNoDatabase(model: GraphModel): Recommendation | null {
   const hasDatabase = model.nodes.some((n) => n.layer === ResourceLayer.DATABASE);
@@ -113,7 +113,7 @@ export function checkOversizedInstances(model: GraphModel): Recommendation | nul
       n.type === "aws_instance" &&
       typeof n.attributes["instance_type"] === "string" &&
       /\.(2xlarge|4xlarge|8xlarge|16xlarge|32xlarge|metal)$/.test(
-        n.attributes["instance_type"] as string,
+        n.attributes["instance_type"],
       ),
   );
   if (oversized.length === 0) return null;

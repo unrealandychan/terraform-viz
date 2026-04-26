@@ -1,8 +1,8 @@
 import express, { type Request, type Response } from "express";
 import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ConfidenceLevel, type PricingResult, type ResourceEstimate } from "@terraform-viz/pricing-types";
-import { readFile } from "fs/promises";
-import { join } from "path";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { z } from "zod";
 
 const PORT = Number(process.env["PORT"] ?? 3002);
@@ -18,18 +18,18 @@ const estimateSchema = z.object({
 });
 
 function estimateNode(node: GraphNode): { monthlyCostUsd: number; breakdown: string; confidence: ConfidenceLevel } {
-  const fn = COST_TABLE[node.type];
-  const attrs = (node.attributes ?? {}) as Record<string, unknown>;
-  if (!fn) {
+  const function_ = COST_TABLE[node.type];
+  const attributes = (node.attributes ?? {}) as Record<string, unknown>;
+  if (!function_) {
     return { monthlyCostUsd: 0, breakdown: "unknown resource type — defaulting to $0", confidence: ConfidenceLevel.UNKNOWN };
   }
-  const monthlyCostUsd = fn(attrs);
+  const monthlyCostUsd = function_(attributes);
   const bfn = BREAKDOWN_TABLE[node.type];
-  const breakdown = bfn ? bfn(attrs) : (monthlyCostUsd === 0 ? "free" : "est.");
+  const breakdown = bfn ? bfn(attributes) : (monthlyCostUsd === 0 ? "free" : "est.");
   return { monthlyCostUsd, breakdown, confidence: ConfidenceLevel.ESTIMATED };
 }
 
-app.get("/health", (_req: Request, response: Response): void => {
+app.get("/health", (_request: Request, response: Response): void => {
   response.json({ status: "ok", service: "pricing" });
 });
 

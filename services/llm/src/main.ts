@@ -10,7 +10,7 @@ import {
   type Recommendation,
   type RecommendationResult,
 } from "@terraform-viz/llm-types";
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { runDeterministicRules } from "./rules.js";
 
 const PORT = Number(process.env["PORT"] ?? 3004);
@@ -62,13 +62,13 @@ function buildPrompt(graphModel: GraphModel, rules: Recommendation[]): string {
   const resourceList = graphModel.nodes
     .slice(0, 30)
     .map((n) => {
-      const attrs: string[] = [];
-      if (n.attributes["instance_type"]) attrs.push(`instance_type=${String(n.attributes["instance_type"])}`);
-      if (n.attributes["engine"]) attrs.push(`engine=${String(n.attributes["engine"])}`);
-      if (n.attributes["encrypted"] !== undefined) attrs.push(`encrypted=${String(n.attributes["encrypted"])}`);
-      if (n.attributes["publicly_accessible"] !== undefined) attrs.push(`publicly_accessible=${String(n.attributes["publicly_accessible"])}`);
-      if (n.attributes["acl"]) attrs.push(`acl=${String(n.attributes["acl"])}`);
-      return `  - ${n.type} "${n.name}"${attrs.length ? " (" + attrs.join(", ") + ")" : ""}`;
+      const attributes: string[] = [];
+      if (n.attributes["instance_type"]) attributes.push(`instance_type=${String(n.attributes["instance_type"])}`);
+      if (n.attributes["engine"]) attributes.push(`engine=${String(n.attributes["engine"])}`);
+      if (n.attributes["encrypted"] !== undefined) attributes.push(`encrypted=${String(n.attributes["encrypted"])}`);
+      if (n.attributes["publicly_accessible"] !== undefined) attributes.push(`publicly_accessible=${String(n.attributes["publicly_accessible"])}`);
+      if (n.attributes["acl"]) attributes.push(`acl=${String(n.attributes["acl"])}`);
+      return `  - ${n.type} "${n.name}"${attributes.length > 0 ? " (" + attributes.join(", ") + ")" : ""}`;
     })
     .join("\n");
 
@@ -84,7 +84,7 @@ function buildPrompt(graphModel: GraphModel, rules: Recommendation[]): string {
   );
 }
 
-app.get("/health", (_req: Request, response: Response): void => {
+app.get("/health", (_request: Request, response: Response): void => {
   response.json({ status: "ok", service: "llm" });
 });
 
@@ -122,8 +122,9 @@ app.post("/recommend", (request: Request, response: Response): void => {
 
   const finalize = (llmSummary: string | null): void => {
     const recommendations =
-      llmSummary !== null
-        ? [
+      llmSummary === null
+        ? deterministicRecs
+        : [
             {
               id: randomUUID(),
               title: "AI Analysis",
@@ -135,22 +136,21 @@ app.post("/recommend", (request: Request, response: Response): void => {
               estimatedMonthlySavingsUsd: null,
             },
             ...deterministicRecs,
-          ]
-        : deterministicRecs;
+          ];
 
     const result: RecommendationResult = {
       generatedAt: new Date().toISOString(),
       recommendations,
-      llmProviderUsed: llmSummary !== null ? LLM_PROVIDER : null,
+      llmProviderUsed: llmSummary === null ? null : LLM_PROVIDER,
     };
     response.json(result);
   };
 
-  if (client !== null) {
+  if (client === null) {
+    finalize(null);
+  } else {
     const prompt = buildPrompt(body.model, deterministicRecs);
     void callLlm(client, model, prompt).then(finalize);
-  } else {
-    finalize(null);
   }
 });
 

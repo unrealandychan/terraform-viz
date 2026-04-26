@@ -4,12 +4,12 @@ import type { CostEstimate } from "./types.js";
 import { COST_TABLE, BREAKDOWN_TABLE } from "./cost-table.js";
 
 export function estimateCost(node: GraphNode): CostEstimate {
-  const fn = COST_TABLE[node.type];
-  if (!fn) return { monthly: null, label: "Unknown", annual: null, breakdown: null };
-  const attrs = node.attributes as Record<string, unknown>;
-  const monthly = fn(attrs);
+  const function_ = COST_TABLE[node.type];
+  if (!function_) return { monthly: null, label: "Unknown", annual: null, breakdown: null };
+  const attributes = node.attributes as Record<string, unknown>;
+  const monthly = function_(attributes);
   const bfn = BREAKDOWN_TABLE[node.type];
-  const breakdown = bfn ? bfn(attrs) : null;
+  const breakdown = bfn ? bfn(attributes) : null;
   const label = monthly === 0 ? "$0 (free)" : `$${monthly.toFixed(2)}/mo`;
   return { monthly, label, annual: monthly === 0 ? 0 : monthly * 12, breakdown };
 }
