@@ -6,6 +6,20 @@ import { estimateCost } from "@terraform-viz/pricing-engine";
 const PORT = Number(process.env["PORT"] ?? 3003);
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
 
+async function fetchWithTimeout(url: string, opts: RequestInit, timeoutMs = 30_000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e instanceof Error && e.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
+    throw e;
+  }
+}
+
 const app = express();
 app.use(express.json({ limit: "20mb" }));
 
@@ -21,11 +35,11 @@ function roughMonthlyFallback(node: GraphNode): number {
 async function estimateViaPricingService(nodes: GraphNode[]): Promise<Map<string, number>> {
   try {
     const fakeModel = { nodes, edges: [] };
-    const res = await fetch(`${PRICING_URL}/estimate`, {
+    const res = await fetchWithTimeout(`${PRICING_URL}/estimate`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model: fakeModel }),
-    });
+    }, 10_000);
     if (!res.ok) throw new Error(`pricing service error: ${res.status}`);
     const data = await res.json() as { resources: Array<{ nodeId: string; monthlyCostUsd: number }> };
     const map = new Map<string, number>();

@@ -1,5 +1,19 @@
 import type { GraphModel } from "@terraform-viz/graph-schema";
 
+async function fetchWithTimeout(url: string, opts: RequestInit, timeoutMs = 30_000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    clearTimeout(timer);
+    return res;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e instanceof Error && e.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
+    throw e;
+  }
+}
+
 const PARSER_URL = process.env["PARSER_URL"] ?? "http://localhost:3001";
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
 const COMPARISON_URL = process.env["COMPARISON_URL"] ?? "http://localhost:3003";
@@ -14,7 +28,7 @@ export type ApiResult<T> =
 
 export async function parsePlan(planJson: unknown): Promise<ApiResult<GraphModel>> {
   try {
-    const response = await fetch(`${PARSER_URL}/parse`, {
+    const response = await fetchWithTimeout(`${PARSER_URL}/parse`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(planJson),
@@ -48,7 +62,7 @@ export async function runPlan(
 ): Promise<ApiResult<GraphModel>> {
   let planJson: unknown;
   try {
-    const workerRes = await fetch(`${WORKER_URL}/run`, {
+    const workerRes = await fetchWithTimeout(`${WORKER_URL}/run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ archiveBase64, vars }),

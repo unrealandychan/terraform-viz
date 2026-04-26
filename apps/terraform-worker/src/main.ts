@@ -4,6 +4,7 @@ import { promisify } from "util";
 import { mkdtemp, rm, writeFile } from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
+import { z } from "zod";
 
 const execFileAsync = promisify(execFile);
 const PORT = Number(process.env["PORT"] ?? 3005);
