@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { UsageOverrides } from "@/lib/usage-store";
+import type { UsageOverrides } from "@/lib/usage-utils";
 
 interface UsageState {
   overrides: UsageOverrides;

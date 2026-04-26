@@ -11,21 +11,27 @@
   "dependencies": {
     "@terraform-viz/graph-schema": "*",
     "@terraform-viz/llm-types": "*",
+    "@terraform-viz/pricing-engine": "*",
     "@terraform-viz/pricing-types": "*",
     "d3": "^7.9.0",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "zustand": "^5.0.0",
-    "@terraform-viz/pricing-engine": "*"
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/d3": "^7.4.3",
     "@types/node": "^20.14.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "jsdom": "^29.0.2",
     "typescript": "*"
   }
 }

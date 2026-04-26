@@ -9,10 +9,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef, useCallback, memo } from "react";
-import * as d3 from "d3";
+import { select } from "d3-selection";
+import { zoom, type ZoomBehavior, type ZoomTransform } from "d3-zoom";
+// Re-export as d3 namespace shape for minimal code churn
+const d3 = { select, zoom };
 import { ChangeAction, CloudProvider, ResourceLayer, type GraphModel, type GraphNode } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@/lib/pricing-estimates";
-import { applyUsageOverrides } from "@/lib/usage-store";
+import { applyUsageOverrides } from "@/lib/usage-utils";
 import { useTheme } from "../layout/ThemeProvider";
 
 // ── Layer ordering (top → bottom in diagram) ───────────────────────────────
@@ -157,8 +160,8 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
   usageOverridesRef.current = usageOverrides;
 
   // Persist zoom/pan state across redraws
-  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
-  const transformRef = useRef<d3.ZoomTransform | null>(null);
+  const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const transformRef = useRef<ZoomTransform | null>(null);
 
   const draw = useCallback(() => {
     const el = svgRef.current;

@@ -11,10 +11,11 @@ import {
   type RecommendationResult,
 } from "@terraform-viz/llm-types";
 import { randomUUID } from "crypto";
+import { runDeterministicRules } from "./rules.js";
 
 const PORT = Number(process.env["PORT"] ?? 3004);
 const LLM_PROVIDER = process.env["LLM_PROVIDER"] ?? "openai";
-const ENV_API_KEY = process.env["LLM_API_KEY"];
+const ENV_API_KEY = process.env["OPENAI_API_KEY"];
 const ENV_BASE_URL = process.env["OPENAI_BASE_URL"]; // e.g. http://localhost:11434/v1
 const ENV_MODEL = process.env["LLM_MODEL"] ?? "gpt-4o-mini";
 
@@ -58,12 +59,26 @@ function buildPrompt(graphModel: GraphModel, rules: Recommendation[]): string {
       ? rules.map((r) => `- ${r.title} (${r.severity})`).join("\n")
       : "None";
 
+  const resourceList = graphModel.nodes
+    .slice(0, 30)
+    .map((n) => {
+      const attrs: string[] = [];
+      if (n.attributes["instance_type"]) attrs.push(`instance_type=${String(n.attributes["instance_type"])}`);
+      if (n.attributes["engine"]) attrs.push(`engine=${String(n.attributes["engine"])}`);
+      if (n.attributes["encrypted"] !== undefined) attrs.push(`encrypted=${String(n.attributes["encrypted"])}`);
+      if (n.attributes["publicly_accessible"] !== undefined) attrs.push(`publicly_accessible=${String(n.attributes["publicly_accessible"])}`);
+      if (n.attributes["acl"]) attrs.push(`acl=${String(n.attributes["acl"])}`);
+      return `  - ${n.type} "${n.name}"${attrs.length ? " (" + attrs.join(", ") + ")" : ""}`;
+    })
+    .join("\n");
+
   return (
     `You are a Terraform infrastructure expert. Analyze the following plan summary and ` +
     `provide 2-3 concise, actionable recommendations for reliability, cost, or security.\n\n` +
     `Resources by layer: ${layerCounts}\n` +
     `Total resources: ${graphModel.nodes.length}\n` +
     `Terraform version: ${graphModel.terraformVersion}\n\n` +
+    `Resource details:\n${resourceList}\n\n` +
     `Rule-based issues already detected:\n${rulesSummary}\n\n` +
     `Respond in plain text with bullet points. Be specific and brief.`
   );
@@ -72,51 +87,6 @@ function buildPrompt(graphModel: GraphModel, rules: Recommendation[]): string {
 app.get("/health", (_req: Request, response: Response): void => {
   response.json({ status: "ok", service: "llm" });
 });
-
-// Deterministic rule: flag models with no dedicated database layer nodes
-function checkNoDatabase(model: GraphModel): Recommendation | null {
-  const hasDatabase = model.nodes.some((n) => n.layer === ResourceLayer.DATABASE);
-  if (hasDatabase) return null;
-  return {
-    id: randomUUID(),
-    title: "No database resources detected",
-    description:
-      "The plan contains no managed database resources. If your application requires persistent storage, consider adding a managed DB such as RDS, Azure SQL, or Cloud SQL.",
-    category: RecommendationCategory.RELIABILITY,
-    source: RecommendationSource.ARCHITECTURAL_HEURISTIC,
-    severity: RecommendationSeverity.LOW,
-    affectedResources: [],
-    estimatedMonthlySavingsUsd: null,
-  };
-}
-
-// Deterministic rule: flag single-AZ RDS instances (aws_db_instance without multi_az)
-function checkSingleAzRds(model: GraphModel): Recommendation | null {
-  const singleAzInstances = model.nodes.filter(
-    (n) =>
-      n.type === "aws_db_instance" &&
-      (n.attributes["multi_az"] === false || n.attributes["multi_az"] === undefined),
-  );
-  if (singleAzInstances.length === 0) return null;
-  return {
-    id: randomUUID(),
-    title: "RDS instances not configured for Multi-AZ",
-    description:
-      `${singleAzInstances.length} RDS instance(s) have multi_az disabled or unset. ` +
-      "Enabling Multi-AZ improves availability and provides automatic failover.",
-    category: RecommendationCategory.RELIABILITY,
-    source: RecommendationSource.TERRAFORM_DIFF,
-    severity: RecommendationSeverity.HIGH,
-    affectedResources: singleAzInstances.map((n) => n.address),
-    estimatedMonthlySavingsUsd: null,
-  };
-}
-
-function runDeterministicRules(model: GraphModel): Recommendation[] {
-  return [checkNoDatabase(model), checkSingleAzRds(model)].filter(
-    (r): r is Recommendation => r !== null,
-  );
-}
 
 const recommendSchema = z.object({
   model: z.object({ nodes: z.array(z.unknown()) }),

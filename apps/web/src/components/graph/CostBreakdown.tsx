@@ -4,7 +4,7 @@ import { useMemo, memo } from "react";
 import type { GraphModel } from "@terraform-viz/graph-schema";
 import { CloudProvider } from "@terraform-viz/graph-schema";
 import { estimateCost, costByProvider } from "@/lib/pricing-estimates";
-import { applyUsageOverrides } from "@/lib/usage-store";
+import { applyUsageOverrides } from "@/lib/usage-utils";
 import { useUsageStore } from "@/stores/useUsageStore";
 
 const PROVIDER_LOGO_PATH_COST: Partial<Record<CloudProvider, string>> = {

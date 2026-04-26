@@ -5,7 +5,7 @@ import type { GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction, ResourceLayer, CloudProvider } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@/lib/pricing-estimates";
 import { isUsageBased } from "@/lib/usage-params";
-import { applyUsageOverrides } from "@/lib/usage-store";
+import { applyUsageOverrides } from "@/lib/usage-utils";
 import { useUsageStore } from "@/stores/useUsageStore";
 import { UsageEditor } from "@/components/graph/UsageEditor";
 
