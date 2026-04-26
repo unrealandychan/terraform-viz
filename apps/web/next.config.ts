@@ -4,6 +4,7 @@ const config: NextConfig = {
   reactStrictMode: true,
   eslint: { ignoreDuringBuilds: true },
   output: "standalone",
+  transpilePackages: ["@terraform-viz/pricing-engine", "@terraform-viz/graph-schema", "@terraform-viz/pricing-types"],
   env: {
     PARSER_URL: process.env["PARSER_URL"] ?? "http://localhost:3001",
     PRICING_URL: process.env["PRICING_URL"] ?? "http://localhost:3002",
