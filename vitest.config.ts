@@ -5,9 +5,6 @@ export default defineConfig({
     include: ["**/__tests__/**/*.test.ts", "**/__tests__/**/*.test.tsx"],
     exclude: ["**/node_modules/**", "**/.next/**", "**/dist/**"],
     environment: "node",
-    environmentMatchGlobs: [
-      ["apps/web/**", "jsdom"],
-    ],
     globals: true,
   },
   resolve: {
