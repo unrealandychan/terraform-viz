@@ -377,13 +377,48 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     return Math.round(Math.max(0, gbPerMonth - 10) * 0.04 * 100) / 100;
   },
   google_dataflow_job: (a) => {
-    const numWorkers = Number(a["num_workers"] ?? 2);
+    // GCP Dataflow pricing (us-central1 batch rates, region multipliers apply):
+    //   vCPU:  $0.056  / vCPU-hr
+    //   RAM:   $0.003375 / GB-hr
+    //   Disk:  $0.000054 / GB-hr  (PD Standard, 250 GB default per worker)
+    //
+    // Machine type → { vcpu, ramGb } lookup (n-series defaults)
+    const MACHINE_SPECS: Record<string, { vcpu: number; ram: number }> = {
+      "n1-standard-1":  { vcpu: 1,  ram: 3.75 },
+      "n1-standard-2":  { vcpu: 2,  ram: 7.5  },
+      "n1-standard-4":  { vcpu: 4,  ram: 15   },
+      "n1-standard-8":  { vcpu: 8,  ram: 30   },
+      "n1-standard-16": { vcpu: 16, ram: 60   },
+      "n2-standard-2":  { vcpu: 2,  ram: 8    },
+      "n2-standard-4":  { vcpu: 4,  ram: 16   },
+      "n2-standard-8":  { vcpu: 8,  ram: 32   },
+      "e2-standard-2":  { vcpu: 2,  ram: 8    },
+      "e2-standard-4":  { vcpu: 4,  ram: 16   },
+    };
+
+    const machineType = String(a["machine_type"] ?? "n1-standard-4");
+    const spec = MACHINE_SPECS[machineType] ?? { vcpu: 4, ram: 15 };
+
+    const numWorkers = Number(a["num_workers"] ?? a["initial_num_workers"] ?? 2);
     const maxWorkers = Number(a["max_workers"] ?? numWorkers * 2);
+    // Autoscaling: average between min and max is a reasonable cost estimate
     const avgWorkers = (numWorkers + maxWorkers) / 2;
-    const hoursPerMonth = 730;
-    const vcpuCost = avgWorkers * hoursPerMonth * 0.056;
-    const memCost = avgWorkers * 4 * hoursPerMonth * 0.003375;
-    return Math.round((vcpuCost + memCost) * 100) / 100;
+
+    // Streaming jobs run ~730 hr/mo; batch jobs use _usage_hours_per_month
+    const isStreaming = String(a["type"] ?? "").toLowerCase() === "streaming";
+    const hoursPerMonth = isStreaming
+      ? 730
+      : Number(a["_usage_hours_per_month"] ?? 100);
+
+    const diskGbPerWorker = Number(a["disk_size_gb"] ?? 250);
+
+    const vcpuCost  = avgWorkers * spec.vcpu * hoursPerMonth * 0.056;
+    const ramCost   = avgWorkers * spec.ram  * hoursPerMonth * 0.003375;
+    const diskCost  = avgWorkers * diskGbPerWorker * hoursPerMonth * 0.000054;
+
+    // Dataflow service adds ~10% overhead on top of worker costs
+    const workerTotal = vcpuCost + ramCost + diskCost;
+    return Math.round(workerTotal * 1.10 * 100) / 100;
   },
   google_composer_environment: () => 400,
 
@@ -613,7 +648,16 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   google_bigquery_table: () => "≈50 GB storage est.",
   google_pubsub_topic: () => "≈1M messages/mo est.",
   google_pubsub_subscription: () => "≈1M messages/mo est.",
-  google_dataflow_job: () => "1 worker × n1-standard-2 est.",
+  google_dataflow_job: (a) => {
+    const machineType = String(a["machine_type"] ?? "n1-standard-4");
+    const numWorkers  = Number(a["num_workers"] ?? a["initial_num_workers"] ?? 2);
+    const maxWorkers  = Number(a["max_workers"] ?? numWorkers * 2);
+    const avgWorkers  = (numWorkers + maxWorkers) / 2;
+    const isStreaming = String(a["type"] ?? "").toLowerCase() === "streaming";
+    const hours       = isStreaming ? 730 : Number(a["_usage_hours_per_month"] ?? 100);
+    const disk        = Number(a["disk_size_gb"] ?? 250);
+    return `${machineType} × avg ${avgWorkers}w × ${hours}h/mo | vCPU+RAM+disk+10% overhead`;
+  },
   google_composer_environment: () => "small environment est.",
   // GCP Networking
   google_compute_network: () => "free",

@@ -276,3 +276,47 @@ describe("costByProvider", () => {
     expect(result[0].provider).toBe(CloudProvider.AWS);
   });
 });
+
+// ── google_dataflow_job ──────────────────────────────────────────────────────
+describe("google_dataflow_job pricing", () => {
+  it("default: n1-standard-4, 2 min workers, 4 max, batch 100h/mo", () => {
+    // avgWorkers=3, vcpu=4, ram=15, disk=250
+    // vCPU:  3 × 4 × 100 × $0.056  = $67.20
+    // RAM:   3 × 15 × 100 × $0.003375 = $15.19
+    // Disk:  3 × 250 × 100 × $0.000054 = $4.05
+    // +10%:  (67.20 + 15.19 + 4.05) × 1.10 ≈ $95.04
+    const node = makeNode("google_dataflow_job", {}, CloudProvider.GCP);
+    expect(estimateCost(node).monthly).toBeCloseTo(95.04, 0);
+  });
+
+  it("streaming job runs 730h/mo", () => {
+    const node = makeNode("google_dataflow_job", { type: "streaming", num_workers: 1, max_workers: 1, machine_type: "n1-standard-2" }, CloudProvider.GCP);
+    // avgWorkers=1, vcpu=2, ram=7.5, disk=250, hours=730
+    // vCPU:  1 × 2 × 730 × $0.056  = $81.76
+    // RAM:   1 × 7.5 × 730 × $0.003375 = $18.47
+    // Disk:  1 × 250 × 730 × $0.000054 = $9.86
+    // +10%:  (81.76 + 18.47 + 9.86) × 1.10 ≈ $121.10
+    expect(estimateCost(node).monthly).toBeCloseTo(121.10, 0);
+  });
+
+  it("scales correctly with more workers and larger machine", () => {
+    const node = makeNode("google_dataflow_job", {
+      machine_type: "n1-standard-8",
+      num_workers: 4,
+      max_workers: 8,
+      _usage_hours_per_month: 730,
+    }, CloudProvider.GCP);
+    // avgWorkers=6, vcpu=8, ram=30, disk=250, hours=730
+    // vCPU:  6 × 8 × 730 × $0.056  = $1,966.08
+    // RAM:   6 × 30 × 730 × $0.003375 = $443.48
+    // Disk:  6 × 250 × 730 × $0.000054 = $59.13
+    // +10%:  ≈ $2,713.51
+    expect(estimateCost(node).monthly).toBeCloseTo(2711, 0);
+  });
+
+  it("respects custom disk_size_gb", () => {
+    const small = makeNode("google_dataflow_job", { num_workers: 2, max_workers: 2, disk_size_gb: 50, _usage_hours_per_month: 100 }, CloudProvider.GCP);
+    const large = makeNode("google_dataflow_job", { num_workers: 2, max_workers: 2, disk_size_gb: 500, _usage_hours_per_month: 100 }, CloudProvider.GCP);
+    expect(estimateCost(large).monthly).toBeGreaterThan(estimateCost(small).monthly);
+  });
+});
