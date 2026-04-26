@@ -656,7 +656,7 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
     const isStreaming = String(a["type"] ?? "").toLowerCase() === "streaming";
     const hours       = isStreaming ? 730 : Number(a["_usage_hours_per_month"] ?? 100);
     const disk        = Number(a["disk_size_gb"] ?? 250);
-    return `${machineType} × avg ${avgWorkers}w × ${hours}h/mo | vCPU+RAM+disk+10% overhead`;
+    return `${machineType} × avg ${avgWorkers}w (${numWorkers}–${maxWorkers} autoscale) × ${hours}h/mo | vCPU+RAM+disk+10% overhead`;
   },
   google_composer_environment: () => "small environment est.",
   // GCP Networking

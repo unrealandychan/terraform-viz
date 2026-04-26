@@ -76,8 +76,9 @@ export const USAGE_PARAMS: Record<string, UsageParam[]> = {
     { key: "_usage_message_gb_per_month", label: "Message Volume", unit: "GB/mo", defaultValue: 5, min: 0, max: 100, step: 1, hint: "First 10GB free" },
   ],
   google_dataflow_job: [
-    { key: "num_workers", label: "Min Workers", unit: "workers", defaultValue: 2, min: 1, max: 50, step: 1 },
-    { key: "max_workers", label: "Max Workers", unit: "workers", defaultValue: 4, min: 1, max: 50, step: 1 },
+    { key: "num_workers",              label: "Min Workers",  unit: "workers", defaultValue: 2,   min: 1, max: 50,  step: 1, hint: "Cost = avg of min+max (autoscaling estimate)" },
+    { key: "max_workers",              label: "Max Workers",  unit: "workers", defaultValue: 4,   min: 1, max: 50,  step: 1 },
+    { key: "_usage_hours_per_month",   label: "Job Hours",    unit: "hr/mo",   defaultValue: 100, min: 1, max: 730, step: 10, hint: "Batch only — streaming always uses 730 hr/mo" },
   ],
   google_cloud_run_service: [
     { key: "_usage_requests_m",    label: "Requests",     unit: "M/mo",     defaultValue: 1, min: 0, max: 100, step: 1, hint: "First 2M free" },
