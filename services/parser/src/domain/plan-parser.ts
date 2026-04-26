@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { ChangeAction, type GraphEdge, type GraphModel, type GraphNode } from "@terraform-viz/graph-schema";
 import { classifyResource } from "./layer-classifier.js";
 import type {

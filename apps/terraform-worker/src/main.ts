@@ -1,9 +1,9 @@
 import express, { type Request, type Response } from "express";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import { mkdtemp, rm, writeFile } from "fs/promises";
-import { join } from "path";
-import { tmpdir } from "os";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { z } from "zod";
 
 const execFileAsync = promisify(execFile);
@@ -16,7 +16,7 @@ const STEP_TIMEOUT_MS = 120_000;
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 
-app.get("/health", (_req: Request, response: Response): void => {
+app.get("/health", (_request: Request, response: Response): void => {
   response.json({ status: "ok", service: "terraform-worker" });
 });
 
@@ -60,7 +60,7 @@ app.post("/run", async (request: Request, response: Response): Promise<void> => 
       timeout: 30_000,
     });
 
-    const varFlags = (body.vars ?? []).flatMap((v) => ["-var", v]);
+    const variableFlags = (body.vars ?? []).flatMap((v) => ["-var", v]);
 
     // Step 1: init — downloads providers from the registry
     await execFileAsync(
@@ -72,7 +72,7 @@ app.post("/run", async (request: Request, response: Response): Promise<void> => 
     // Step 2: plan — writes binary plan file
     await execFileAsync(
       TERRAFORM_BINARY,
-      ["plan", "-no-color", "-input=false", "-out=tfplan", ...varFlags],
+      ["plan", "-no-color", "-input=false", "-out=tfplan", ...variableFlags],
       { cwd: workDir, timeout: STEP_TIMEOUT_MS },
     );
 
