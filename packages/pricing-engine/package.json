@@ -15,8 +15,10 @@
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "devDependencies": {
-    "typescript": "*",
+  "dependencies": {
     "@terraform-viz/graph-schema": "*"
+  },
+  "devDependencies": {
+    "typescript": "*"
   }
 }

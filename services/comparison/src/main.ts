@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from "express";
 import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction } from "@terraform-viz/graph-schema";
+import { estimateCost } from "@terraform-viz/pricing-engine";
 
 const PORT = Number(process.env["PORT"] ?? 3003);
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
@@ -12,50 +13,8 @@ app.get("/health", (_req: Request, response: Response): void => {
   response.json({ status: "ok", service: "comparison" });
 });
 
-// ── Fallback cost table (used when pricing service is unavailable) ────────────
-// Flat defaults only — usage-based resources fall back to 0 rather than wrong
-// values from a stale table.
-const MONTHLY_DEFAULTS_FALLBACK: Record<string, number> = {
-  aws_instance: 36.50,
-  aws_eks_cluster: 73,
-  aws_eks_node_group: 140.16,
-  aws_autoscaling_group: 140.16,
-  aws_db_instance: 50,
-  aws_rds_cluster: 150,
-  aws_elasticache_cluster: 40,
-  aws_elasticsearch_domain: 90,
-  aws_opensearch_domain: 90,
-  aws_cloudfront_distribution: 10,
-  aws_alb: 22.27,
-  aws_lb: 22.27,
-  aws_elb: 20,
-  aws_nat_gateway: 36.50,
-  aws_route53_zone: 0.50,
-  aws_ecs_cluster: 0,
-  aws_ecs_service: 0,
-  aws_ecs_task_definition: 0,
-  aws_kms_key: 1.00,
-  aws_secretsmanager_secret: 0.40,
-  aws_cloudwatch_metric_alarm: 0.10,
-  aws_cloudwatch_dashboard: 3.00,
-  aws_sagemaker_endpoint: 156,
-  aws_apprunner_service: 25,
-  // Azure
-  google_container_cluster: 73,
-  google_sql_database_instance: 100,
-  google_compute_instance: 50,
-  azurerm_virtual_machine: 70,
-  azurerm_kubernetes_cluster: 140,
-  azurerm_mssql_database: 150,
-  azurerm_storage_account: 20,
-  azurerm_app_service_plan: 50,
-  azurerm_key_vault: 5.00,
-  azurerm_load_balancer: 18.25,
-  azurerm_public_ip: 3.65,
-};
-
 function roughMonthlyFallback(node: GraphNode): number {
-  return MONTHLY_DEFAULTS_FALLBACK[node.type] ?? 0;
+  return estimateCost(node).monthly ?? 0;
 }
 
 // ── Call pricing service for accurate cost estimates ─────────────────────────
