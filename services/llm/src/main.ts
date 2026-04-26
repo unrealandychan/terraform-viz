@@ -2,6 +2,7 @@ import express, { type Request, type Response } from "express";
 import OpenAI from "openai";
 import type { GraphModel } from "@terraform-viz/graph-schema";
 import { ResourceLayer } from "@terraform-viz/graph-schema";
+import { z } from "zod";
 import {
   RecommendationCategory,
   RecommendationSeverity,
@@ -117,10 +118,22 @@ function runDeterministicRules(model: GraphModel): Recommendation[] {
   );
 }
 
+const recommendSchema = z.object({
+  model: z.object({ nodes: z.array(z.unknown()) }),
+  apiKey: z.string().optional(),
+  baseUrl: z.string().optional(),
+  llmModel: z.string().optional(),
+});
+
 // POST /recommend
 // Body: { model: GraphModel; apiKey?: string; baseUrl?: string; llmModel?: string }
 // Returns: RecommendationResult
 app.post("/recommend", (request: Request, response: Response): void => {
+  const parsed = recommendSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    return;
+  }
   const body = request.body as {
     model?: GraphModel;
     apiKey?: string;

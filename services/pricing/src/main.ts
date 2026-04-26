@@ -37,6 +37,11 @@ app.get("/health", (_req: Request, response: Response): void => {
 // Body: { model: GraphModel }
 // Returns: PricingResult
 app.post("/estimate", async (request: Request, response: Response): Promise<void> => {
+  const parsed = estimateSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    return;
+  }
   const body = request.body as { model?: GraphModel };
   if (!body.model) {
     response.status(400).json({ error: "Missing model in request body" });

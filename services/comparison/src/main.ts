@@ -2,6 +2,7 @@ import express, { type Request, type Response } from "express";
 import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@terraform-viz/pricing-engine";
+import { z } from "zod";
 
 const PORT = Number(process.env["PORT"] ?? 3003);
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
@@ -51,9 +52,17 @@ async function estimateViaPricingService(nodes: GraphNode[]): Promise<Map<string
   }
 }
 
+const graphModelSchema = z.object({ nodes: z.array(z.unknown()), edges: z.array(z.unknown()).optional() });
+const diffSchema = z.object({ current: graphModelSchema, previous: graphModelSchema });
+
 // POST /diff
 // Body: { current: GraphModel; previous: GraphModel }
 app.post("/diff", (request: Request, response: Response): void => {
+  const parsed = diffSchema.safeParse(request.body);
+  if (!parsed.success) {
+    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    return;
+  }
   const body = request.body as { current?: GraphModel; previous?: GraphModel };
 
   if (!body.current || !body.previous) {
