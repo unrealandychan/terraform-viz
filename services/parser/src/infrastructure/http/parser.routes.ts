@@ -4,7 +4,7 @@ import { parsePlanUseCase } from "../../application/parse-plan.use-case.js";
 
 export const parserRouter = Router();
 
-const parseSchema = z.object({ plan: z.record(z.unknown()) });
+const parseSchema = z.record(z.unknown());
 
 parserRouter.post("/parse", (request: Request, response: Response): void => {
   const parsed = parseSchema.safeParse(request.body);
@@ -12,7 +12,7 @@ parserRouter.post("/parse", (request: Request, response: Response): void => {
     response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
     return;
   }
-  const result = parsePlanUseCase(request.body);
+  const result = parsePlanUseCase(parsed.data);
 
   if (result.success) {
     response.status(200).json(result.data);
