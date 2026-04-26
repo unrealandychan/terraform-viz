@@ -139,7 +139,15 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_api_gateway_domain_name: () => 0,
 
   // ── AWS Observability ─────────────────────────────────────────────────
-  aws_cloudwatch_log_group: () => 2.50,
+  aws_cloudwatch_log_group: (a) => {
+    // AWS pricing: ingestion $0.50/GB, storage $0.03/GB/month
+    // Use _usage_ingestion_gb_mo if provided, else estimate from retention
+    const retentionDays = Number(a["retention_in_days"] ?? 0); // 0 = never expire
+    const effectiveRetentionDays = retentionDays > 0 ? retentionDays : 90; // default estimate
+    const ingestionGb = Number(a["_usage_ingestion_gb_mo"] ?? 1); // default 1 GB/mo ingestion
+    const storedGb = ingestionGb * (effectiveRetentionDays / 30);
+    return ingestionGb * 0.50 + storedGb * 0.03;
+  },
   aws_cloudwatch_metric_alarm: () => 0.10,
   aws_cloudwatch_dashboard: () => 3.00,
   aws_cloudwatch_log_metric_filter: () => 0,
@@ -477,7 +485,15 @@ const BREAKDOWN_TABLE: Record<string, (a: Record<string, unknown>) => string> = 
   aws_api_gateway_deployment: () => "free",
   aws_api_gateway_domain_name: () => "free",
   // AWS Observability
-  aws_cloudwatch_log_group: () => "≈5 GB retained × $0.50/GB est.",
+  aws_cloudwatch_log_group: (a) => {
+    const retentionDays = Number(a["retention_in_days"] ?? 0);
+    const effectiveRetentionDays = retentionDays > 0 ? retentionDays : 90;
+    const ingestionGb = Number(a["_usage_ingestion_gb_mo"] ?? 1);
+    const storedGb = ingestionGb * (effectiveRetentionDays / 30);
+    const ingestionCost = (ingestionGb * 0.50).toFixed(2);
+    const storageCost = (storedGb * 0.03).toFixed(2);
+    return `$${ingestionCost} ingest (${ingestionGb} GB) + $${storageCost} storage (${storedGb.toFixed(1)} GB × $0.03/GB)`;
+  },
   aws_cloudwatch_metric_alarm: () => "$0.10/alarm/mo",
   aws_cloudwatch_dashboard: () => "$3.00/dashboard/mo",
   aws_cloudwatch_log_metric_filter: () => "free",

@@ -106,8 +106,25 @@ describe("estimateCost", () => {
       expect(estimateCost(makeNode("aws_route53_zone")).monthly).toBe(0.5);
     });
 
-    it("aws_cloudwatch_log_group costs $2.50", () => {
-      expect(estimateCost(makeNode("aws_cloudwatch_log_group")).monthly).toBe(2.5);
+    it("aws_cloudwatch_log_group: default 1GB ingestion + 90d retention", () => {
+      // 1 GB ingestion × $0.50 + (1 × 90/30) GB stored × $0.03 = $0.50 + $0.09 = $0.59
+      expect(estimateCost(makeNode("aws_cloudwatch_log_group")).monthly).toBeCloseTo(0.59, 2);
+    });
+
+    it("aws_cloudwatch_log_group: scales with ingestion GB", () => {
+      const node = makeNode("aws_cloudwatch_log_group");
+      node.attributes["_usage_ingestion_gb_mo"] = 100;
+      node.attributes["retention_in_days"] = 30;
+      // 100 GB ingestion × $0.50 + 100 GB stored × $0.03 = $50 + $3 = $53
+      expect(estimateCost(node).monthly).toBeCloseTo(53, 1);
+    });
+
+    it("aws_cloudwatch_log_group: never-expire uses 90d default", () => {
+      const node = makeNode("aws_cloudwatch_log_group");
+      node.attributes["retention_in_days"] = 0; // never expire → use 90d estimate
+      node.attributes["_usage_ingestion_gb_mo"] = 10;
+      // 10 × $0.50 + (10 × 3) × $0.03 = $5 + $0.90 = $5.90
+      expect(estimateCost(node).monthly).toBeCloseTo(5.90, 2);
     });
 
     it("aws_cloudwatch_metric_alarm costs $0.10", () => {

@@ -59,7 +59,7 @@ describe('estimateCost – fixed costs', () => {
   it('aws_rds_cluster is $150/mo', () => expect(estimateCost(node('aws_rds_cluster')).monthly).toBe(150));
   it('aws_nat_gateway is $36.50/mo', () => expect(estimateCost(node('aws_nat_gateway')).monthly).toBe(36.5));
   it('aws_efs_file_system is $30/mo', () => expect(estimateCost(node('aws_efs_file_system')).monthly).toBe(30));
-  it('aws_cloudwatch_log_group is $2.50/mo', () => expect(estimateCost(node('aws_cloudwatch_log_group')).monthly).toBe(2.5));
+  it('aws_cloudwatch_log_group default is ~$0.59/mo (1GB ingestion, 90d retention)', () => expect(estimateCost(node('aws_cloudwatch_log_group')).monthly).toBeCloseTo(0.59, 2));
   it('aws_cloudwatch_metric_alarm is $0.10/mo', () => expect(estimateCost(node('aws_cloudwatch_metric_alarm')).monthly).toBe(0.1));
   it('aws_kms_key is $1.00/mo', () => expect(estimateCost(node('aws_kms_key')).monthly).toBe(1.0));
   it('aws_secretsmanager_secret is $0.40/mo', () => expect(estimateCost(node('aws_secretsmanager_secret')).monthly).toBe(0.4));
@@ -216,9 +216,9 @@ describe('totalMonthlyCost', () => {
     const nodes = [
       node('aws_eks_cluster'),        // 73
       node('aws_nat_gateway'),        // 36.5
-      node('aws_cloudwatch_log_group'), // 2.5
+      node('aws_cloudwatch_log_group'), // ~0.59 (1GB ingestion, 90d retention)
     ];
-    expect(totalMonthlyCost(nodes)).toBeCloseTo(112);
+    expect(totalMonthlyCost(nodes)).toBeCloseTo(110.09);
   });
   it('unknown resource contributes $0 (null → 0)', () => {
     const nodes = [node('aws_eks_cluster'), node('unknown_xyz')];
