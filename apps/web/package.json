@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tauri-apps/api": "^2.10.1",
     "@terraform-viz/graph-schema": "*",
     "@terraform-viz/llm-types": "*",
     "@terraform-viz/pricing-engine": "*",
