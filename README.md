@@ -3,11 +3,14 @@
 > **Visualise, cost-estimate, and diff your Terraform plans — before you run `apply`.**
 
 [![CI](https://github.com/unrealandychan/terraform-viz/actions/workflows/ci.yml/badge.svg)](https://github.com/unrealandychan/terraform-viz/actions/workflows/ci.yml)
-![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![Version](https://img.shields.io/badge/version-0.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)
+![Rust](https://img.shields.io/badge/rust-1.75%2B-orange)
 
-TerraViz is a multi-cloud web application that parses Terraform plan JSON and turns it into an interactive architecture diagram, accurate monthly cost estimates, side-by-side plan diffs, and an AI-powered chat assistant — all in your browser, zero infrastructure required.
+TerraViz is a multi-cloud application that parses Terraform plan JSON and turns it into an interactive architecture diagram, accurate monthly cost estimates, side-by-side plan diffs, and an AI-powered chat assistant.
+
+**Now available as a native desktop app** (powered by [Tauri 2](https://tauri.app/)) — no server, no Docker, just open a `.json` file and go.
 
 ---
 
@@ -21,6 +24,7 @@ TerraViz is a multi-cloud web application that parses Terraform plan JSON and tu
 | 🤖 | **AI Chat Assistant** | Streaming LLM assistant with preset analyses (cost saving, security review, architecture overview, destruction risk) — works with any OpenAI-compatible endpoint |
 | 📜 | **History & Sharing** | Browser-side history of loaded plans; share plans via URL-encoded deep links |
 | 📦 | **Zip Upload** | Drop a `.zip` of a Terraform project — the sandboxed worker runs `init → plan → show -json` automatically |
+| 🖥️ | **Desktop App** | Native Tauri 2 app — open plan files via native dialog, all parsing done locally in Rust, no backend required |
 
 ---
 
@@ -39,7 +43,7 @@ TerraViz is a multi-cloud web application that parses Terraform plan JSON and tu
 ```
 terraform-viz/
 ├── apps/
-│   ├── web/                # Next.js frontend (upload, graph, cost, diff, AI chat)
+│   ├── web/                # Next.js 15 frontend (upload, graph, cost, diff, AI chat)
 │   └── terraform-worker/   # Sandboxed terraform init + plan + show -json runner
 ├── services/
 │   ├── parser/             # Normalises Terraform JSON → cloud-agnostic GraphModel
@@ -50,8 +54,15 @@ terraform-viz/
 │   ├── graph-schema/       # Shared TypeScript types (GraphModel, GraphNode, …)
 │   ├── llm-types/          # Shared LLM request/response types
 │   └── pricing-types/      # Shared cost estimate types
-└── pricing/
-    └── data/               # aws.json · azure.json · gcp.json pricing catalogs
+├── pricing/
+│   └── data/               # aws.json · azure.json · gcp.json pricing catalogs
+└── src-tauri/              # Tauri 2 desktop shell (Rust backend + IPC commands)
+    ├── src/
+    │   ├── main.rs         # IPC commands: parse_plan, estimate_costs, open_plan_file
+    │   ├── parser.rs       # Rust Terraform plan parser
+    │   ├── pricing.rs      # 35+ resource pricing rules (AWS/GCP/Azure)
+    │   └── types.rs        # GraphNode, GraphEdge, GraphModel structs
+    └── tauri.conf.json     # App config (window size, bundle identifier, build cmds)
 ```
 
 ---
@@ -60,25 +71,82 @@ terraform-viz/
 
 ### Prerequisites
 
+**Web / Docker mode:**
 - **Node.js** 20+
 - **Docker + Docker Compose** (for the full service stack)
 - **Terraform CLI** 1.6+ (only required inside the Docker worker image)
 
-### Quickstart
+**Desktop (Tauri) mode — additional requirements:**
+- **Rust** 1.75+ (`rustup` recommended)
+- **Tauri CLI** 2.x — `cargo install tauri-cli`
+- Linux: `libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev pkg-config`
+- macOS: Xcode Command Line Tools
+- Windows: Microsoft Visual Studio C++ Build Tools, WebView2
+
+---
+
+### 🌐 Web Mode (Docker)
 
 ```bash
-# 1. Clone the repo
+# 1. Clone
 git clone https://github.com/unrealandychan/terraform-viz.git
 cd terraform-viz
 
-# 2. Install all workspace dependencies
+# 2. Install workspace dependencies
 npm install
 
 # 3. Start all services (web, parser, pricing, comparison, llm, worker)
 npm run dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) and upload a `terraform show -json` output.
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+### 🖥️ Desktop Mode (Tauri)
+
+#### Option A — Run in dev mode (with hot reload)
+
+```bash
+# Prerequisites: Rust + Tauri CLI installed (see above)
+
+git clone https://github.com/unrealandychan/terraform-viz.git
+cd terraform-viz
+
+# Install JS dependencies
+npm install
+
+# Start the Tauri dev window
+# (launches Next.js dev server + Tauri WebView automatically)
+cargo tauri dev
+```
+
+#### Option B — Build a release binary
+
+```bash
+# Full release build — compiles Rust backend + Next.js static export
+cargo tauri build
+
+# To build without bundler packaging (binary only, faster):
+cargo tauri build --no-bundle
+```
+
+The build process:
+1. Runs `TAURI_BUILD=1 npx next build` inside `apps/web/` — produces a static export at `apps/web/out/`
+2. Compiles the Rust backend (`src-tauri/`) in release mode
+3. Bundles everything into a platform-native package
+
+**Output locations:**
+| Platform | Format | Path |
+|---|---|---|
+| Linux | `.AppImage` | `src-tauri/target/release/bundle/appimage/` |
+| Linux | `.deb` | `src-tauri/target/release/bundle/deb/` |
+| macOS | `.dmg` / `.app` | `src-tauri/target/release/bundle/dmg/` |
+| Windows | `.msi` / `.exe` | `src-tauri/target/release/bundle/msi/` |
+
+> **Tip:** `--no-bundle` skips packaging and only produces the raw binary at `src-tauri/target/release/terraform-viz` (Linux/macOS) or `terraform-viz.exe` (Windows). Useful for CI or quick local testing.
+
+---
 
 ### Other commands
 
@@ -86,7 +154,7 @@ Then open [http://localhost:3000](http://localhost:3000) and upload a `terraform
 # Type-check the full monorepo
 npm run typecheck
 
-# Run tests
+# Run all tests
 npm test
 
 # Run tests with coverage
@@ -96,10 +164,13 @@ npm run test:coverage
 npm run lint
 ```
 
+---
+
 ### Input formats
 
 - `terraform show -json` output — paste or upload a `.json` file
 - `.zip` archive of a Terraform project directory — the worker handles `init + plan + show -json`
+- **Desktop only:** native file picker — click **Open Plan File…** in the upload screen
 
 ---
 
@@ -111,8 +182,9 @@ npm run lint
 | **M2** | Pricing estimation from internal JSON catalog for AWS / Azure / GCP | ✅ Shipped |
 | **M3** | Plan comparison, graph diff, monthly cost delta | ✅ Shipped |
 | **M4** | AI chat assistant with streaming LLM + preset analysis templates | ✅ Shipped |
-| **M5** | Zip upload via terraform worker, expanded pricing catalog, test coverage | 🚧 In progress |
-| **M6** | CI/CD pipeline, automated testing, EBS/LB pricing accuracy improvements | 🚧 In progress |
+| **M5** | Zip upload via terraform worker, expanded pricing catalog, test coverage | ✅ Shipped |
+| **M6** | Tauri 2 desktop app — native file open, Rust backend, static export build | ✅ Shipped |
+| **M7** | CI/CD pipeline, macOS/Windows desktop bundles, auto-update | 🗓️ Planned |
 
 ---
 
