@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import type { GraphModel } from "@terraform-viz/graph-schema";
 import { PLAN_STORAGE_KEY, saveToHistory } from "@/lib/plan-store";
+import { parsePlan, openPlanFile, isTauri } from "@/lib/tauri-bridge";
 
 const ACCEPTED_FILE_TYPES = ".json,.zip";
 
@@ -51,21 +52,7 @@ export function PlanUpload() {
       setLoadingLabel("Parsing & visualizing…");
 
       try {
-        const parsed: unknown = JSON.parse(text);
-        const response = await fetch("/api/parse", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(parsed),
-        });
-
-        const data: unknown = await response.json();
-
-        if (!response.ok) {
-          const errorData = data as Record<string, unknown>;
-          setError(typeof errorData["error"] === "string" ? errorData["error"] : "Parse failed");
-          return;
-        }
-
+        const data = await parsePlan(text);
         const model = data as GraphModel;
         localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(model));
         saveToHistory(model, fileName);
@@ -80,6 +67,27 @@ export function PlanUpload() {
     },
     [router],
   );
+
+  /** Open a file using Tauri native dialog (desktop only) */
+  const handleOpenNativeFile = useCallback(async () => {
+    setError(null);
+    try {
+      const result = await openPlanFile();
+      if (!result) return; // user cancelled
+      setLoadingLabel("Parsing & visualizing…");
+      setLoading(true);
+      const data = await parsePlan(result.content);
+      const model = data as GraphModel;
+      localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(model));
+      saveToHistory(model, result.fileName);
+      router.push("/graph");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to open file";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, [router]);
 
   const runAndRedirect = useCallback(
     async (archiveBase64: string, fileName: string) => {
@@ -164,6 +172,19 @@ export function PlanUpload() {
   return (
     <div className="upload-form">
       <div className="card upload-form__card">
+        {isTauri() && (
+          <button
+            type="button"
+            className="btn btn--primary upload-form__native-open"
+            onClick={() => { void handleOpenNativeFile(); }}
+            disabled={loading}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ marginRight: "6px" }}>
+              <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            </svg>
+            Open Plan File…
+          </button>
+        )}
         <label className={`upload-form__file-label${loading ? " upload-form__file-label--loading" : ""}`}>
           {loading ? (
             <svg className="upload-form__file-icon upload-form__file-icon--spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

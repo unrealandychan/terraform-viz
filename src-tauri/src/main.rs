@@ -30,8 +30,9 @@ async fn estimate_costs(nodes: Vec<types::GraphNode>) -> Result<Vec<serde_json::
 }
 
 /// Command: open a .tfplan or .json file via native file dialog
+/// Returns { content, file_name } or null if the user cancelled.
 #[tauri::command]
-async fn open_plan_file(app: tauri::AppHandle) -> Result<Option<String>, String> {
+async fn open_plan_file(app: tauri::AppHandle) -> Result<Option<serde_json::Value>, String> {
     use tauri_plugin_dialog::DialogExt;
     let file = app
         .dialog()
@@ -43,7 +44,16 @@ async fn open_plan_file(app: tauri::AppHandle) -> Result<Option<String>, String>
             let path_str = path.to_string();
             let content = std::fs::read_to_string(&path_str)
                 .map_err(|e| e.to_string())?;
-            Ok(Some(content))
+            // Extract just the filename (no directory)
+            let file_name = std::path::Path::new(&path_str)
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("plan")
+                .to_string();
+            Ok(Some(serde_json::json!({
+                "content": content,
+                "file_name": file_name,
+            })))
         }
         None => Ok(None),
     }

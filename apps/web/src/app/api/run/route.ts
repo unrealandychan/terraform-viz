@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// Tauri desktop build: API routes unused (Tauri IPC handles all backend calls)
+export const dynamic = "force-static";
 import { runPlan } from "@/lib/server-api";
 
 export const runtime = "nodejs";

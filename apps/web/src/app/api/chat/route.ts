@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
 
+// Tauri desktop build: API routes unused (Tauri IPC handles all backend calls)
+export const dynamic = "force-static";
+
 export const runtime = "nodejs";
 
 interface RequestBody {
