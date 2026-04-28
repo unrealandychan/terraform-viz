@@ -36,7 +36,7 @@ const runSchema = z.object({ archiveBase64: z.string().min(1), vars: z.array(z.s
 app.post("/run", async (request: Request, response: Response): Promise<void> => {
   const parsed = runSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    response.status(400).json({ error: "Validation failed", details: parsed.error });
     return;
   }
 

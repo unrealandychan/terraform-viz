@@ -39,7 +39,7 @@ app.get("/health", (_request: Request, response: Response): void => {
 app.post("/estimate", async (request: Request, response: Response): Promise<void> => {
   const parsed = estimateSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    response.status(400).json({ error: "Validation failed", details: parsed.error });
     return;
   }
   const body = request.body as { model?: GraphModel };

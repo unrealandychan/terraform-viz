@@ -5,10 +5,7 @@ import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@/lib/pricing-estimates";
 
-const ACTION_CONFIG: Record<
-  ChangeAction,
-  { label: string; className: string; symbol: string }
-> = {
+const ACTION_CONFIG: Record<ChangeAction, { label: string; className: string; symbol: string }> = {
   [ChangeAction.CREATE]: { label: "Create", className: "cmp-badge--create", symbol: "+" },
   [ChangeAction.UPDATE]: { label: "Update", className: "cmp-badge--update", symbol: "~" },
   [ChangeAction.DELETE]: { label: "Delete", className: "cmp-badge--delete", symbol: "−" },
@@ -42,8 +39,7 @@ export const CompareView = memo(function CompareView({
   );
 
   const visible = useMemo(() => {
-    if (filter === "all")
-      return model.nodes.filter((n) => n.changeAction !== ChangeAction.NO_OP);
+    if (filter === "all") return model.nodes.filter((n) => n.changeAction !== ChangeAction.NO_OP);
     return model.nodes.filter((n) => n.changeAction === filter);
   }, [model, filter]);
 
@@ -76,7 +72,9 @@ export const CompareView = memo(function CompareView({
       {/* List */}
       <div className="compare-view__list-header">
         {filter === "all" ? (
-          <span>{totalChanges} change{totalChanges !== 1 ? "s" : ""}</span>
+          <span>
+            {totalChanges} change{totalChanges !== 1 ? "s" : ""}
+          </span>
         ) : (
           <span>
             {visible.length} {ACTION_CONFIG[filter as ChangeAction].label.toLowerCase()}
@@ -92,12 +90,16 @@ export const CompareView = memo(function CompareView({
 
       {visible.length === 0 ? (
         <div className="compare-view__empty">
-          {filter === "all" ? "No planned changes." : `No ${ACTION_CONFIG[filter as ChangeAction].label.toLowerCase()} actions.`}
+          {filter === "all"
+            ? "No planned changes."
+            : `No ${ACTION_CONFIG[filter as ChangeAction].label.toLowerCase()} actions.`}
         </div>
       ) : (
         <ul className="compare-view__list">
           {visible.map((node) => {
-            const { className, symbol } = ACTION_CONFIG[node.changeAction];
+            const { className, symbol } =
+              ACTION_CONFIG[node.changeAction ?? ChangeAction.NO_OP] ??
+              ACTION_CONFIG[ChangeAction.NO_OP];
             const { monthly } = estimateCost(node);
             return (
               <li

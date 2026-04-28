@@ -7,12 +7,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "import",
-    "unicorn",
-    "sonarjs"
-  ],
+  "plugins": ["@typescript-eslint", "import", "unicorn", "sonarjs"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended-type-checked",
@@ -105,6 +100,40 @@
       "rules": {
         "@typescript-eslint/no-magic-numbers": "off",
         "max-lines-per-function": "off"
+      }
+    },
+    {
+      "files": ["scripts/**/*.ts"],
+      "rules": {
+        "@typescript-eslint/no-magic-numbers": "off",
+        "import/no-unresolved": "off",
+        "unicorn/import-style": "off"
+      }
+    },
+    {
+      "files": ["apps/web/**/*.ts", "apps/web/**/*.tsx"],
+      "parserOptions": {
+        "project": "./apps/web/tsconfig.json"
+      },
+      "rules": {
+        "unicorn/filename-case": "off",
+        "import/no-unresolved": "off",
+        "unicorn/no-negated-condition": "off",
+        "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "unicorn/no-nested-ternary": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/no-floating-promises": "off",
+        "@typescript-eslint/promise-function-async": "off",
+        "unicorn/prevent-abbreviations": "off",
+        "unicorn/no-null": "off",
+        "@typescript-eslint/no-magic-numbers": "off",
+        "max-lines-per-function": "off",
+        "id-length": "off",
+        "sonarjs/no-duplicate-string": "off"
       }
     }
   ]

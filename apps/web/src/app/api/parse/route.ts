@@ -1,4 +1,7 @@
 import type { GraphModel } from "@terraform-viz/graph-schema";
+
+// Tauri desktop build: API routes unused (Tauri IPC handles all backend calls)
+export const dynamic = "force-static";
 import { NextRequest, NextResponse } from "next/server";
 import { parsePlan } from "@/lib/server-api";
 
