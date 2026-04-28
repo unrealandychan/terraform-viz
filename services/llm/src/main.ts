@@ -101,7 +101,7 @@ const recommendSchema = z.object({
 app.post("/recommend", (request: Request, response: Response): void => {
   const parsed = recommendSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    response.status(400).json({ error: "Validation failed", details: parsed.error });
     return;
   }
   const body = request.body as {
@@ -125,18 +125,18 @@ app.post("/recommend", (request: Request, response: Response): void => {
       llmSummary === null
         ? deterministicRecs
         : [
-            {
-              id: randomUUID(),
-              title: "AI Analysis",
-              description: llmSummary,
-              category: RecommendationCategory.RELIABILITY,
-              source: RecommendationSource.ARCHITECTURAL_HEURISTIC,
-              severity: RecommendationSeverity.LOW,
-              affectedResources: [] as string[],
-              estimatedMonthlySavingsUsd: null,
-            },
-            ...deterministicRecs,
-          ];
+          {
+            id: randomUUID(),
+            title: "AI Analysis",
+            description: llmSummary,
+            category: RecommendationCategory.RELIABILITY,
+            source: RecommendationSource.ARCHITECTURAL_HEURISTIC,
+            severity: RecommendationSeverity.LOW,
+            affectedResources: [] as string[],
+            estimatedMonthlySavingsUsd: null,
+          },
+          ...deterministicRecs,
+        ];
 
     const result: RecommendationResult = {
       generatedAt: new Date().toISOString(),

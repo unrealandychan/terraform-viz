@@ -1,4 +1,4 @@
-import express, { type Request, type Response } from "express";
+import express, { type Request, type Response as ExpressResponse } from "express";
 import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@terraform-viz/pricing-engine";
@@ -24,7 +24,7 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 3
 const app = express();
 app.use(express.json({ limit: "20mb" }));
 
-app.get("/health", (_request: Request, response: Response): void => {
+app.get("/health", (_request: Request, response: ExpressResponse): void => {
   response.json({ status: "ok", service: "comparison" });
 });
 
@@ -57,10 +57,10 @@ const diffSchema = z.object({ current: graphModelSchema, previous: graphModelSch
 
 // POST /diff
 // Body: { current: GraphModel; previous: GraphModel }
-app.post("/diff", (request: Request, response: Response): void => {
+app.post("/diff", (request: Request, response: ExpressResponse): void => {
   const parsed = diffSchema.safeParse(request.body);
   if (!parsed.success) {
-    response.status(400).json({ error: "Validation failed", details: parsed.error.errors });
+    response.status(400).json({ error: "Validation failed", details: parsed.error });
     return;
   }
   const body = request.body as { current?: GraphModel; previous?: GraphModel };

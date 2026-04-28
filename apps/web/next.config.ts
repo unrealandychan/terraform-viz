@@ -6,7 +6,6 @@ const isTauriBuild = process.env["TAURI_BUILD"] === "1";
 
 const config: NextConfig = {
   reactStrictMode: true,
-  eslint: { ignoreDuringBuilds: true },
   output: isTauriBuild ? "export" : "standalone",
   // Static export cannot use image optimisation (requires a server).
   ...(isTauriBuild ? { images: { unoptimized: true } } : {}),
@@ -21,6 +20,8 @@ const config: NextConfig = {
   webpack(webpackConfig) {
     return webpackConfig;
   },
+  // Enable Turbopack (Next.js 16+)
+  turbopack: {},
 };
 
 export default config;
