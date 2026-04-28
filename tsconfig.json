@@ -9,10 +9,8 @@
     "services/*/src/**/*.ts",
     "packages/*/src/**/*.ts",
     "apps/terraform-worker/src/**/*.ts",
-    "commitlint.config.cjs"
+    "commitlint.config.cjs",
+    "scripts/**/*.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "apps/web"
-  ]
+  "exclude": ["node_modules", "apps/web"]
 }
