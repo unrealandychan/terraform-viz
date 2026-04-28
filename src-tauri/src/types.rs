@@ -68,4 +68,5 @@ pub struct PlannedResource {
     pub resource_type: String,
     pub name: String,
     pub values: Option<serde_json::Value>,
+    pub depends_on: Option<Vec<String>>,
 }

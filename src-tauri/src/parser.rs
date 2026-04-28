@@ -1,4 +1,4 @@
-use crate::types::*;
+pub use crate::types::*;
 use anyhow::Result;
 use std::collections::HashMap;
 
@@ -32,61 +32,66 @@ pub fn parse_plan(raw: &str) -> Result<GraphModel> {
     let mut nodes: Vec<GraphNode> = Vec::new();
     let mut edges: Vec<GraphEdge> = Vec::new();
 
-    // Build attribute map from planned_values for richer data
-    let mut attr_map: HashMap<String, serde_json::Value> = HashMap::new();
+    // Build change-action map from resource_changes (keyed by address)
+    let mut action_map: HashMap<String, String> = HashMap::new();
+    if let Some(changes) = &plan.resource_changes {
+        for change in changes {
+            let action = if change.change.actions.contains(&"create".to_string())
+                && change.change.actions.contains(&"delete".to_string())
+            {
+                "replace"
+            } else {
+                match change.change.actions.first().map(|s| s.as_str()) {
+                    Some("create")  => "create",
+                    Some("delete")  => "delete",
+                    Some("update")  => "update",
+                    _               => "no-op",
+                }
+            };
+            action_map.insert(change.address.clone(), action.to_string());
+        }
+    }
+
+    // Primary source: planned_values.root_module.resources
+    // This is present in ALL valid Terraform plan JSON files.
+    // resource_changes may be absent (e.g. terraform show -json on state files).
     if let Some(pv) = &plan.planned_values {
         if let Some(rm) = &pv.root_module {
             if let Some(resources) = &rm.resources {
                 for r in resources {
-                    if let Some(vals) = &r.values {
-                        attr_map.insert(r.address.clone(), vals.clone());
+                    let change_action = action_map
+                        .get(&r.address)
+                        .cloned()
+                        .unwrap_or_else(|| "no-op".to_string());
+
+                    let deps = r.depends_on.clone().unwrap_or_default();
+
+                    // Build edges from dependencies
+                    for dep in &deps {
+                        edges.push(GraphEdge {
+                            source: dep.clone(),
+                            target: r.address.clone(),
+                        });
                     }
+
+                    nodes.push(GraphNode {
+                        id: r.address.clone(),
+                        name: r.name.clone(),
+                        resource_type: r.resource_type.clone(),
+                        provider: detect_provider(&r.resource_type),
+                        layer: detect_layer(&r.resource_type),
+                        change_action,
+                        attributes: r.values.clone().unwrap_or(serde_json::Value::Object(Default::default())),
+                        dependencies: deps,
+                    });
                 }
             }
         }
     }
 
-    if let Some(changes) = &plan.resource_changes {
-        for change in changes {
-            // Skip no-op resources
-            if change.change.actions == vec!["no-op"] { continue; }
-
-            let action = match change.change.actions.first().map(|s| s.as_str()) {
-                Some("create")  => "create",
-                Some("delete")  => "delete",
-                Some("update")  => "update",
-                Some("replace") => "replace",
-                _               => "no-op",
-            };
-
-            let attributes = attr_map
-                .get(&change.address)
-                .cloned()
-                .or_else(|| change.change.after.clone())
-                .unwrap_or(serde_json::Value::Object(Default::default()));
-
-            let deps = change.depends_on.clone().unwrap_or_default();
-
-            // Build edges from dependencies
-            for dep in &deps {
-                edges.push(GraphEdge {
-                    source: dep.clone(),
-                    target: change.address.clone(),
-                });
-            }
-
-            nodes.push(GraphNode {
-                id: change.address.clone(),
-                name: change.name.clone(),
-                resource_type: change.resource_type.clone(),
-                provider: detect_provider(&change.resource_type),
-                layer: detect_layer(&change.resource_type),
-                change_action: action.to_string(),
-                attributes,
-                dependencies: deps,
-            });
-        }
-    }
+    // Filter edges so both source and target exist as nodes
+    let node_ids: std::collections::HashSet<String> = nodes.iter().map(|n| n.id.clone()).collect();
+    edges.retain(|e| node_ids.contains(&e.source) && node_ids.contains(&e.target));
 
     Ok(GraphModel {
         nodes,
