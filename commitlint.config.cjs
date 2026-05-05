@@ -45,5 +45,6 @@ module.exports = {
     "subject-max-length": [2, "always", 72],
     "subject-min-length": [2, "always", 10],
     "header-max-length": [2, "always", 100],
+    "body-max-line-length": [0],
   },
 };
