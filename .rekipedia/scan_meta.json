@@ -1,0 +1,11 @@
+{
+  "rekipedia_version": "0.1.0",
+  "scanned_at": "2026-05-05T06:02:59.444768+00:00",
+  "repo_path": "/Users/eddiechan/terraform-viz",
+  "run_id": "19d1fa76-8731-494a-8b33-6b40846a9186",
+  "model": "gpt-5.4-mini",
+  "file_count": 78,
+  "page_count": 14,
+  "embed_model": "text-embedding-3-small",
+  "embedded": true
+}

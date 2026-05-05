@@ -1,0 +1,1626 @@
+[
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "node:child_process",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "node:util",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "node:fs/promises",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "node:path",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "node:os",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/terraform-worker/src/main.ts",
+    "to": "zod",
+    "kind": "import",
+    "file": "apps/terraform-worker/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/next-env.d.ts",
+    "to": "./.next/dev/types/routes.d.ts",
+    "kind": "import",
+    "file": "apps/web/next-env.d.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/next.config.ts",
+    "to": "next",
+    "kind": "import",
+    "file": "apps/web/next.config.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "to": "../components/graph/GraphFilterBar",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-diff.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-diff.test.ts",
+    "to": "../lib/plan-diff",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-diff.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-diff.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-store.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-store.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-store.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-store.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-url.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-url.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-url.test.ts",
+    "to": "../lib/plan-url",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-url.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/plan-url.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/plan-url.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "to": "../lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/theme-store.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/theme-store.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/__tests__/theme-store.test.ts",
+    "to": "../lib/theme-store",
+    "kind": "import",
+    "file": "apps/web/src/__tests__/theme-store.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/chat/route.ts",
+    "to": "next/server",
+    "kind": "import",
+    "file": "apps/web/src/app/api/chat/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/health/route.ts",
+    "to": "next/server",
+    "kind": "import",
+    "file": "apps/web/src/app/api/health/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/parse/route.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/app/api/parse/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/parse/route.ts",
+    "to": "next/server",
+    "kind": "import",
+    "file": "apps/web/src/app/api/parse/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/parse/route.ts",
+    "to": "@/lib/server-api",
+    "kind": "import",
+    "file": "apps/web/src/app/api/parse/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/run/route.ts",
+    "to": "next/server",
+    "kind": "import",
+    "file": "apps/web/src/app/api/run/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/api/run/route.ts",
+    "to": "@/lib/server-api",
+    "kind": "import",
+    "file": "apps/web/src/app/api/run/route.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/TwoDGraph",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/layout/ResizeHandle",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/chat/ChatPanel",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/NodeDetail",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/CostBreakdown",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/CompareView",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/DiffView",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/GraphFilterBar",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/graph/GraphToolbar",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/plan-store",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/baseline-store",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/plan-diff",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/plan-url",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/demo-plan",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/example-simple",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/example-serverless",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/example-enterprise",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/lib/example-multicloud",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/stores/useUsageStore",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/stores/useUIStore",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/graph/page.tsx",
+    "to": "@/components/ErrorBoundary",
+    "kind": "import",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/layout.tsx",
+    "to": "next",
+    "kind": "import",
+    "file": "apps/web/src/app/layout.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/layout.tsx",
+    "to": "@/components/layout/ClientShell",
+    "kind": "import",
+    "file": "apps/web/src/app/layout.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/layout.tsx",
+    "to": "@/components/layout/ThemeProvider",
+    "kind": "import",
+    "file": "apps/web/src/app/layout.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/layout.tsx",
+    "to": "./globals.css",
+    "kind": "import",
+    "file": "apps/web/src/app/layout.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/page.tsx",
+    "to": "next/navigation",
+    "kind": "import",
+    "file": "apps/web/src/app/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/settings/page.tsx",
+    "to": "@/components/settings/LlmSettings",
+    "kind": "import",
+    "file": "apps/web/src/app/settings/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/settings/page.tsx",
+    "to": "@/components/settings/ThemeSettings",
+    "kind": "import",
+    "file": "apps/web/src/app/settings/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/app/upload/page.tsx",
+    "to": "@/components/upload/PlanUpload",
+    "kind": "import",
+    "file": "apps/web/src/app/upload/page.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/ErrorBoundary.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/ErrorBoundary.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "ErrorBoundary",
+    "to": "React",
+    "kind": "inherits",
+    "file": "apps/web/src/components/ErrorBoundary.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/chat/ChatPanel.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CompareView.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CompareView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CompareView.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CompareView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CompareView.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CompareView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CompareView.tsx",
+    "to": "@/lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CompareView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "@/lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "@/lib/usage-utils",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "to": "@/stores/useUsageStore",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/DiffView.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/DiffView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/DiffView.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/DiffView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/DiffView.tsx",
+    "to": "@/lib/plan-diff",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/DiffView.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@/lib/plan-store",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@/lib/baseline-store",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@/lib/plan-url",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@/lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "to": "@/stores/useUIStore",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@/lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@/lib/usage-params",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@/lib/usage-utils",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@/stores/useUsageStore",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/NodeDetail.tsx",
+    "to": "@/components/graph/UsageEditor",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "d3-selection",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "d3-zoom",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "@/lib/pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "@/lib/usage-utils",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "to": "../layout/ThemeProvider",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/UsageEditor.tsx",
+    "to": "@/lib/usage-params",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/graph/UsageEditor.tsx",
+    "to": "@/stores/useUsageStore",
+    "kind": "import",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ClientShell.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ClientShell.tsx",
+    "to": "./Sidebar",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ClientShell.tsx",
+    "to": "./ResizeHandle",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ClientShell.tsx",
+    "to": "@/components/ui/StorageWarningBanner",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ClientShell.tsx",
+    "to": "@/lib/theme-store",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ResizeHandle.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ResizeHandle.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/Sidebar.tsx",
+    "to": "next/link",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/Sidebar.tsx",
+    "to": "next/navigation",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/Sidebar.tsx",
+    "to": "./ThemeToggle",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/layout/ThemeToggle.tsx",
+    "to": "./ThemeProvider",
+    "kind": "import",
+    "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/settings/LlmSettings.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/settings/LlmSettings.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/settings/ThemeSettings.tsx",
+    "to": "../layout/ThemeProvider",
+    "kind": "import",
+    "file": "apps/web/src/components/settings/ThemeSettings.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+    "to": "@/lib/plan-store",
+    "kind": "import",
+    "file": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "to": "@/lib/theme-store",
+    "kind": "import",
+    "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/upload/PlanUpload.tsx",
+    "to": "react",
+    "kind": "import",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/upload/PlanUpload.tsx",
+    "to": "next/navigation",
+    "kind": "import",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/upload/PlanUpload.tsx",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/upload/PlanUpload.tsx",
+    "to": "@/lib/plan-store",
+    "kind": "import",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/components/upload/PlanUpload.tsx",
+    "to": "@/lib/tauri-bridge",
+    "kind": "import",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/baseline-store.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/lib/baseline-store.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/plan-diff.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/plan-diff.ts",
+    "to": "./pricing-estimates",
+    "kind": "import",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/plan-store.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "StorageQuotaError",
+    "to": "Error",
+    "kind": "inherits",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/plan-url.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/lib/plan-url.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/server-api.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/lib/server-api.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/lib/tauri-bridge.ts",
+    "to": "@/lib/tauri-bridge",
+    "kind": "import",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/stores/useUIStore.ts",
+    "to": "zustand",
+    "kind": "import",
+    "file": "apps/web/src/stores/useUIStore.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/stores/useUIStore.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "apps/web/src/stores/useUIStore.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/stores/useUsageStore.ts",
+    "to": "zustand",
+    "kind": "import",
+    "file": "apps/web/src/stores/useUsageStore.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/stores/useUsageStore.ts",
+    "to": "zustand/middleware",
+    "kind": "import",
+    "file": "apps/web/src/stores/useUsageStore.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "apps/web/src/stores/useUsageStore.ts",
+    "to": "@/lib/usage-utils",
+    "kind": "import",
+    "file": "apps/web/src/stores/useUsageStore.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/cost-table.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/cost-table.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/cost-table.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/cost-table.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/estimator.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/estimator.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/estimator.ts",
+    "to": "./types.js",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-engine/src/estimator.ts",
+    "to": "./cost-table.js",
+    "kind": "import",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "packages/pricing-types/src/index.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "packages/pricing-types/src/index.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts/run-ts-parser.ts",
+    "to": "../services/parser/src/domain/plan-parser.js",
+    "kind": "import",
+    "file": "scripts/run-ts-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts/run-ts-parser.ts",
+    "to": "node:fs",
+    "kind": "import",
+    "file": "scripts/run-ts-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts/run-ts-parser.ts",
+    "to": "node:path",
+    "kind": "import",
+    "file": "scripts/run-ts-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "scripts/run-ts-parser.ts",
+    "to": "../services/parser/src/domain/terraform-plan.types.js",
+    "kind": "import",
+    "file": "scripts/run-ts-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/__tests__/diff.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/__tests__/diff.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/__tests__/diff.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/main.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "services/comparison/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/main.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/comparison/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/main.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/comparison/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/main.ts",
+    "to": "@terraform-viz/pricing-engine",
+    "kind": "import",
+    "file": "services/comparison/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/comparison/src/main.ts",
+    "to": "zod",
+    "kind": "import",
+    "file": "services/comparison/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/__tests__/rules.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "services/llm/src/__tests__/rules.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/__tests__/rules.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/__tests__/rules.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/__tests__/rules.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/__tests__/rules.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "openai",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "zod",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "node:crypto",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/main.ts",
+    "to": "./rules.js",
+    "kind": "import",
+    "file": "services/llm/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/rules.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/rules.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/rules.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/llm/src/rules.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/llm/src/rules.ts",
+    "to": "node:crypto",
+    "kind": "import",
+    "file": "services/llm/src/rules.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/__tests__/parse-plan.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "services/parser/src/__tests__/parse-plan.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/__tests__/parse-plan.test.ts",
+    "to": "../application/parse-plan.use-case.js",
+    "kind": "import",
+    "file": "services/parser/src/__tests__/parse-plan.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/application/parse-plan.use-case.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/application/parse-plan.use-case.ts",
+    "to": "../domain/plan-parser.js",
+    "kind": "import",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/application/parse-plan.use-case.ts",
+    "to": "../domain/terraform-plan.types.js",
+    "kind": "import",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/domain/layer-classifier.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/domain/plan-parser.ts",
+    "to": "node:crypto",
+    "kind": "import",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/domain/plan-parser.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/domain/plan-parser.ts",
+    "to": "./layer-classifier.js",
+    "kind": "import",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "to": "zod",
+    "kind": "import",
+    "file": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "to": "../../application/parse-plan.use-case.js",
+    "kind": "import",
+    "file": "services/parser/src/infrastructure/http/parser.routes.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/main.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "services/parser/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/parser/src/main.ts",
+    "to": "./infrastructure/http/parser.routes.js",
+    "kind": "import",
+    "file": "services/parser/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/__tests__/pricing.test.ts",
+    "to": "vitest",
+    "kind": "import",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/__tests__/pricing.test.ts",
+    "to": "@terraform-viz/pricing-engine",
+    "kind": "import",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/__tests__/pricing.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/__tests__/pricing.test.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "express",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "@terraform-viz/graph-schema",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "@terraform-viz/pricing-types",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "node:fs/promises",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "node:path",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "zod",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "services/pricing/src/main.ts",
+    "to": "@terraform-viz/pricing-engine",
+    "kind": "import",
+    "file": "services/pricing/src/main.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "vitest.config.ts",
+    "to": "vitest/config",
+    "kind": "import",
+    "file": "vitest.config.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  },
+  {
+    "from": "vitest.config.ts",
+    "to": "node:path",
+    "kind": "import",
+    "file": "vitest.config.ts",
+    "confidence": 1.0,
+    "evidence_tag": "EXTRACTED"
+  }
+]

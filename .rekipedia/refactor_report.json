@@ -1,0 +1,1439 @@
+{
+  "generated_at": "2026-05-05T06:02:59.450731+00:00",
+  "rekipedia_version": "0.10.3",
+  "summary": {
+    "high": 0,
+    "medium": 0,
+    "low": 119
+  },
+  "issues": [
+    {
+      "kind": "dead_code",
+      "symbol": "AttributesPanel",
+      "file": "apps/web/src/components/graph/NodeDetail.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `AttributesPanel` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ClientShell",
+      "file": "apps/web/src/components/layout/ClientShell.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ClientShell` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "CompareView",
+      "file": "apps/web/src/components/graph/CompareView.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `CompareView` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "CostBreakdown",
+      "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `CostBreakdown` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "DiffView",
+      "file": "apps/web/src/components/graph/DiffView.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `DiffView` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "GET",
+      "file": "apps/web/src/app/api/health/route.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `GET` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "GraphFilterBar",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `GraphFilterBar` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "GraphPage",
+      "file": "apps/web/src/app/graph/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `GraphPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "GraphToolbar",
+      "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `GraphToolbar` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconChat",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconChat` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconGraph",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconGraph` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconMoon",
+      "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconMoon` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconSettings",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconSettings` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconSun",
+      "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconSun` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "IconUpload",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `IconUpload` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "LogoIcon",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `LogoIcon` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "MessageBubble",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `MessageBubble` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "NestedValue",
+      "file": "apps/web/src/components/graph/NodeDetail.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `NestedValue` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "NodeDetail",
+      "file": "apps/web/src/components/graph/NodeDetail.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `NodeDetail` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "POST",
+      "file": "apps/web/src/app/api/run/route.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `POST` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "PlanUpload",
+      "file": "apps/web/src/components/upload/PlanUpload.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `PlanUpload` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ResizeHandle",
+      "file": "apps/web/src/components/layout/ResizeHandle.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ResizeHandle` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "RootLayout",
+      "file": "apps/web/src/app/layout.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `RootLayout` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "RootPage",
+      "file": "apps/web/src/app/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `RootPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "SettingsPage",
+      "file": "apps/web/src/app/settings/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `SettingsPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "Sidebar",
+      "file": "apps/web/src/components/layout/Sidebar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `Sidebar` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "StorageWarningBanner",
+      "file": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `StorageWarningBanner` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "StreamingBubble",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `StreamingBubble` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ThemeProvider",
+      "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ThemeProvider` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ThemeSettings",
+      "file": "apps/web/src/components/settings/ThemeSettings.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ThemeSettings` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "ThemeToggle",
+      "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `ThemeToggle` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "UploadPage",
+      "file": "apps/web/src/app/upload/page.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `UploadPage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "UsageEditor",
+      "file": "apps/web/src/components/graph/UsageEditor.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `UsageEditor` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_ChatPanel",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_ChatPanel` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "_TwoDGraph",
+      "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `_TwoDGraph` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "applyTheme",
+      "file": "apps/web/src/lib/theme-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `applyTheme` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "applyUsageOverrides",
+      "file": "apps/web/src/lib/usage-utils.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `applyUsageOverrides` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildClient",
+      "file": "services/llm/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildClient` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildEdges",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildEdges` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildGraphModel",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildGraphModel` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildLayout",
+      "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildLayout` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildNode",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildNode` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "buildPrompt",
+      "file": "services/llm/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `buildPrompt` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "callLlm",
+      "file": "services/llm/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `callLlm` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkNoDatabase",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkNoDatabase` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkOversizedInstances",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkOversizedInstances` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkPublicS3",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkPublicS3` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkRdsMissingBackupRetention",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkRdsMissingBackupRetention` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkSingleAzRds",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkSingleAzRds` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkUnencryptedEbs",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkUnencryptedEbs` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "checkUnencryptedS3",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `checkUnencryptedS3` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "classifyAwsLayer",
+      "file": "services/parser/src/domain/layer-classifier.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `classifyAwsLayer` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "classifyAzureLayer",
+      "file": "services/parser/src/domain/layer-classifier.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `classifyAzureLayer` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "classifyGcpLayer",
+      "file": "services/parser/src/domain/layer-classifier.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `classifyGcpLayer` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "classifyResource",
+      "file": "services/parser/src/domain/layer-classifier.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `classifyResource` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "clearAll",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `clearAll` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "clearBaseline",
+      "file": "apps/web/src/lib/baseline-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `clearBaseline` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "clearPlan",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `clearPlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "compressToBase64",
+      "file": "apps/web/src/lib/plan-url.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `compressToBase64` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "costByProvider",
+      "file": "packages/pricing-engine/src/estimator.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `costByProvider` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "decodePlan",
+      "file": "apps/web/src/lib/plan-url.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `decodePlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "decompressFromBase64",
+      "file": "apps/web/src/lib/plan-url.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `decompressFromBase64` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "detectProvider",
+      "file": "services/parser/src/domain/layer-classifier.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `detectProvider` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "diffPlans",
+      "file": "apps/web/src/lib/plan-diff.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `diffPlans` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "encodePlan",
+      "file": "apps/web/src/lib/plan-url.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `encodePlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "estimateCost",
+      "file": "packages/pricing-engine/src/estimator.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `estimateCost` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "estimateCosts",
+      "file": "apps/web/src/lib/tauri-bridge.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `estimateCosts` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "estimateLocalStorageUsage",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `estimateLocalStorageUsage` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "estimateNode",
+      "file": "services/pricing/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `estimateNode` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "estimateViaPricingService",
+      "file": "services/comparison/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `estimateViaPricingService` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "fetchWithTimeout",
+      "file": "services/comparison/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `fetchWithTimeout` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "flattenResources",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `flattenResources` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "getNodeTags",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `getNodeTags` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "getRootModule",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `getRootModule` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "getStoredTheme",
+      "file": "apps/web/src/lib/theme-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `getStoredTheme` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "getUsageParams",
+      "file": "apps/web/src/lib/usage-params.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `getUsageParams` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "getValue",
+      "file": "apps/web/src/components/graph/UsageEditor.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `getValue` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleChange",
+      "file": "apps/web/src/components/graph/UsageEditor.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleChange` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleOutsideClick",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleOutsideClick` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleReset",
+      "file": "apps/web/src/components/graph/UsageEditor.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleReset` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "handleToggle",
+      "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `handleToggle` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "inlineMd",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `inlineMd` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "isApproachingQuota",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `isApproachingQuota` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "isAtQuota",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `isAtQuota` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "isTauri",
+      "file": "apps/web/src/lib/tauri-bridge.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `isTauri` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "isTerraformPlan",
+      "file": "services/parser/src/application/parse-plan.use-case.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `isTerraformPlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "isUsageBased",
+      "file": "apps/web/src/lib/usage-params.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `isUsageBased` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadBaseline",
+      "file": "apps/web/src/lib/baseline-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadBaseline` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadHistory",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadHistory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadPlan",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadPlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadSettings",
+      "file": "apps/web/src/components/settings/LlmSettings.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadSettings` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "loadUsageOverrides",
+      "file": "apps/web/src/lib/usage-utils.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `loadUsageOverrides` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "nodeContext",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `nodeContext` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "nodeContext_",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `nodeContext_` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "onPointerDown",
+      "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `onPointerDown` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "openPlanFile",
+      "file": "apps/web/src/lib/tauri-bridge.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `openPlanFile` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "parseMarkdown",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `parseMarkdown` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "parsePlan",
+      "file": "apps/web/src/lib/tauri-bridge.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `parsePlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "parsePlanUseCase",
+      "file": "services/parser/src/application/parse-plan.use-case.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `parsePlanUseCase` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "planContext",
+      "file": "apps/web/src/components/chat/ChatPanel.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `planContext` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "removeHistoryEntry",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `removeHistoryEntry` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "resetAllUsageOverrides",
+      "file": "apps/web/src/lib/usage-utils.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `resetAllUsageOverrides` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "resetUsageOverride",
+      "file": "apps/web/src/lib/usage-utils.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `resetUsageOverride` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "resolveChangeAction",
+      "file": "services/parser/src/domain/plan-parser.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `resolveChangeAction` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "roughMonthlyFallback",
+      "file": "services/comparison/src/main.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `roughMonthlyFallback` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "runDeterministicRules",
+      "file": "services/llm/src/rules.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `runDeterministicRules` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "runPlan",
+      "file": "apps/web/src/lib/server-api.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `runPlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "saveBaseline",
+      "file": "apps/web/src/lib/baseline-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `saveBaseline` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "savePlan",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `savePlan` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "saveToHistory",
+      "file": "apps/web/src/lib/plan-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `saveToHistory` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "saveUsageOverride",
+      "file": "apps/web/src/lib/usage-utils.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `saveUsageOverride` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "setTheme",
+      "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `setTheme` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "toggleAction",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `toggleAction` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "toggleLayer",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `toggleLayer` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "toggleProvider",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `toggleProvider` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "toggleTag",
+      "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `toggleTag` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "toggleTheme",
+      "file": "apps/web/src/lib/theme-store.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `toggleTheme` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "totalMonthlyCost",
+      "file": "packages/pricing-engine/src/estimator.ts",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `totalMonthlyCost` — 0 callers detected",
+      "callers": []
+    },
+    {
+      "kind": "dead_code",
+      "symbol": "useTheme",
+      "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+      "severity": "low",
+      "metrics": {
+        "fan_in": 0,
+        "fan_out": 0
+      },
+      "suggestion": "Remove `useTheme` — 0 callers detected",
+      "callers": []
+    }
+  ]
+}

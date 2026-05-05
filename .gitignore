@@ -60,3 +60,6 @@ terraform.rc
 tmp/
 temp/
 .env.example
+.rekipedia/store.db
+.rekipedia/config.yml
+.mcp.json

@@ -1,0 +1,85 @@
+{
+  "run_id": "19d1fa76-8731-494a-8b33-6b40846a9186",
+  "generated_at": "2026-05-05T06:02:59.443601+00:00",
+  "file_count": 78,
+  "symbol_count": 197,
+  "relationship_count": 203,
+  "nav_order": [
+    "index",
+    "installation-and-setup",
+    "repository-structure",
+    "configuration",
+    "architecture-overview",
+    "services-layer",
+    "architecture-data-flow",
+    "packages-layer",
+    "python-api",
+    "web-app",
+    "cli-reference",
+    "technical-debt",
+    "algorithms",
+    "testing"
+  ],
+  "pages": [
+    {
+      "slug": "index",
+      "title": "Terraform Insight Platform"
+    },
+    {
+      "slug": "installation-and-setup",
+      "title": "Getting Started: Local Installation and Run Guide"
+    },
+    {
+      "slug": "repository-structure",
+      "title": "Repository Map"
+    },
+    {
+      "slug": "configuration",
+      "title": "Repository Configuration Surfaces"
+    },
+    {
+      "slug": "architecture-overview",
+      "title": "Architecture Overview"
+    },
+    {
+      "slug": "services-layer",
+      "title": "Backend Service Applications"
+    },
+    {
+      "slug": "architecture-data-flow",
+      "title": "End-to-End Product Data Flow"
+    },
+    {
+      "slug": "packages-layer",
+      "title": "Shared Packages as Reusable Building Blocks"
+    },
+    {
+      "slug": "python-api",
+      "title": "API Reference"
+    },
+    {
+      "slug": "web-app",
+      "title": "Next.js Web Application Overview"
+    },
+    {
+      "slug": "cli-reference",
+      "title": "CLI Reference"
+    },
+    {
+      "slug": "technical-debt",
+      "title": "Repository Risks and Maintenance Debt"
+    },
+    {
+      "slug": "algorithms",
+      "title": "Internals and Algorithms"
+    },
+    {
+      "slug": "testing",
+      "title": "Testing Strategy and Running Tests"
+    }
+  ],
+  "diagrams": ["module-graph", "class-hierarchy"],
+  "risks": [],
+  "build_commands": [],
+  "test_commands": []
+}

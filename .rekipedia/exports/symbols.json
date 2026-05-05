@@ -1,0 +1,1775 @@
+[
+  {
+    "name": "RunRequest",
+    "kind": "interface",
+    "file": "apps/terraform-worker/src/main.ts",
+    "line_start": 17,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "makeNode",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "line_start": 10,
+    "line_end": null,
+    "signature": "makeNode(overrides: Partial<GraphNode> & Pick<GraphNode, \"address\" | \"type\">)",
+    "docstring": null
+  },
+  {
+    "name": "emptyFilter",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/GraphFilterBar.test.tsx",
+    "line_start": 23,
+    "line_end": null,
+    "signature": "emptyFilter()",
+    "docstring": null
+  },
+  {
+    "name": "makeNode",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "line_start": 7,
+    "line_end": null,
+    "signature": "makeNode(address: string,\n  type = \"aws_vpc\",\n  provider = CloudProvider.AWS,)",
+    "docstring": null
+  },
+  {
+    "name": "makeModel",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-diff.test.ts",
+    "line_start": 25,
+    "line_end": null,
+    "signature": "makeModel(nodes: GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "makeModel",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-store.test.ts",
+    "line_start": 8,
+    "line_end": null,
+    "signature": "makeModel(id = \"test-1\", nodeCount = 2)",
+    "docstring": null
+  },
+  {
+    "name": "localStorageMock",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-store.test.ts",
+    "line_start": 27,
+    "line_end": null,
+    "signature": "localStorageMock(()",
+    "docstring": null
+  },
+  {
+    "name": "sessionStorageMock",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-store.test.ts",
+    "line_start": 36,
+    "line_end": null,
+    "signature": "sessionStorageMock(()",
+    "docstring": null
+  },
+  {
+    "name": "makeModel",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/plan-url.test.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "makeModel(id = \"url-test\")",
+    "docstring": null
+  },
+  {
+    "name": "makeNode",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/pricing-estimates.test.ts",
+    "line_start": 6,
+    "line_end": null,
+    "signature": "makeNode(type: string, attrs: Record<string, unknown> = {}, provider = CloudProvider.AWS)",
+    "docstring": null
+  },
+  {
+    "name": "makeLocalStorage",
+    "kind": "function",
+    "file": "apps/web/src/__tests__/theme-store.test.ts",
+    "line_start": 4,
+    "line_end": null,
+    "signature": "makeLocalStorage()",
+    "docstring": null
+  },
+  {
+    "name": "POST",
+    "kind": "function",
+    "file": "apps/web/src/app/api/chat/route.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": "POST(request: NextRequest)",
+    "docstring": null
+  },
+  {
+    "name": "RequestBody",
+    "kind": "interface",
+    "file": "apps/web/src/app/api/chat/route.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GET",
+    "kind": "function",
+    "file": "apps/web/src/app/api/health/route.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": "GET()",
+    "docstring": null
+  },
+  {
+    "name": "POST",
+    "kind": "function",
+    "file": "apps/web/src/app/api/parse/route.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "POST(request: NextRequest)",
+    "docstring": null
+  },
+  {
+    "name": "_GraphModelRef",
+    "kind": "type",
+    "file": "apps/web/src/app/api/parse/route.ts",
+    "line_start": 14,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "POST",
+    "kind": "function",
+    "file": "apps/web/src/app/api/run/route.ts",
+    "line_start": 12,
+    "line_end": null,
+    "signature": "POST(request: NextRequest)",
+    "docstring": null
+  },
+  {
+    "name": "RunRequestBody",
+    "kind": "interface",
+    "file": "apps/web/src/app/api/run/route.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GraphPage",
+    "kind": "function",
+    "file": "apps/web/src/app/graph/page.tsx",
+    "line_start": 32,
+    "line_end": null,
+    "signature": "GraphPage()",
+    "docstring": null
+  },
+  {
+    "name": "RootLayout",
+    "kind": "function",
+    "file": "apps/web/src/app/layout.tsx",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "RootLayout({ children }: { children: React.ReactNode })",
+    "docstring": null
+  },
+  {
+    "name": "RootPage",
+    "kind": "function",
+    "file": "apps/web/src/app/page.tsx",
+    "line_start": 3,
+    "line_end": null,
+    "signature": "RootPage()",
+    "docstring": null
+  },
+  {
+    "name": "SettingsPage",
+    "kind": "function",
+    "file": "apps/web/src/app/settings/page.tsx",
+    "line_start": 4,
+    "line_end": null,
+    "signature": "SettingsPage()",
+    "docstring": null
+  },
+  {
+    "name": "UploadPage",
+    "kind": "function",
+    "file": "apps/web/src/app/upload/page.tsx",
+    "line_start": 3,
+    "line_end": null,
+    "signature": "UploadPage()",
+    "docstring": null
+  },
+  {
+    "name": "ErrorBoundary",
+    "kind": "class",
+    "file": "apps/web/src/components/ErrorBoundary.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Props",
+    "kind": "interface",
+    "file": "apps/web/src/components/ErrorBoundary.tsx",
+    "line_start": 3,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "State",
+    "kind": "interface",
+    "file": "apps/web/src/components/ErrorBoundary.tsx",
+    "line_start": 4,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "planContext",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 49,
+    "line_end": null,
+    "signature": "planContext(plan: GraphModel | null)",
+    "docstring": null
+  },
+  {
+    "name": "nodeContext",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 65,
+    "line_end": null,
+    "signature": "nodeContext(node: GraphNode | null)",
+    "docstring": null
+  },
+  {
+    "name": "loadSettings",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 215,
+    "line_end": null,
+    "signature": "loadSettings()",
+    "docstring": null
+  },
+  {
+    "name": "inlineMd",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 233,
+    "line_end": null,
+    "signature": "inlineMd(text: string, baseKey = 0)",
+    "docstring": null
+  },
+  {
+    "name": "parseMarkdown",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 261,
+    "line_end": null,
+    "signature": "parseMarkdown(md: string)",
+    "docstring": null
+  },
+  {
+    "name": "StreamingBubble",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 364,
+    "line_end": null,
+    "signature": "StreamingBubble({ content }: { content: string })",
+    "docstring": null
+  },
+  {
+    "name": "MessageBubble",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 385,
+    "line_end": null,
+    "signature": "MessageBubble({ msg }: { msg: Message })",
+    "docstring": null
+  },
+  {
+    "name": "_ChatPanel",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 447,
+    "line_end": null,
+    "signature": "_ChatPanel({ nodeContext = null, plan = null, compact = false }: ChatPanelProps)",
+    "docstring": null
+  },
+  {
+    "name": "nodeContext_",
+    "kind": "function",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 687,
+    "line_end": null,
+    "signature": "nodeContext_(node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "LlmSettings",
+    "kind": "interface",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 19,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Message",
+    "kind": "interface",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 25,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Preset",
+    "kind": "interface",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 43,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ChatPanelProps",
+    "kind": "interface",
+    "file": "apps/web/src/components/chat/ChatPanel.tsx",
+    "line_start": 443,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "CompareView",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/CompareView.tsx",
+    "line_start": 24,
+    "line_end": null,
+    "signature": "CompareView({\n  model,\n  onNodeSelect,\n}: {\n  model: GraphModel;\n  onNodeSelect: (node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "CostBreakdown",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/CostBreakdown.tsx",
+    "line_start": 23,
+    "line_end": null,
+    "signature": "CostBreakdown({\n  model,\n  onResetAll,\n}: {\n  model: GraphModel;\n  onResetAll?: ()",
+    "docstring": null
+  },
+  {
+    "name": "DiffView",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/DiffView.tsx",
+    "line_start": 7,
+    "line_end": null,
+    "signature": "DiffView({\n  diff,\n  baselineName,\n  onNodeSelect,\n}: {\n  diff: PlanDiff;\n  baselineName: string;\n  onNodeSelect: (node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "getNodeTags",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 52,
+    "line_end": null,
+    "signature": "getNodeTags(node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "GraphFilterBar",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 60,
+    "line_end": null,
+    "signature": "GraphFilterBar({\n  filter,\n  model,\n  filteredCount,\n  onChange,\n}: {\n  filter: GraphFilter;\n  model: GraphModel;\n  filteredCount: number;\n  onChange: (f: GraphFilter)",
+    "docstring": null
+  },
+  {
+    "name": "toggleAction",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 74,
+    "line_end": null,
+    "signature": "toggleAction(action: ChangeAction)",
+    "docstring": null
+  },
+  {
+    "name": "toggleLayer",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 81,
+    "line_end": null,
+    "signature": "toggleLayer(layer: ResourceLayer)",
+    "docstring": null
+  },
+  {
+    "name": "toggleProvider",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 88,
+    "line_end": null,
+    "signature": "toggleProvider(provider: CloudProvider)",
+    "docstring": null
+  },
+  {
+    "name": "clearAll",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 95,
+    "line_end": null,
+    "signature": "clearAll()",
+    "docstring": null
+  },
+  {
+    "name": "toggleTag",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 126,
+    "line_end": null,
+    "signature": "toggleTag(tag: string)",
+    "docstring": null
+  },
+  {
+    "name": "handleOutsideClick",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 144,
+    "line_end": null,
+    "signature": "handleOutsideClick(e: MouseEvent)",
+    "docstring": null
+  },
+  {
+    "name": "GraphFilter",
+    "kind": "interface",
+    "file": "apps/web/src/components/graph/GraphFilterBar.tsx",
+    "line_start": 44,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GraphToolbar",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "GraphToolbar({\n  model,\n  history,\n  baseline,\n  onLoadFromHistory,\n  onPinBaseline,\n  onUnpinBaseline,\n}: {\n  model: GraphModel;\n  history: PlanHistoryEntry[];\n  baseline: BaselineEntry | null;\n  onLoadFromHistory: (entry: PlanHistoryEntry)",
+    "docstring": null
+  },
+  {
+    "name": "onPointerDown",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/GraphToolbar.tsx",
+    "line_start": 39,
+    "line_end": null,
+    "signature": "onPointerDown(e: PointerEvent)",
+    "docstring": null
+  },
+  {
+    "name": "NestedValue",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "line_start": 29,
+    "line_end": null,
+    "signature": "NestedValue({ val, depth = 0 }: { val: unknown; depth?: number })",
+    "docstring": null
+  },
+  {
+    "name": "AttributesPanel",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "line_start": 94,
+    "line_end": null,
+    "signature": "AttributesPanel({ attributes }: { attributes: Readonly<Record<string, unknown>> })",
+    "docstring": null
+  },
+  {
+    "name": "NodeDetail",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/NodeDetail.tsx",
+    "line_start": 156,
+    "line_end": null,
+    "signature": "NodeDetail({\n  node,\n  onUsageUpdate,\n}: {\n  node: GraphNode;\n  onUsageUpdate?: ()",
+    "docstring": null
+  },
+  {
+    "name": "buildLayout",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "line_start": 74,
+    "line_end": null,
+    "signature": "buildLayout(model: GraphModel,\n  svgW: number,)",
+    "docstring": null
+  },
+  {
+    "name": "_TwoDGraph",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "line_start": 110,
+    "line_end": null,
+    "signature": "_TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps)",
+    "docstring": null
+  },
+  {
+    "name": "LayoutNode",
+    "kind": "interface",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "line_start": 73,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TwoDGraphProps",
+    "kind": "interface",
+    "file": "apps/web/src/components/graph/TwoDGraph.tsx",
+    "line_start": 105,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "UsageEditor",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "line_start": 9,
+    "line_end": null,
+    "signature": "UsageEditor({ nodeId, resourceType, attributes, onUpdate }: UsageEditorProps)",
+    "docstring": null
+  },
+  {
+    "name": "getValue",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "line_start": 18,
+    "line_end": null,
+    "signature": "getValue(key: string, defaultValue: number)",
+    "docstring": null
+  },
+  {
+    "name": "handleChange",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "line_start": 23,
+    "line_end": null,
+    "signature": "handleChange(key: string, value: number)",
+    "docstring": null
+  },
+  {
+    "name": "handleReset",
+    "kind": "function",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "line_start": 28,
+    "line_end": null,
+    "signature": "handleReset()",
+    "docstring": null
+  },
+  {
+    "name": "UsageEditorProps",
+    "kind": "interface",
+    "file": "apps/web/src/components/graph/UsageEditor.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ClientShell",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ClientShell.tsx",
+    "line_start": 14,
+    "line_end": null,
+    "signature": "ClientShell({ children }: { children: ReactNode })",
+    "docstring": null
+  },
+  {
+    "name": "ResizeHandle",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ResizeHandle.tsx",
+    "line_start": 14,
+    "line_end": null,
+    "signature": "ResizeHandle({ onResize, direction = \"ltr\", className = \"\" }: ResizeHandleProps)",
+    "docstring": null
+  },
+  {
+    "name": "ResizeHandleProps",
+    "kind": "interface",
+    "file": "apps/web/src/components/layout/ResizeHandle.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "IconGraph",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 7,
+    "line_end": null,
+    "signature": "IconGraph()",
+    "docstring": null
+  },
+  {
+    "name": "IconUpload",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 28,
+    "line_end": null,
+    "signature": "IconUpload()",
+    "docstring": null
+  },
+  {
+    "name": "IconChat",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 47,
+    "line_end": null,
+    "signature": "IconChat()",
+    "docstring": null
+  },
+  {
+    "name": "IconSettings",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 64,
+    "line_end": null,
+    "signature": "IconSettings()",
+    "docstring": null
+  },
+  {
+    "name": "LogoIcon",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 82,
+    "line_end": null,
+    "signature": "LogoIcon()",
+    "docstring": null
+  },
+  {
+    "name": "Sidebar",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/Sidebar.tsx",
+    "line_start": 107,
+    "line_end": null,
+    "signature": "Sidebar()",
+    "docstring": null
+  },
+  {
+    "name": "ThemeProvider",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 17,
+    "line_end": null,
+    "signature": "ThemeProvider({ children }: { children: ReactNode })",
+    "docstring": null
+  },
+  {
+    "name": "useTheme",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 58,
+    "line_end": null,
+    "signature": "useTheme()",
+    "docstring": null
+  },
+  {
+    "name": "setTheme",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 41,
+    "line_end": null,
+    "signature": "setTheme(newTheme: Theme)",
+    "docstring": null
+  },
+  {
+    "name": "toggleTheme",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 47,
+    "line_end": null,
+    "signature": "toggleTheme()",
+    "docstring": null
+  },
+  {
+    "name": "ThemeContextType",
+    "kind": "interface",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 7,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Theme",
+    "kind": "type",
+    "file": "apps/web/src/components/layout/ThemeProvider.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "IconSun",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "IconSun()",
+    "docstring": null
+  },
+  {
+    "name": "IconMoon",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+    "line_start": 30,
+    "line_end": null,
+    "signature": "IconMoon()",
+    "docstring": null
+  },
+  {
+    "name": "ThemeToggle",
+    "kind": "function",
+    "file": "apps/web/src/components/layout/ThemeToggle.tsx",
+    "line_start": 47,
+    "line_end": null,
+    "signature": "ThemeToggle()",
+    "docstring": null
+  },
+  {
+    "name": "loadSettings",
+    "kind": "function",
+    "file": "apps/web/src/components/settings/LlmSettings.tsx",
+    "line_start": 24,
+    "line_end": null,
+    "signature": "loadSettings()",
+    "docstring": null
+  },
+  {
+    "name": "LlmSettings",
+    "kind": "function",
+    "file": "apps/web/src/components/settings/LlmSettings.tsx",
+    "line_start": 34,
+    "line_end": null,
+    "signature": "LlmSettings()",
+    "docstring": null
+  },
+  {
+    "name": "LlmSettings",
+    "kind": "interface",
+    "file": "apps/web/src/components/settings/LlmSettings.tsx",
+    "line_start": 7,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ThemeSettings",
+    "kind": "function",
+    "file": "apps/web/src/components/settings/ThemeSettings.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "ThemeSettings()",
+    "docstring": null
+  },
+  {
+    "name": "StorageWarningBanner",
+    "kind": "function",
+    "file": "apps/web/src/components/ui/StorageWarningBanner.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "StorageWarningBanner()",
+    "docstring": null
+  },
+  {
+    "name": "ThemeToggle",
+    "kind": "function",
+    "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "ThemeToggle()",
+    "docstring": null
+  },
+  {
+    "name": "handleToggle",
+    "kind": "function",
+    "file": "apps/web/src/components/ui/ThemeToggle.tsx",
+    "line_start": 12,
+    "line_end": null,
+    "signature": "handleToggle()",
+    "docstring": null
+  },
+  {
+    "name": "PlanUpload",
+    "kind": "function",
+    "file": "apps/web/src/components/upload/PlanUpload.tsx",
+    "line_start": 14,
+    "line_end": null,
+    "signature": "PlanUpload()",
+    "docstring": null
+  },
+  {
+    "name": "saveBaseline",
+    "kind": "function",
+    "file": "apps/web/src/lib/baseline-store.ts",
+    "line_start": 12,
+    "line_end": null,
+    "signature": "saveBaseline(name: string, model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "loadBaseline",
+    "kind": "function",
+    "file": "apps/web/src/lib/baseline-store.ts",
+    "line_start": 22,
+    "line_end": null,
+    "signature": "loadBaseline()",
+    "docstring": null
+  },
+  {
+    "name": "clearBaseline",
+    "kind": "function",
+    "file": "apps/web/src/lib/baseline-store.ts",
+    "line_start": 31,
+    "line_end": null,
+    "signature": "clearBaseline()",
+    "docstring": null
+  },
+  {
+    "name": "BaselineEntry",
+    "kind": "interface",
+    "file": "apps/web/src/lib/baseline-store.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "diffPlans",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "line_start": 29,
+    "line_end": null,
+    "signature": "diffPlans(current: GraphModel, baseline: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "NodeDiffEntry",
+    "kind": "interface",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "line_start": 6,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PlanDiff",
+    "kind": "interface",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "line_start": 14,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "DiffKind",
+    "kind": "type",
+    "file": "apps/web/src/lib/plan-diff.ts",
+    "line_start": 4,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "estimateLocalStorageUsage",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "estimateLocalStorageUsage()",
+    "docstring": null
+  },
+  {
+    "name": "isApproachingQuota",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 22,
+    "line_end": null,
+    "signature": "isApproachingQuota()",
+    "docstring": null
+  },
+  {
+    "name": "isAtQuota",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 29,
+    "line_end": null,
+    "signature": "isAtQuota()",
+    "docstring": null
+  },
+  {
+    "name": "savePlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 39,
+    "line_end": null,
+    "signature": "savePlan(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "loadPlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 54,
+    "line_end": null,
+    "signature": "loadPlan()",
+    "docstring": null
+  },
+  {
+    "name": "clearPlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 66,
+    "line_end": null,
+    "signature": "clearPlan()",
+    "docstring": null
+  },
+  {
+    "name": "saveToHistory",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 70,
+    "line_end": null,
+    "signature": "saveToHistory(model: GraphModel, name: string)",
+    "docstring": null
+  },
+  {
+    "name": "loadHistory",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 93,
+    "line_end": null,
+    "signature": "loadHistory()",
+    "docstring": null
+  },
+  {
+    "name": "removeHistoryEntry",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 99,
+    "line_end": null,
+    "signature": "removeHistoryEntry(id: string)",
+    "docstring": null
+  },
+  {
+    "name": "StorageQuotaError",
+    "kind": "class",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 6,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PlanHistoryEntry",
+    "kind": "interface",
+    "file": "apps/web/src/lib/plan-store.ts",
+    "line_start": 33,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "compressToBase64",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-url.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": "compressToBase64(data: string)",
+    "docstring": null
+  },
+  {
+    "name": "decompressFromBase64",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-url.ts",
+    "line_start": 29,
+    "line_end": null,
+    "signature": "decompressFromBase64(encoded: string)",
+    "docstring": null
+  },
+  {
+    "name": "encodePlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-url.ts",
+    "line_start": 64,
+    "line_end": null,
+    "signature": "encodePlan(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "decodePlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/plan-url.ts",
+    "line_start": 66,
+    "line_end": null,
+    "signature": "decodePlan(encoded: string)",
+    "docstring": null
+  },
+  {
+    "name": "fetchWithTimeout",
+    "kind": "function",
+    "file": "apps/web/src/lib/server-api.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": "fetchWithTimeout(url: string, opts: RequestInit, timeoutMs = 30_000)",
+    "docstring": null
+  },
+  {
+    "name": "parsePlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/server-api.ts",
+    "line_start": 26,
+    "line_end": null,
+    "signature": "parsePlan(planJson: unknown)",
+    "docstring": null
+  },
+  {
+    "name": "runPlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/server-api.ts",
+    "line_start": 56,
+    "line_end": null,
+    "signature": "runPlan(archiveBase64: string,\n  vars?: string[],)",
+    "docstring": null
+  },
+  {
+    "name": "isTauri",
+    "kind": "function",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "isTauri()",
+    "docstring": null
+  },
+  {
+    "name": "parsePlan",
+    "kind": "function",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "line_start": 20,
+    "line_end": null,
+    "signature": "parsePlan(raw: string)",
+    "docstring": null
+  },
+  {
+    "name": "openPlanFile",
+    "kind": "function",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "line_start": 40,
+    "line_end": null,
+    "signature": "openPlanFile()",
+    "docstring": null
+  },
+  {
+    "name": "estimateCosts",
+    "kind": "function",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "line_start": 54,
+    "line_end": null,
+    "signature": "estimateCosts(nodes: unknown[])",
+    "docstring": null
+  },
+  {
+    "name": "OpenedFile",
+    "kind": "interface",
+    "file": "apps/web/src/lib/tauri-bridge.ts",
+    "line_start": 36,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "getStoredTheme",
+    "kind": "function",
+    "file": "apps/web/src/lib/theme-store.ts",
+    "line_start": 4,
+    "line_end": null,
+    "signature": "getStoredTheme()",
+    "docstring": null
+  },
+  {
+    "name": "applyTheme",
+    "kind": "function",
+    "file": "apps/web/src/lib/theme-store.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": "applyTheme(theme: Theme)",
+    "docstring": null
+  },
+  {
+    "name": "toggleTheme",
+    "kind": "function",
+    "file": "apps/web/src/lib/theme-store.ts",
+    "line_start": 14,
+    "line_end": null,
+    "signature": "toggleTheme()",
+    "docstring": null
+  },
+  {
+    "name": "Theme",
+    "kind": "type",
+    "file": "apps/web/src/lib/theme-store.ts",
+    "line_start": 1,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "getUsageParams",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-params.ts",
+    "line_start": 117,
+    "line_end": null,
+    "signature": "getUsageParams(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "isUsageBased",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-params.ts",
+    "line_start": 120,
+    "line_end": null,
+    "signature": "isUsageBased(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "UsageParam",
+    "kind": "interface",
+    "file": "apps/web/src/lib/usage-params.ts",
+    "line_start": 1,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "loadUsageOverrides",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 2,
+    "line_end": null,
+    "signature": "loadUsageOverrides()",
+    "docstring": null
+  },
+  {
+    "name": "saveUsageOverride",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": "saveUsageOverride(nodeId: string, key: string, value: number)",
+    "docstring": null
+  },
+  {
+    "name": "resetUsageOverride",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 15,
+    "line_end": null,
+    "signature": "resetUsageOverride(nodeId: string)",
+    "docstring": null
+  },
+  {
+    "name": "resetAllUsageOverrides",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 20,
+    "line_end": null,
+    "signature": "resetAllUsageOverrides()",
+    "docstring": null
+  },
+  {
+    "name": "applyUsageOverrides",
+    "kind": "function",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 22,
+    "line_end": null,
+    "signature": "applyUsageOverrides(attributes: Record<string, unknown>,\n  overrides: Record<string, number> | undefined)",
+    "docstring": null
+  },
+  {
+    "name": "UsageOverrides",
+    "kind": "type",
+    "file": "apps/web/src/lib/usage-utils.ts",
+    "line_start": 1,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "UIState",
+    "kind": "interface",
+    "file": "apps/web/src/stores/useUIStore.ts",
+    "line_start": 7,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ViewMode",
+    "kind": "type",
+    "file": "apps/web/src/stores/useUIStore.ts",
+    "line_start": 4,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ActiveTab",
+    "kind": "type",
+    "file": "apps/web/src/stores/useUIStore.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "UsageState",
+    "kind": "interface",
+    "file": "apps/web/src/stores/useUsageStore.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GraphNode",
+    "kind": "interface",
+    "file": "packages/graph-schema/src/index.ts",
+    "line_start": 25,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GraphEdge",
+    "kind": "interface",
+    "file": "packages/graph-schema/src/index.ts",
+    "line_start": 37,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "GraphModel",
+    "kind": "interface",
+    "file": "packages/graph-schema/src/index.ts",
+    "line_start": 42,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "Recommendation",
+    "kind": "interface",
+    "file": "packages/llm-types/src/index.ts",
+    "line_start": 20,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "RecommendationResult",
+    "kind": "interface",
+    "file": "packages/llm-types/src/index.ts",
+    "line_start": 31,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "endpoint",
+    "kind": "interface",
+    "file": "packages/pricing-engine/src/cost-table.ts",
+    "line_start": 446,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "estimateCost",
+    "kind": "function",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "line_start": 6,
+    "line_end": null,
+    "signature": "estimateCost(node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "totalMonthlyCost",
+    "kind": "function",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "line_start": 18,
+    "line_end": null,
+    "signature": "totalMonthlyCost(nodes: readonly GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "costByProvider",
+    "kind": "function",
+    "file": "packages/pricing-engine/src/estimator.ts",
+    "line_start": 26,
+    "line_end": null,
+    "signature": "costByProvider(nodes: readonly GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "CostEstimate",
+    "kind": "interface",
+    "file": "packages/pricing-engine/src/types.ts",
+    "line_start": 1,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "BreakdownItem",
+    "kind": "interface",
+    "file": "packages/pricing-engine/src/types.ts",
+    "line_start": 12,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "UsageOverrides",
+    "kind": "type",
+    "file": "packages/pricing-engine/src/types.ts",
+    "line_start": 20,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "ResourceEstimate",
+    "kind": "interface",
+    "file": "packages/pricing-types/src/index.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "CostLineItem",
+    "kind": "interface",
+    "file": "packages/pricing-types/src/index.ts",
+    "line_start": 19,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "PricingResult",
+    "kind": "interface",
+    "file": "packages/pricing-types/src/index.ts",
+    "line_start": 26,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "makeNode",
+    "kind": "function",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": "makeNode(overrides: Partial<GraphNode> & Pick<GraphNode, \"address\" | \"type\">)",
+    "docstring": null
+  },
+  {
+    "name": "makeModel",
+    "kind": "function",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "line_start": 14,
+    "line_end": null,
+    "signature": "makeModel(nodes: GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "diffModels",
+    "kind": "function",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "line_start": 30,
+    "line_end": null,
+    "signature": "diffModels(current: GraphModel, previous: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "DiffResult",
+    "kind": "interface",
+    "file": "services/comparison/src/__tests__/diff.test.ts",
+    "line_start": 25,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "fetchWithTimeout",
+    "kind": "function",
+    "file": "services/comparison/src/main.ts",
+    "line_start": 8,
+    "line_end": null,
+    "signature": "fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 30_000)",
+    "docstring": null
+  },
+  {
+    "name": "roughMonthlyFallback",
+    "kind": "function",
+    "file": "services/comparison/src/main.ts",
+    "line_start": 28,
+    "line_end": null,
+    "signature": "roughMonthlyFallback(node: GraphNode)",
+    "docstring": null
+  },
+  {
+    "name": "estimateViaPricingService",
+    "kind": "function",
+    "file": "services/comparison/src/main.ts",
+    "line_start": 32,
+    "line_end": null,
+    "signature": "estimateViaPricingService(nodes: GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "makeNode",
+    "kind": "function",
+    "file": "services/llm/src/__tests__/rules.test.ts",
+    "line_start": 15,
+    "line_end": null,
+    "signature": "makeNode(overrides: Partial<GraphNode>)",
+    "docstring": null
+  },
+  {
+    "name": "makeModel",
+    "kind": "function",
+    "file": "services/llm/src/__tests__/rules.test.ts",
+    "line_start": 30,
+    "line_end": null,
+    "signature": "makeModel(nodes: GraphNode[])",
+    "docstring": null
+  },
+  {
+    "name": "buildClient",
+    "kind": "function",
+    "file": "services/llm/src/main.ts",
+    "line_start": 23,
+    "line_end": null,
+    "signature": "buildClient(apiKey?: string, baseUrl?: string)",
+    "docstring": null
+  },
+  {
+    "name": "callLlm",
+    "kind": "function",
+    "file": "services/llm/src/main.ts",
+    "line_start": 28,
+    "line_end": null,
+    "signature": "callLlm(client: OpenAI,\n  model: string,\n  prompt: string,)",
+    "docstring": null
+  },
+  {
+    "name": "buildPrompt",
+    "kind": "function",
+    "file": "services/llm/src/main.ts",
+    "line_start": 44,
+    "line_end": null,
+    "signature": "buildPrompt(graphModel: GraphModel, rules: Recommendation[])",
+    "docstring": null
+  },
+  {
+    "name": "checkNoDatabase",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "checkNoDatabase(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkSingleAzRds",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 27,
+    "line_end": null,
+    "signature": "checkSingleAzRds(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkUnencryptedS3",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 48,
+    "line_end": null,
+    "signature": "checkUnencryptedS3(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkPublicS3",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 67,
+    "line_end": null,
+    "signature": "checkPublicS3(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkRdsMissingBackupRetention",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 88,
+    "line_end": null,
+    "signature": "checkRdsMissingBackupRetention(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkOversizedInstances",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 110,
+    "line_end": null,
+    "signature": "checkOversizedInstances(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "checkUnencryptedEbs",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 134,
+    "line_end": null,
+    "signature": "checkUnencryptedEbs(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "runDeterministicRules",
+    "kind": "function",
+    "file": "services/llm/src/rules.ts",
+    "line_start": 155,
+    "line_end": null,
+    "signature": "runDeterministicRules(model: GraphModel)",
+    "docstring": null
+  },
+  {
+    "name": "isTerraformPlan",
+    "kind": "function",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "line_start": 9,
+    "line_end": null,
+    "signature": "isTerraformPlan(value: unknown)",
+    "docstring": null
+  },
+  {
+    "name": "parsePlanUseCase",
+    "kind": "function",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "line_start": 19,
+    "line_end": null,
+    "signature": "parsePlanUseCase(rawJson: unknown)",
+    "docstring": null
+  },
+  {
+    "name": "ParsePlanResult",
+    "kind": "type",
+    "file": "services/parser/src/application/parse-plan.use-case.ts",
+    "line_start": 5,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "classifyAwsLayer",
+    "kind": "function",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 237,
+    "line_end": null,
+    "signature": "classifyAwsLayer(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "classifyAzureLayer",
+    "kind": "function",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 246,
+    "line_end": null,
+    "signature": "classifyAzureLayer(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "classifyGcpLayer",
+    "kind": "function",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 255,
+    "line_end": null,
+    "signature": "classifyGcpLayer(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "detectProvider",
+    "kind": "function",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 264,
+    "line_end": null,
+    "signature": "detectProvider(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "classifyResource",
+    "kind": "function",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 271,
+    "line_end": null,
+    "signature": "classifyResource(resourceType: string)",
+    "docstring": null
+  },
+  {
+    "name": "ResourceClassification",
+    "kind": "interface",
+    "file": "services/parser/src/domain/layer-classifier.ts",
+    "line_start": 3,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "flattenResources",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 11,
+    "line_end": null,
+    "signature": "flattenResources(module: TerraformModule,\n  moduleAddress: string | null,)",
+    "docstring": null
+  },
+  {
+    "name": "resolveChangeAction",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 28,
+    "line_end": null,
+    "signature": "resolveChangeAction(address: string,\n  changes: readonly TerraformResourceChange[],)",
+    "docstring": null
+  },
+  {
+    "name": "buildNode",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 43,
+    "line_end": null,
+    "signature": "buildNode(resource: TerraformResource,\n  changeAction: ChangeAction,\n  moduleAddress: string | null,)",
+    "docstring": null
+  },
+  {
+    "name": "buildEdges",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 62,
+    "line_end": null,
+    "signature": "buildEdges(entries: { resource: TerraformResource; moduleAddress: string | null }[],)",
+    "docstring": null
+  },
+  {
+    "name": "getRootModule",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 73,
+    "line_end": null,
+    "signature": "getRootModule(plan: TerraformPlan)",
+    "docstring": null
+  },
+  {
+    "name": "buildGraphModel",
+    "kind": "function",
+    "file": "services/parser/src/domain/plan-parser.ts",
+    "line_start": 79,
+    "line_end": null,
+    "signature": "buildGraphModel(plan: TerraformPlan)",
+    "docstring": null
+  },
+  {
+    "name": "TerraformResource",
+    "kind": "interface",
+    "file": "services/parser/src/domain/terraform-plan.types.ts",
+    "line_start": 1,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TerraformModule",
+    "kind": "interface",
+    "file": "services/parser/src/domain/terraform-plan.types.ts",
+    "line_start": 12,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TerraformChildModule",
+    "kind": "interface",
+    "file": "services/parser/src/domain/terraform-plan.types.ts",
+    "line_start": 17,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TerraformResourceChange",
+    "kind": "interface",
+    "file": "services/parser/src/domain/terraform-plan.types.ts",
+    "line_start": 21,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "TerraformPlan",
+    "kind": "interface",
+    "file": "services/parser/src/domain/terraform-plan.types.ts",
+    "line_start": 35,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "node",
+    "kind": "function",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "line_start": 6,
+    "line_end": null,
+    "signature": "node(type: string,\n  attributes: Record<string, unknown> = {},\n  provider = CloudProvider.AWS,)",
+    "docstring": null
+  },
+  {
+    "name": "lookup",
+    "kind": "class",
+    "file": "services/pricing/src/__tests__/pricing.test.ts",
+    "line_start": 86,
+    "line_end": null,
+    "signature": null,
+    "docstring": null
+  },
+  {
+    "name": "estimateNode",
+    "kind": "function",
+    "file": "services/pricing/src/main.ts",
+    "line_start": 20,
+    "line_end": null,
+    "signature": "estimateNode(node: GraphNode)",
+    "docstring": null
+  }
+]
