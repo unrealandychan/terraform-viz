@@ -4,6 +4,7 @@
 mod types;
 mod parser;
 mod pricing;
+mod llm;
 
 /// Command: parse a raw Terraform plan JSON string → GraphModel
 #[tauri::command]
@@ -69,6 +70,7 @@ fn main() {
             parse_plan,
             estimate_costs,
             open_plan_file,
+            llm::chat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

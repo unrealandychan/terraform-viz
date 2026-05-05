@@ -2,6 +2,7 @@
 pub mod parser;
 pub mod types;
 pub mod pricing;
+pub mod llm;
 
 #[cfg(test)]
 mod tests;
