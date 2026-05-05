@@ -57,11 +57,26 @@ pub async fn chat(
     let resp = request_builder
         .send()
         .await
-        .map_err(|e| e.to_string())?
-        .error_for_status()
         .map_err(|e| e.to_string())?;
 
-    let body: serde_json::Value = resp.json().await.map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let body_text = resp.text().await.map_err(|e| e.to_string())?;
+    let body: serde_json::Value = serde_json::from_str(&body_text).map_err(|e| {
+        if status.is_success() {
+            e.to_string()
+        } else {
+            format!("HTTP {}: {}", status, body_text)
+        }
+    })?;
+
+    if !status.is_success() {
+        return Err(
+            body["error"]["message"]
+                .as_str()
+                .map(|s| s.to_string())
+                .unwrap_or_else(|| format!("HTTP {}: {}", status, body_text)),
+        );
+    }
 
     let content = body["choices"][0]["message"]["content"]
         .as_str()
