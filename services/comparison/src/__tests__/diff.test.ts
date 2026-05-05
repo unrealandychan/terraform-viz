@@ -226,7 +226,7 @@ describe("computeCostDelta — fallback pricing (empty priceMap)", () => {
       attributes: { instance_type: "t3.micro" },
     });
     const model = makeModel([node]);
-    expect(computeCostDelta(model.nodes, model.nodes, new Map())).toBe(0);
+    expect(computeCostDelta([...model.nodes], [...model.nodes], new Map())).toBe(0);
   });
 
   it("returns positive delta when a resource is added", () => {

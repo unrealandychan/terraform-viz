@@ -1,5 +1,15 @@
 # Release Notes
 
+## v0.5.0 — 2026-05-05
+
+### Added
+- **Tauri desktop app overhaul** (PR #41, #42): Full native desktop experience powered by Tauri 2; replaced Node.js service with Rust backend for local plan parsing and cost estimation — no server required
+- **Plan upload for Tauri** (PR #40): Native file picker integration for opening Terraform plan files directly from disk in the desktop app
+- **Deterministic LLM rules engine** (PR #39): New rule-based analysis in the LLM service — generates structured recommendations without requiring an external API call, ensuring consistent offline-capable output
+- **Expanded test coverage** (PR #38): Added vitest tests for comparison service diff logic, LLM rules engine, server-api client, parser HTTP routes, and terraform-worker input validation; total test count now **290+**
+
+---
+
 ## [Unreleased] — Milestone 5
 
 ### Added

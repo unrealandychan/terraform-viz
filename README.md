@@ -38,6 +38,22 @@ TerraViz is a multi-cloud application that parses Terraform plan JSON and turns 
 
 ---
 
+## 🧪 Test Coverage
+
+The project has **290+ tests** across all services and the web app, written with [Vitest](https://vitest.dev/).
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+Tests cover: parser service, pricing engine, plan diff logic, plan comparison, LLM rules, server API client, worker input validation, and React components.
+
+---
+
 ## 🏗️ Architecture
 
 ```
@@ -162,6 +178,9 @@ npm run test:coverage
 
 # Lint
 npm run lint
+
+# Build for production (Next.js)
+npm run build
 ```
 
 ---
