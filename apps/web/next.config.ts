@@ -7,7 +7,8 @@ const isTauriBuild = process.env["TAURI_BUILD"] === "1";
 const config: NextConfig = {
   reactStrictMode: true,
   output: isTauriBuild ? "export" : "standalone",
-  // Static export: trailing slashes ensure correct routing for local file:// protocol
+  // Static export: trailing slashes help route correctly when Tauri serves bundled assets
+  // without a Next.js server (typically via its asset/custom protocol in production).
   ...(isTauriBuild ? { trailingSlash: true } : {}),
   // Static export cannot use image optimisation (requires a server).
   ...(isTauriBuild ? { images: { unoptimized: true } } : {}),
