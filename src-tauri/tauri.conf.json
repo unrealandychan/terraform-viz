@@ -6,17 +6,17 @@
   "build": {
     "frontendDist": "../apps/web/out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "pnpm --filter web dev",
-    "beforeBuildCommand": "cd apps/web && TAURI_BUILD=1 npx next build"
+    "beforeDevCommand": "npm run dev -w apps/web",
+    "beforeBuildCommand": "npm run build:tauri -w apps/web"
   },
   "app": {
     "windows": [
       {
         "title": "Terraform Viz",
-      "width": 1400,
-      "height": 900,
-      "minWidth": 1024,
-      "minHeight": 640,
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 640,
         "resizable": true,
         "fullscreen": false
       }

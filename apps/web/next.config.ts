@@ -7,9 +7,15 @@ const isTauriBuild = process.env["TAURI_BUILD"] === "1";
 const config: NextConfig = {
   reactStrictMode: true,
   output: isTauriBuild ? "export" : "standalone",
+  // Static export: trailing slashes ensure correct routing for local file:// protocol
+  ...(isTauriBuild ? { trailingSlash: true } : {}),
   // Static export cannot use image optimisation (requires a server).
   ...(isTauriBuild ? { images: { unoptimized: true } } : {}),
-  transpilePackages: ["@terraform-viz/pricing-engine", "@terraform-viz/graph-schema", "@terraform-viz/pricing-types"],
+  transpilePackages: [
+    "@terraform-viz/pricing-engine",
+    "@terraform-viz/graph-schema",
+    "@terraform-viz/pricing-types",
+  ],
   env: {
     PARSER_URL: process.env["PARSER_URL"] ?? "http://localhost:3001",
     PRICING_URL: process.env["PRICING_URL"] ?? "http://localhost:3002",
