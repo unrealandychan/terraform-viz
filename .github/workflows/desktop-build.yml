@@ -63,6 +63,13 @@ jobs:
             libsoup-3.0-dev \
             libjavascriptcoregtk-4.1-dev
 
+      - name: Build shared packages
+        run: |
+          npm run build -w packages/graph-schema
+          npm run build -w packages/pricing-types
+          npm run build -w packages/pricing-engine
+          npm run build -w packages/llm-types
+
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2"
 
