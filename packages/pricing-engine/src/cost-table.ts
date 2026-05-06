@@ -249,7 +249,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
       standard: [80, 80, 152, 304],
       premium:  [410, 410, 815, 1630],
     };
-    const tier = base[skuName] ?? base["basic"];
+    const tier: number[] = base[skuName] ?? base["basic"] ?? [16, 40, 76, 152];
     return tier[Math.min(capacity, tier.length - 1)] ?? 40;
   },
   azurerm_cosmosdb_account: (a) => {
