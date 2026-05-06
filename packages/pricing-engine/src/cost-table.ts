@@ -241,7 +241,17 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   azurerm_postgresql_server: () => 90,
   azurerm_postgresql_flexible_server: () => 95,
   azurerm_mysql_server: () => 80,
-  azurerm_redis_cache: () => 55,
+  azurerm_redis_cache: (a) => {
+    const skuName = String(a["sku_name"] ?? "Basic").toLowerCase();
+    const capacity = Number(a["capacity"] ?? 1);
+    const base: Record<string, number[]> = {
+      basic:    [16, 40, 76, 152],
+      standard: [80, 80, 152, 304],
+      premium:  [410, 410, 815, 1630],
+    };
+    const tier = base[skuName] ?? base["basic"];
+    return tier[Math.min(capacity, tier.length - 1)] ?? 40;
+  },
   azurerm_cosmosdb_account: (a) => {
     const ruPerSec = Number(a["_usage_request_units_per_sec"] ?? 400);
     const storageGb = Number(a["_usage_storage_gb"] ?? 10);
@@ -251,8 +261,24 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   },
 
   // ── Azure Storage ──────────────────────────────────────────────────────
-  azurerm_storage_account: () => 20,
-  azurerm_managed_disk: (a) => Math.max(1, Number(a["disk_size_gb"] ?? 128)) * 0.1,
+  azurerm_storage_account: (a) => {
+    const storageGb = Number(a["_usage_storage_gb"] ?? 100);
+    const writeK = Number(a["_usage_write_requests_k"] ?? 100);
+    const readK = Number(a["_usage_read_requests_k"] ?? 1000);
+    return Math.round((storageGb * 0.018 + writeK * 0.0065 + readK * 0.0005) * 100) / 100;
+  },
+  azurerm_managed_disk: (a) => {
+    const sz = Math.max(1, Number(a["disk_size_gb"] ?? 128));
+    const storageType = String(a["storage_account_type"] ?? "Standard_LRS").toLowerCase();
+    const rates: Record<string, number> = {
+      "standard_lrs":    0.046,
+      "standardssd_lrs": 0.080,
+      "premium_lrs":     0.154,
+      "ultrassd_lrs":    0.125,
+    };
+    const rate = rates[storageType] ?? 0.080;
+    return Math.round(sz * rate * 100) / 100;
+  },
 
   // ── Azure Networking ─────────────────────────────────────────────────
   azurerm_resource_group: () => 0,
@@ -333,8 +359,27 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     const gcpRate = gcpRates[storageClass] ?? 0.02;
     return Math.round((storageGb * gcpRate + classA * 0.005 + classB * 0.0004) * 100) / 100;
   },
-  google_compute_disk: (a) => Math.max(1, Number(a["size"] ?? 50)) * 0.04,
-  google_filestore_instance: () => 200,
+  google_compute_disk: (a) => {
+    const sz = Math.max(1, Number(a["size"] ?? 50));
+    const diskType = String(a["type"] ?? "pd-standard");
+    const rates: Record<string, number> = {
+      "pd-standard": 0.040,
+      "pd-balanced": 0.100,
+      "pd-ssd": 0.170,
+      "pd-extreme": 0.125,
+    };
+    return Math.round(sz * (rates[diskType] ?? 0.040) * 100) / 100;
+  },
+  google_filestore_instance: (a) => {
+    const capacityGb = Math.max(1, Number(a["capacity_gb"] ?? 1024));
+    const tier = String(a["tier"] ?? "BASIC_HDD").toUpperCase();
+    const rates: Record<string, number> = {
+      BASIC_HDD: 0.16, BASIC_SSD: 0.30,
+      ZONAL: 0.25, REGIONAL: 0.35,
+    };
+    const rate = rates[tier] ?? 0.16;
+    return Math.round(capacityGb * rate * 100) / 100;
+  },
 
   // ── GCP Networking ────────────────────────────────────────────────────
   google_compute_network: () => 0,
@@ -370,7 +415,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   google_bigquery_table: (a) => {
     const storageGb = Number(a["_usage_storage_gb"] ?? 10);
     const queriesTb = Number(a["_usage_queries_tb_per_month"] ?? 0.1);
-    return Math.round((storageGb * 0.02 + queriesTb * 5) * 100) / 100;
+    return Math.round((storageGb * 0.02 + queriesTb * 6.25) * 100) / 100;
   },
   google_pubsub_topic: (a) => {
     const gbPerMonth = Number(a["_usage_message_gb_per_month"] ?? 5);
