@@ -29,8 +29,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   // ── AWS Database ────────────────────────────────────────────────────────
   aws_db_instance: (a) => {
     const P: Record<string, number> = {
-      "db.t3.micro": 12.41, "db.t3.small": 24.82, "db.t3.medium": 49.64,
-      "db.t3.large": 99.28, "db.m5.large": 124.83, "db.m5.xlarge": 249.66,
+      "db.t3.micro": 13.14, "db.t3.small": 24.82, "db.t3.medium": 49.64,
+      "db.t3.large": 99.28, "db.m5.large": 129.94, "db.m5.xlarge": 249.66,
       "db.r5.large": 175.2, "db.r5.xlarge": 350.4,
     };
     return P[String(a["instance_class"] ?? "")] ?? 50;
@@ -45,13 +45,13 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_elasticache_cluster: (a) => {
     const P: Record<string, number> = {
       "cache.t3.micro": 11.38, "cache.t3.small": 22.76,
-      "cache.m5.large": 90.52, "cache.r5.large": 132.48,
+      "cache.m5.large": 113.88, "cache.r5.large": 132.48,
     };
     return P[String(a["node_type"] ?? "")] ?? 40;
   },
   aws_elasticache_replication_group: (a) => {
     const P: Record<string, number> = {
-      "cache.t3.micro": 11.38, "cache.m5.large": 90.52, "cache.r5.large": 132.48,
+      "cache.t3.micro": 11.38, "cache.m5.large": 113.88, "cache.r5.large": 132.48,
     };
     return P[String(a["node_type"] ?? "")] ?? 55;
   },
@@ -64,7 +64,7 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
     }
     const writeM = Number(a["_usage_write_requests_m"] ?? 1);
     const readM = Number(a["_usage_read_requests_m"] ?? 5);
-    return Math.round((writeM * 1.25 + readM * 0.25) * 100) / 100;
+    return Math.round((writeM * 0.625 + readM * 0.125) * 100) / 100;
   },
 
   // ── AWS Storage ────────────────────────────────────────────────────────
@@ -99,7 +99,8 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_vpc: () => 0,
   aws_subnet: () => 0,
   aws_internet_gateway: () => 0,
-  aws_nat_gateway: () => 36.5,
+  // $0.045/hr × 730h = $32.85 base + typical data processing est.
+  aws_nat_gateway: () => 32.85,
   aws_lb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
   aws_alb: (a) => String(a["load_balancer_type"]) === "network" ? 13.14 : 22.27,
   aws_elb: () => 20,
@@ -184,7 +185,10 @@ const COST_TABLE: Record<string, (a: Record<string, unknown>) => number> = {
   aws_s3_object: () => 0,
 
   // ── AWS Data / Analytics ────────────────────────────────────────────────────
-  aws_kinesis_stream: () => 15,
+  aws_kinesis_stream: (a) => {
+    const shards = Math.max(1, Number(a["shard_count"] ?? 1));
+    return Math.round(shards * 0.015 * 730 * 100) / 100;
+  },
   aws_kinesis_firehose_delivery_stream: (a) => {
     const gbPerMonth = Number(a["_usage_data_gb_per_month"] ?? 100);
     return Math.round(gbPerMonth * 0.029 * 100) / 100;

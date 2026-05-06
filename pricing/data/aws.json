@@ -1,221 +1,415 @@
 {
-  "_comment": "AWS pricing catalog — hourly rates in USD, monthly = hourly × 730 hrs",
-  "_version": "2024-01",
-  "aws_instance": {
-    "_key": "instance_type",
-    "t3.nano":   { "hourly": 0.0052,  "vcpu": 2,  "ram_gb": 0.5 },
-    "t3.micro":  { "hourly": 0.0104,  "vcpu": 2,  "ram_gb": 1 },
-    "t3.small":  { "hourly": 0.0208,  "vcpu": 2,  "ram_gb": 2 },
-    "t3.medium": { "hourly": 0.0416,  "vcpu": 2,  "ram_gb": 4 },
-    "t3.large":  { "hourly": 0.0832,  "vcpu": 2,  "ram_gb": 8 },
-    "t3.xlarge": { "hourly": 0.1664,  "vcpu": 4,  "ram_gb": 16 },
-    "t3.2xlarge":{ "hourly": 0.3328,  "vcpu": 8,  "ram_gb": 32 },
-    "m5.large":  { "hourly": 0.096,   "vcpu": 2,  "ram_gb": 8 },
-    "m5.xlarge": { "hourly": 0.192,   "vcpu": 4,  "ram_gb": 16 },
-    "m5.2xlarge":{ "hourly": 0.384,   "vcpu": 8,  "ram_gb": 32 },
-    "m5.4xlarge":{ "hourly": 0.768,   "vcpu": 16, "ram_gb": 64 },
-    "c5.large":  { "hourly": 0.085,   "vcpu": 2,  "ram_gb": 4 },
-    "c5.xlarge": { "hourly": 0.17,    "vcpu": 4,  "ram_gb": 8 },
-    "c5.2xlarge":{ "hourly": 0.34,    "vcpu": 8,  "ram_gb": 16 },
-    "r5.large":  { "hourly": 0.126,   "vcpu": 2,  "ram_gb": 16 },
-    "r5.xlarge": { "hourly": 0.252,   "vcpu": 4,  "ram_gb": 32 },
-    "r5.2xlarge":{ "hourly": 0.504,   "vcpu": 8,  "ram_gb": 64 },
-    "_default":  { "hourly": 0.10,    "vcpu": 2,  "ram_gb": 4 }
-  },
-  "aws_ebs_volume": {
-    "_key": "type",
-    "gp2": { "per_gb_month": 0.10 },
-    "gp3": { "per_gb_month": 0.08 },
-    "io1": { "per_gb_month": 0.125, "per_iops_month": 0.065 },
-    "io2": { "per_gb_month": 0.125, "per_iops_month": 0.065 },
-    "st1": { "per_gb_month": 0.045 },
-    "sc1": { "per_gb_month": 0.025 },
-    "_default": { "per_gb_month": 0.10 }
-  },
-  "aws_db_instance": {
-    "_key": "instance_class",
-    "db.t3.micro":   { "hourly": 0.017,  "multi_az_multiplier": 2 },
-    "db.t3.small":   { "hourly": 0.034,  "multi_az_multiplier": 2 },
-    "db.t3.medium":  { "hourly": 0.068,  "multi_az_multiplier": 2 },
-    "db.t3.large":   { "hourly": 0.136,  "multi_az_multiplier": 2 },
-    "db.m5.large":   { "hourly": 0.171,  "multi_az_multiplier": 2 },
-    "db.m5.xlarge":  { "hourly": 0.342,  "multi_az_multiplier": 2 },
-    "db.m5.2xlarge": { "hourly": 0.684,  "multi_az_multiplier": 2 },
-    "db.r5.large":   { "hourly": 0.24,   "multi_az_multiplier": 2 },
-    "db.r5.xlarge":  { "hourly": 0.48,   "multi_az_multiplier": 2 },
-    "db.r5.2xlarge": { "hourly": 0.96,   "multi_az_multiplier": 2 },
-    "_default":      { "hourly": 0.05,   "multi_az_multiplier": 2 },
-    "storage_per_gb_month": 0.115,
-    "storage_io1_per_iops_month": 0.10
-  },
-  "aws_rds_cluster": {
-    "_comment": "Aurora Serverless v2 — billed per ACU-hour",
-    "acu_per_hour": 0.12,
-    "storage_per_gb_month": 0.10,
-    "io_per_million_requests": 0.20
-  },
-  "aws_lb": {
-    "alb_per_hour": 0.008,
-    "alb_per_lcu_hour": 0.008,
-    "nlb_per_hour": 0.006,
-    "nlb_per_lcu_hour": 0.006
-  },
-  "aws_alb": {
-    "per_hour": 0.008,
-    "per_lcu_hour": 0.008
-  },
-  "aws_nat_gateway": {
-    "per_hour": 0.045,
-    "per_gb_processed": 0.045
-  },
-  "aws_s3_bucket": {
-    "_comment": "Base bucket is free; charges depend on storage/requests — mark as usage-based",
-    "usage_based": true,
-    "standard_per_gb_month": 0.023,
-    "standard_ia_per_gb_month": 0.0125,
-    "glacier_per_gb_month": 0.004
-  },
-  "aws_eks_cluster": {
-    "per_hour": 0.10
-  },
-  "aws_eks_node_group": {
-    "_comment": "Cost depends on EC2 instance type used for nodes — see aws_instance",
-    "usage_based": true
-  },
-  "aws_elasticache_cluster": {
-    "_key": "node_type",
-    "cache.t3.micro":   { "hourly": 0.017 },
-    "cache.t3.small":   { "hourly": 0.034 },
-    "cache.t3.medium":  { "hourly": 0.068 },
-    "cache.m5.large":   { "hourly": 0.142 },
-    "cache.m5.xlarge":  { "hourly": 0.284 },
-    "cache.r5.large":   { "hourly": 0.192 },
-    "_default":         { "hourly": 0.05 }
-  },
-  "aws_lambda_function": {
-    "_comment": "Cost depends on invocations and duration — mark as usage-based",
-    "usage_based": true,
-    "per_million_requests": 0.20,
-    "per_gb_second": 0.0000166667
-  },
-
-  "_section_storage": "── Deep storage services ─────────────────────────────────────────────",
-  "aws_efs_file_system": {
-    "_key": "performance_mode",
-    "generalPurpose": { "per_gb_month": 0.30, "per_million_reads": 0.03 },
-    "maxIO":          { "per_gb_month": 0.30, "per_million_reads": 0.03 },
-    "_default":       { "per_gb_month": 0.30 }
-  },
-  "aws_fsx_windows_file_system": {
-    "_key": "deployment_type",
-    "SINGLE_AZ_1": { "per_gb_month_ssd": 0.23, "per_mb_s_throughput_month": 2.20 },
-    "SINGLE_AZ_2": { "per_gb_month_ssd": 0.23, "per_mb_s_throughput_month": 2.20 },
-    "MULTI_AZ_1":  { "per_gb_month_ssd": 0.46, "per_mb_s_throughput_month": 4.40 },
-    "_default":    { "per_gb_month_ssd": 0.23 }
-  },
-  "aws_fsx_lustre_file_system": {
-    "_key": "deployment_type",
-    "SCRATCH_1":    { "per_gb_month": 0.14 },
-    "SCRATCH_2":    { "per_gb_month": 0.14 },
-    "PERSISTENT_1": { "per_gb_month": 0.145, "per_mb_s_throughput_month": 0.73 },
-    "_default":     { "per_gb_month": 0.14 }
-  },
-  "aws_glacier_vault": {
-    "per_gb_month": 0.004,
-    "per_gb_retrieval_expedited": 0.033,
-    "per_gb_retrieval_standard": 0.01,
-    "per_gb_retrieval_bulk": 0.0025
-  },
-
-  "_section_data": "── Data, streaming & analytics services ──────────────────────────────",
-  "aws_kinesis_stream": {
-    "_key": "stream_mode_details",
-    "PROVISIONED": {
-      "per_shard_hour": 0.015,
-      "per_million_put_records": 0.014,
-      "per_gb_extended_retention": 0.023
+    "_comment": "AWS pricing catalog \u2014 hourly rates in USD, monthly = hourly \u00d7 730 hrs",
+    "_version": "2024-01",
+    "aws_instance": {
+        "_key": "instance_type",
+        "t3.nano": {
+            "hourly": 0.0052,
+            "vcpu": 2,
+            "ram_gb": 0.5
+        },
+        "t3.micro": {
+            "hourly": 0.0104,
+            "vcpu": 2,
+            "ram_gb": 1
+        },
+        "t3.small": {
+            "hourly": 0.0208,
+            "vcpu": 2,
+            "ram_gb": 2
+        },
+        "t3.medium": {
+            "hourly": 0.0416,
+            "vcpu": 2,
+            "ram_gb": 4
+        },
+        "t3.large": {
+            "hourly": 0.0832,
+            "vcpu": 2,
+            "ram_gb": 8
+        },
+        "t3.xlarge": {
+            "hourly": 0.1664,
+            "vcpu": 4,
+            "ram_gb": 16
+        },
+        "t3.2xlarge": {
+            "hourly": 0.3328,
+            "vcpu": 8,
+            "ram_gb": 32
+        },
+        "m5.large": {
+            "hourly": 0.096,
+            "vcpu": 2,
+            "ram_gb": 8
+        },
+        "m5.xlarge": {
+            "hourly": 0.192,
+            "vcpu": 4,
+            "ram_gb": 16
+        },
+        "m5.2xlarge": {
+            "hourly": 0.384,
+            "vcpu": 8,
+            "ram_gb": 32
+        },
+        "m5.4xlarge": {
+            "hourly": 0.768,
+            "vcpu": 16,
+            "ram_gb": 64
+        },
+        "c5.large": {
+            "hourly": 0.085,
+            "vcpu": 2,
+            "ram_gb": 4
+        },
+        "c5.xlarge": {
+            "hourly": 0.17,
+            "vcpu": 4,
+            "ram_gb": 8
+        },
+        "c5.2xlarge": {
+            "hourly": 0.34,
+            "vcpu": 8,
+            "ram_gb": 16
+        },
+        "r5.large": {
+            "hourly": 0.126,
+            "vcpu": 2,
+            "ram_gb": 16
+        },
+        "r5.xlarge": {
+            "hourly": 0.252,
+            "vcpu": 4,
+            "ram_gb": 32
+        },
+        "r5.2xlarge": {
+            "hourly": 0.504,
+            "vcpu": 8,
+            "ram_gb": 64
+        },
+        "_default": {
+            "hourly": 0.1,
+            "vcpu": 2,
+            "ram_gb": 4
+        }
     },
-    "ON_DEMAND": {
-      "per_million_put_records": 0.08,
-      "per_gb_retrieved": 0.04
+    "aws_ebs_volume": {
+        "_key": "type",
+        "gp2": {
+            "per_gb_month": 0.1
+        },
+        "gp3": {
+            "per_gb_month": 0.08
+        },
+        "io1": {
+            "per_gb_month": 0.125,
+            "per_iops_month": 0.065
+        },
+        "io2": {
+            "per_gb_month": 0.125,
+            "per_iops_month": 0.065
+        },
+        "st1": {
+            "per_gb_month": 0.045
+        },
+        "sc1": {
+            "per_gb_month": 0.025
+        },
+        "_default": {
+            "per_gb_month": 0.1
+        }
     },
-    "_default": { "per_shard_hour": 0.015 }
-  },
-  "aws_kinesis_firehose_delivery_stream": {
-    "per_gb_ingested": 0.029,
-    "per_gb_converted": 0.018,
-    "per_gb_vpc_delivery": 0.01
-  },
-  "aws_glue_job": {
-    "per_dpu_hour": 0.44,
-    "_comment": "Glue 2.0 DPU; 1 DPU = 4 vCPU + 16 GB RAM"
-  },
-  "aws_glue_catalog_database": {
-    "_comment": "Glue Data Catalog — free up to 1M objects; billed per 100k above",
-    "usage_based": true,
-    "per_100k_objects_month": 1.00,
-    "per_million_requests": 1.00
-  },
-  "aws_glue_crawler": {
-    "per_dpu_hour": 0.44
-  },
-  "aws_emr_cluster": {
-    "_comment": "Billed as EC2 cost + EMR surcharge per instance-hour",
-    "usage_based": true,
-    "emr_surcharge_per_vcpu_hour": 0.027
-  },
-  "aws_msk_cluster": {
-    "_key": "broker_node_group_info",
-    "_comment": "MSK charges EC2 price + broker surcharge per broker-hour",
-    "per_broker_hour_kafka_2_6": 0.026,
-    "per_gb_storage_month": 0.10,
-    "_default": { "per_broker_hour": 0.026 }
-  },
-  "aws_sqs_queue": {
-    "usage_based": true,
-    "standard_per_million_requests": 0.40,
-    "fifo_per_million_requests": 0.50
-  },
-  "aws_sns_topic": {
-    "usage_based": true,
-    "per_million_http_deliveries": 0.06,
-    "per_million_email_deliveries": 2.00,
-    "per_million_sms_deliveries": 0.75,
-    "per_million_lambda_deliveries": 0.09
-  },
-  "aws_sagemaker_endpoint": {
-    "_comment": "Billed per underlying ML instance type — see aws_instance rates",
-    "usage_based": true
-  },
-  "aws_sagemaker_notebook_instance": {
-    "_key": "instance_type",
-    "ml.t3.medium":  { "hourly": 0.046 },
-    "ml.t3.large":   { "hourly": 0.091 },
-    "ml.m5.large":   { "hourly": 0.128 },
-    "ml.m5.xlarge":  { "hourly": 0.256 },
-    "ml.p3.2xlarge": { "hourly": 3.825 },
-    "_default":      { "hourly": 0.10 }
-  },
-  "aws_athena_workgroup": {
-    "usage_based": true,
-    "per_tb_scanned": 5.00
-  },
-  "aws_dynamodb_table": {
-    "_comment": "On-demand: pay per request. Provisioned: pay per RCU/WCU.",
-    "usage_based": true,
-    "on_demand_per_million_write_units": 1.25,
-    "on_demand_per_million_read_units": 0.25,
-    "provisioned_write_unit_per_hour": 0.00065,
-    "provisioned_read_unit_per_hour": 0.00013,
-    "storage_per_gb_month": 0.25
-  },
-  "aws_redshift_cluster": {
-    "_key": "node_type",
-    "dc2.large":    { "hourly": 0.25,  "storage_gb": 160 },
-    "dc2.8xlarge":  { "hourly": 4.80,  "storage_gb": 2560 },
-    "ra3.xlplus":   { "hourly": 0.665, "managed_storage_per_gb_month": 0.024 },
-    "ra3.4xlarge":  { "hourly": 3.26,  "managed_storage_per_gb_month": 0.024 },
-    "ra3.16xlarge": { "hourly": 13.04, "managed_storage_per_gb_month": 0.024 },
-    "_default":     { "hourly": 0.25 }
-  }
+    "aws_db_instance": {
+        "_key": "instance_class",
+        "db.t3.micro": {
+            "hourly": 0.018,
+            "multi_az_multiplier": 2
+        },
+        "db.t3.small": {
+            "hourly": 0.034,
+            "multi_az_multiplier": 2
+        },
+        "db.t3.medium": {
+            "hourly": 0.068,
+            "multi_az_multiplier": 2
+        },
+        "db.t3.large": {
+            "hourly": 0.136,
+            "multi_az_multiplier": 2
+        },
+        "db.m5.large": {
+            "hourly": 0.178,
+            "multi_az_multiplier": 2
+        },
+        "db.m5.xlarge": {
+            "hourly": 0.342,
+            "multi_az_multiplier": 2
+        },
+        "db.m5.2xlarge": {
+            "hourly": 0.684,
+            "multi_az_multiplier": 2
+        },
+        "db.r5.large": {
+            "hourly": 0.24,
+            "multi_az_multiplier": 2
+        },
+        "db.r5.xlarge": {
+            "hourly": 0.48,
+            "multi_az_multiplier": 2
+        },
+        "db.r5.2xlarge": {
+            "hourly": 0.96,
+            "multi_az_multiplier": 2
+        },
+        "_default": {
+            "hourly": 0.05,
+            "multi_az_multiplier": 2
+        },
+        "storage_per_gb_month": 0.115,
+        "storage_io1_per_iops_month": 0.1
+    },
+    "aws_rds_cluster": {
+        "_comment": "Aurora Serverless v2 \u2014 billed per ACU-hour",
+        "acu_per_hour": 0.12,
+        "storage_per_gb_month": 0.1,
+        "io_per_million_requests": 0.2
+    },
+    "aws_lb": {
+        "alb_per_hour": 0.008,
+        "alb_per_lcu_hour": 0.008,
+        "nlb_per_hour": 0.006,
+        "nlb_per_lcu_hour": 0.006
+    },
+    "aws_alb": {
+        "per_hour": 0.008,
+        "per_lcu_hour": 0.008
+    },
+    "aws_nat_gateway": {
+        "per_hour": 0.045,
+        "per_gb_processed": 0.045
+    },
+    "aws_s3_bucket": {
+        "_comment": "Base bucket is free; charges depend on storage/requests \u2014 mark as usage-based",
+        "usage_based": true,
+        "standard_per_gb_month": 0.023,
+        "standard_ia_per_gb_month": 0.0125,
+        "glacier_per_gb_month": 0.004
+    },
+    "aws_eks_cluster": {
+        "per_hour": 0.1
+    },
+    "aws_eks_node_group": {
+        "_comment": "Cost depends on EC2 instance type used for nodes \u2014 see aws_instance",
+        "usage_based": true
+    },
+    "aws_elasticache_cluster": {
+        "_key": "node_type",
+        "cache.t3.micro": {
+            "hourly": 0.017
+        },
+        "cache.t3.small": {
+            "hourly": 0.034
+        },
+        "cache.t3.medium": {
+            "hourly": 0.068
+        },
+        "cache.m5.large": {
+            "hourly": 0.156
+        },
+        "cache.m5.xlarge": {
+            "hourly": 0.284
+        },
+        "cache.r5.large": {
+            "hourly": 0.192
+        },
+        "_default": {
+            "hourly": 0.05
+        }
+    },
+    "aws_lambda_function": {
+        "_comment": "Cost depends on invocations and duration \u2014 mark as usage-based",
+        "usage_based": true,
+        "per_million_requests": 0.2,
+        "per_gb_second": 1.66667e-05
+    },
+    "_section_storage": "\u2500\u2500 Deep storage services \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+    "aws_efs_file_system": {
+        "_key": "performance_mode",
+        "generalPurpose": {
+            "per_gb_month": 0.3,
+            "per_million_reads": 0.03
+        },
+        "maxIO": {
+            "per_gb_month": 0.3,
+            "per_million_reads": 0.03
+        },
+        "_default": {
+            "per_gb_month": 0.3
+        }
+    },
+    "aws_fsx_windows_file_system": {
+        "_key": "deployment_type",
+        "SINGLE_AZ_1": {
+            "per_gb_month_ssd": 0.23,
+            "per_mb_s_throughput_month": 2.2
+        },
+        "SINGLE_AZ_2": {
+            "per_gb_month_ssd": 0.23,
+            "per_mb_s_throughput_month": 2.2
+        },
+        "MULTI_AZ_1": {
+            "per_gb_month_ssd": 0.46,
+            "per_mb_s_throughput_month": 4.4
+        },
+        "_default": {
+            "per_gb_month_ssd": 0.23
+        }
+    },
+    "aws_fsx_lustre_file_system": {
+        "_key": "deployment_type",
+        "SCRATCH_1": {
+            "per_gb_month": 0.14
+        },
+        "SCRATCH_2": {
+            "per_gb_month": 0.14
+        },
+        "PERSISTENT_1": {
+            "per_gb_month": 0.145,
+            "per_mb_s_throughput_month": 0.73
+        },
+        "_default": {
+            "per_gb_month": 0.14
+        }
+    },
+    "aws_glacier_vault": {
+        "per_gb_month": 0.004,
+        "per_gb_retrieval_expedited": 0.033,
+        "per_gb_retrieval_standard": 0.01,
+        "per_gb_retrieval_bulk": 0.0025
+    },
+    "_section_data": "\u2500\u2500 Data, streaming & analytics services \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+    "aws_kinesis_stream": {
+        "_key": "stream_mode_details",
+        "PROVISIONED": {
+            "per_shard_hour": 0.015,
+            "per_million_put_records": 0.014,
+            "per_gb_extended_retention": 0.023
+        },
+        "ON_DEMAND": {
+            "per_million_put_records": 0.08,
+            "per_gb_retrieved": 0.04
+        },
+        "_default": {
+            "per_shard_hour": 0.015
+        }
+    },
+    "aws_kinesis_firehose_delivery_stream": {
+        "per_gb_ingested": 0.029,
+        "per_gb_converted": 0.018,
+        "per_gb_vpc_delivery": 0.01
+    },
+    "aws_glue_job": {
+        "per_dpu_hour": 0.44,
+        "_comment": "Glue 2.0 DPU; 1 DPU = 4 vCPU + 16 GB RAM"
+    },
+    "aws_glue_catalog_database": {
+        "_comment": "Glue Data Catalog \u2014 free up to 1M objects; billed per 100k above",
+        "usage_based": true,
+        "per_100k_objects_month": 1.0,
+        "per_million_requests": 1.0
+    },
+    "aws_glue_crawler": {
+        "per_dpu_hour": 0.44
+    },
+    "aws_emr_cluster": {
+        "_comment": "Billed as EC2 cost + EMR surcharge per instance-hour",
+        "usage_based": true,
+        "emr_surcharge_per_vcpu_hour": 0.027
+    },
+    "aws_msk_cluster": {
+        "_key": "broker_node_group_info",
+        "_comment": "MSK charges EC2 price + broker surcharge per broker-hour",
+        "per_broker_hour_kafka_2_6": 0.026,
+        "per_gb_storage_month": 0.1,
+        "_default": {
+            "per_broker_hour": 0.026
+        }
+    },
+    "aws_sqs_queue": {
+        "usage_based": true,
+        "standard_per_million_requests": 0.4,
+        "fifo_per_million_requests": 0.5
+    },
+    "aws_sns_topic": {
+        "usage_based": true,
+        "per_million_http_deliveries": 0.06,
+        "per_million_email_deliveries": 2.0,
+        "per_million_sms_deliveries": 0.75,
+        "per_million_lambda_deliveries": 0.09
+    },
+    "aws_sagemaker_endpoint": {
+        "_comment": "Billed per underlying ML instance type \u2014 see aws_instance rates",
+        "usage_based": true
+    },
+    "aws_sagemaker_notebook_instance": {
+        "_key": "instance_type",
+        "ml.t3.medium": {
+            "hourly": 0.046
+        },
+        "ml.t3.large": {
+            "hourly": 0.091
+        },
+        "ml.m5.large": {
+            "hourly": 0.128
+        },
+        "ml.m5.xlarge": {
+            "hourly": 0.256
+        },
+        "ml.p3.2xlarge": {
+            "hourly": 3.825
+        },
+        "_default": {
+            "hourly": 0.1
+        }
+    },
+    "aws_athena_workgroup": {
+        "usage_based": true,
+        "per_tb_scanned": 5.0
+    },
+    "aws_dynamodb_table": {
+        "_comment": "On-demand: pay per request. Provisioned: pay per RCU/WCU.",
+        "usage_based": true,
+        "on_demand_per_million_write_units": 0.625,
+        "on_demand_per_million_read_units": 0.125,
+        "provisioned_write_unit_per_hour": 0.00065,
+        "provisioned_read_unit_per_hour": 0.00013,
+        "storage_per_gb_month": 0.25
+    },
+    "aws_redshift_cluster": {
+        "_key": "node_type",
+        "dc2.large": {
+            "hourly": 0.25,
+            "storage_gb": 160
+        },
+        "dc2.8xlarge": {
+            "hourly": 4.8,
+            "storage_gb": 2560
+        },
+        "ra3.xlplus": {
+            "hourly": 0.665,
+            "managed_storage_per_gb_month": 0.024
+        },
+        "ra3.4xlarge": {
+            "hourly": 3.26,
+            "managed_storage_per_gb_month": 0.024
+        },
+        "ra3.16xlarge": {
+            "hourly": 13.04,
+            "managed_storage_per_gb_month": 0.024
+        },
+        "_default": {
+            "hourly": 0.25
+        }
+    }
 }

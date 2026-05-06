@@ -70,8 +70,8 @@ describe("estimateCost", () => {
   });
 
   describe("priced resources return correct monthly cost", () => {
-    it("aws_nat_gateway costs $36.50", () => {
-      expect(estimateCost(makeNode("aws_nat_gateway")).monthly).toBe(36.5);
+    it("aws_nat_gateway costs $32.85", () => {
+      expect(estimateCost(makeNode("aws_nat_gateway")).monthly).toBe(32.85);
     });
 
     it("aws_lb costs $22.27 (default ALB)", () => {
@@ -226,11 +226,11 @@ describe("estimateCost", () => {
 describe("totalMonthlyCost", () => {
   it("sums costs across multiple nodes", () => {
     const nodes: GraphNode[] = [
-      makeNode("aws_nat_gateway"),  // 36.50
+      makeNode("aws_nat_gateway"),  // 32.85
       makeNode("aws_lb"),            // 22.27
       makeNode("aws_vpc"),           // 0
     ];
-    expect(totalMonthlyCost(nodes)).toBeCloseTo(58.77, 2);
+    expect(totalMonthlyCost(nodes)).toBeCloseTo(55.12, 2);
   });
 
   it("returns 0 for an empty array", () => {
@@ -254,7 +254,7 @@ describe("costByProvider", () => {
     const awsEntry = result.find((e) => e.provider === CloudProvider.AWS);
     const azureEntry = result.find((e) => e.provider === CloudProvider.AZURE);
     const gcpEntry = result.find((e) => e.provider === CloudProvider.GCP);
-    expect(awsEntry?.monthly).toBeCloseTo(36.5, 2);
+    expect(awsEntry?.monthly).toBeCloseTo(32.85, 2);
     expect(azureEntry?.monthly).toBeCloseTo(18.25, 2);
     expect(gcpEntry?.monthly).toBeCloseTo(7.3, 2);
   });
