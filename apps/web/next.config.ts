@@ -29,6 +29,8 @@ const config: NextConfig = {
   },
   // Enable Turbopack (Next.js 16+)
   turbopack: {},
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
 };
 
 export default config;

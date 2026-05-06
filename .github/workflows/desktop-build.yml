@@ -21,12 +21,20 @@ jobs:
           - platform: ubuntu-22.04
             artifact-name: linux-appimage
             bundle-path: src-tauri/target/release/bundle/appimage/*.AppImage
+            rust-target: ""
+            args: ""
+
+          - platform: macos-13
+            artifact-name: macos-x86_64-dmg
+            bundle-path: src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
+            rust-target: x86_64-apple-darwin
+            args: "--target x86_64-apple-darwin"
+
           - platform: macos-latest
-            artifact-name: macos-dmg
-            bundle-path: src-tauri/target/release/bundle/dmg/*.dmg
-          - platform: windows-latest
-            artifact-name: windows-msi
-            bundle-path: src-tauri/target/release/bundle/msi/*.msi
+            artifact-name: macos-aarch64-dmg
+            bundle-path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+            rust-target: aarch64-apple-darwin
+            args: "--target aarch64-apple-darwin"
 
     runs-on: ${{ matrix.platform }}
 
@@ -44,6 +52,10 @@ jobs:
 
       - name: Set up Rust stable
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Add Rust target
+        if: matrix.rust-target != ''
+        run: rustup target add ${{ matrix.rust-target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -74,10 +86,7 @@ jobs:
         run: cargo install tauri-cli --version "^2"
 
       - name: Build desktop app
-        run: cargo tauri build
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: cargo tauri build ${{ matrix.args }}
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
