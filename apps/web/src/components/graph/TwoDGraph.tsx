@@ -141,6 +141,62 @@ function buildLayout(
   return { bands, nodeMap, totalH: currentY };
 }
 
+// ── Focus / dim helper ────────────────────────────────────────────────────────
+// Called on node click. Dims all unrelated nodes and edges; highlights edges
+// connected to the focused node in a vivid accent colour. Pass null to reset.
+function applyFocus(
+  el: SVGSVGElement,
+  focusedId: string | null,
+  model: GraphModel,
+  isLight: boolean,
+): void {
+  const svg = select(el);
+
+  if (!focusedId) {
+    // Reset everything
+    svg.selectAll<SVGGElement, unknown>(".graph-node").attr("opacity", null);
+    svg.selectAll<SVGPathElement, unknown>(".graph-edge")
+      .attr("stroke", isLight ? "#cbd5e1" : "#3a4155")
+      .attr("stroke-width", 1.5)
+      .attr("opacity", 0.65);
+    return;
+  }
+
+  // Build set of connected node ids
+  const connected = new Set<string>([focusedId]);
+  for (const edge of model.edges) {
+    if (edge.source === focusedId) connected.add(edge.target);
+    if (edge.target === focusedId) connected.add(edge.source);
+  }
+
+  // Dim / restore nodes
+  svg.selectAll<SVGGElement, unknown>(".graph-node")
+    .attr("opacity", function () {
+      const id = (this as SVGGElement).getAttribute("data-node-id");
+      return id && connected.has(id) ? null : "0.15";
+    });
+
+  // Highlight / dim edges
+  svg.selectAll<SVGPathElement, unknown>(".graph-edge")
+    .each(function () {
+      const path = select<SVGPathElement, unknown>(this as SVGPathElement);
+      const src = (this as SVGPathElement).getAttribute("data-edge-source") ?? "";
+      const tgt = (this as SVGPathElement).getAttribute("data-edge-target") ?? "";
+      const isRelated = src === focusedId || tgt === focusedId;
+      if (isRelated) {
+        path
+          .attr("stroke", "#f78166")   // accent orange-red
+          .attr("stroke-width", 2.5)
+          .attr("opacity", 1);
+      } else {
+        path
+          .attr("stroke", isLight ? "#cbd5e1" : "#3a4155")
+          .attr("stroke-width", 1.5)
+          .attr("opacity", 0.08);
+      }
+    });
+}
+
 interface TwoDGraphProps {
   model: GraphModel;
   onNodeSelect: (node: GraphNode) => void;
@@ -154,6 +210,8 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
   // Stable model ref so the ResizeObserver callback can always read current model
   const modelRef = useRef(model);
   modelRef.current = model;
+  // Track currently focused node id
+  const focusedNodeRef = useRef<string | null>(null);
 
   // Stable usage-overrides ref so draw() always reads the latest value
   const usageOverridesRef = useRef(usageOverrides);
@@ -286,7 +344,10 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
         .attr("d", `M ${stX} ${stY} C ${stX} ${stY + cp}, ${endX} ${endY - cp}, ${endX} ${endY}`)
         .attr("fill", "none")
         .attr("stroke", isLight ? "#cbd5e1" : "#3a4155").attr("stroke-width", 1.5).attr("opacity", 0.65)
-        .attr("marker-end", "url(#arrowhead)");
+        .attr("marker-end", "url(#arrowhead)")
+        .attr("data-edge-source", edge.source)
+        .attr("data-edge-target", edge.target)
+        .attr("class", "graph-edge");
     }
 
     // ── Nodes ─────────────────────────────────────────────────────────────
@@ -301,7 +362,16 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
       const nodeG = g.append("g")
         .attr("transform", `translate(${x},${y})`)
         .attr("cursor", "pointer")
-        .on("click", () => stableSelect(graphNode));
+        .attr("data-node-id", graphNode.id)
+        .attr("class", "graph-node")
+        .on("click", (event) => {
+          event.stopPropagation();
+          stableSelect(graphNode);
+          const clickedId = graphNode.id;
+          const isSame = focusedNodeRef.current === clickedId;
+          focusedNodeRef.current = isSame ? null : clickedId;
+          applyFocus(el, focusedNodeRef.current, modelRef.current, isLight);
+        });
 
       // Dim deleted nodes to signal removal
       if (isDel) nodeG.attr("opacity", 0.55);
@@ -410,6 +480,12 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
           .text(costLabel);
       }
     }
+
+    // ── Background click — deselect focus ─────────────────────────────────
+    svg.on("click", () => {
+      focusedNodeRef.current = null;
+      applyFocus(el, null, modelRef.current, isLight);
+    });
 
     // ── Action legend ──────────────────────────────────────────────────────
     const legendItems = [
