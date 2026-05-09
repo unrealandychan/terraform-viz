@@ -1,18 +1,5 @@
 import type { GraphModel } from "@terraform-viz/graph-schema";
-
-async function fetchWithTimeout(url: string, opts: RequestInit, timeoutMs = 30_000): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...opts, signal: controller.signal });
-    clearTimeout(timer);
-    return res;
-  } catch (e) {
-    clearTimeout(timer);
-    if (e instanceof Error && e.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
-    throw e;
-  }
-}
+import { fetchWithTimeout } from "@terraform-viz/http-utils";
 
 const PARSER_URL = process.env["PARSER_URL"] ?? "http://localhost:3001";
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";

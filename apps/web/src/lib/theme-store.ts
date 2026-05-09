@@ -1,14 +1,16 @@
+import { storageGetRaw, storageSetRaw } from "./storage-adapter";
+
 export type Theme = "dark" | "light";
+
 const THEME_KEY = "tf-viz:theme";
 
 export function getStoredTheme(): Theme {
-  if (typeof localStorage === "undefined") return "dark";
-  return (localStorage.getItem(THEME_KEY) as Theme) ?? "dark";
+  return (storageGetRaw(THEME_KEY) as Theme) ?? "dark";
 }
 
 export function applyTheme(theme: Theme): void {
   document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem(THEME_KEY, theme);
+  storageSetRaw(THEME_KEY, theme);
 }
 
 export function toggleTheme(): Theme {

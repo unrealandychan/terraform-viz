@@ -12,6 +12,7 @@
   "dependencies": {
     "@tauri-apps/api": "^2.10.1",
     "@terraform-viz/graph-schema": "*",
+    "@terraform-viz/http-utils": "*",
     "@terraform-viz/llm-types": "*",
     "@terraform-viz/pricing-engine": "*",
     "@terraform-viz/pricing-types": "*",

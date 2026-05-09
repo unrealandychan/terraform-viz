@@ -1,5 +1,11 @@
 "use client";
 
+// ── Canonical ThemeToggle ─────────────────────────────────────────────────────
+// This is the single ThemeToggle component for the application.
+// It relies on ThemeProvider (layout/ThemeProvider.tsx) for theme state.
+// Do NOT create a second ThemeToggle — extend this one if needed.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useTheme } from "./ThemeProvider";
 
 function IconSun() {

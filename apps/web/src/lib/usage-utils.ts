@@ -1,8 +1,8 @@
-// NOTE: Direct localStorage functions below are kept for applyUsageOverrides helper only.
-// Use useUsageStore (Zustand) for all state management.
-
 // Usage overrides: stored per nodeId in localStorage
-// Does NOT mutate the original plan
+// Does NOT mutate the original plan.
+// Use useUsageStore (Zustand) for all React state management.
+
+import { storageGet, storageSet } from "./storage-adapter";
 
 const STORAGE_KEY = "terraform-viz:usage-overrides";
 
@@ -10,26 +10,23 @@ export type UsageOverrides = Record<string, Record<string, number>>;
 // { [nodeId]: { _usage_requests_m: 5, _usage_memory_mb: 512, ... } }
 
 export function loadUsageOverrides(): UsageOverrides {
-  if (typeof localStorage === "undefined") return {};
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}") as UsageOverrides;
-  } catch { return {}; }
+  return storageGet<UsageOverrides>(STORAGE_KEY) ?? {};
 }
 
 export function saveUsageOverride(nodeId: string, key: string, value: number): void {
   const all = loadUsageOverrides();
   all[nodeId] = { ...(all[nodeId] ?? {}), [key]: value };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  storageSet(STORAGE_KEY, all);
 }
 
 export function resetUsageOverride(nodeId: string): void {
   const all = loadUsageOverrides();
   delete all[nodeId];
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  storageSet(STORAGE_KEY, all);
 }
 
 export function resetAllUsageOverrides(): void {
-  localStorage.setItem(STORAGE_KEY, "{}");
+  storageSet(STORAGE_KEY, {});
 }
 
 export function applyUsageOverrides(

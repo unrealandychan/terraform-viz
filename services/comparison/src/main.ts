@@ -2,24 +2,11 @@ import express, { type Request, type Response as ExpressResponse } from "express
 import type { GraphModel, GraphNode } from "@terraform-viz/graph-schema";
 import { ChangeAction } from "@terraform-viz/graph-schema";
 import { estimateCost } from "@terraform-viz/pricing-engine";
+import { fetchWithTimeout } from "@terraform-viz/http-utils";
 import { z } from "zod";
 
 const PORT = Number(process.env["PORT"] ?? 3003);
 const PRICING_URL = process.env["PRICING_URL"] ?? "http://localhost:3002";
-
-async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 30_000): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const res = await fetch(url, { ...options, signal: controller.signal });
-    clearTimeout(timer);
-    return res;
-  } catch (error) {
-    clearTimeout(timer);
-    if (error instanceof Error && error.name === 'AbortError') throw new Error(`Request timed out after ${timeoutMs}ms`);
-    throw error;
-  }
-}
 
 const app = express();
 app.use(express.json({ limit: "20mb" }));

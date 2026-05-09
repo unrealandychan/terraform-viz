@@ -9,6 +9,7 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
+    "@terraform-viz/http-utils": "*",
     "@terraform-viz/pricing-engine": "*",
     "express": "^4.21.0",
     "zod": "^3.25.76"
