@@ -84,6 +84,13 @@ const PROVIDER_LOGO: Partial<Record<CloudProvider, { path: string; w: number; h:
   [CloudProvider.AZURE]: { path: "/providers/azure.svg", w: 22, h: 22 },
 };
 
+// ── Edge colour constants ────────────────────────────────────────────────────
+const EDGE_COLOR = {
+  light: "#cbd5e1",
+  dark:  "#3a4155",
+  accent: "#f78166", // focus highlight
+} as const;
+
 // ── Layout constants ────────────────────────────────────────────────────────
 const LABEL_COL = 140; // left column width for layer labels
 const H_PAD     = 50;  // horizontal padding inside band content area
@@ -156,7 +163,7 @@ function applyFocus(
     // Reset everything
     svg.selectAll<SVGGElement, unknown>(".graph-node").attr("opacity", null);
     svg.selectAll<SVGPathElement, unknown>(".graph-edge")
-      .attr("stroke", isLight ? "#cbd5e1" : "#3a4155")
+      .attr("stroke", isLight ? EDGE_COLOR.light : EDGE_COLOR.dark)
       .attr("stroke-width", 1.5)
       .attr("opacity", 0.65);
     return;
@@ -185,12 +192,12 @@ function applyFocus(
       const isRelated = src === focusedId || tgt === focusedId;
       if (isRelated) {
         path
-          .attr("stroke", "#f78166")   // accent orange-red
+          .attr("stroke", EDGE_COLOR.accent)
           .attr("stroke-width", 2.5)
           .attr("opacity", 1);
       } else {
         path
-          .attr("stroke", isLight ? "#cbd5e1" : "#3a4155")
+          .attr("stroke", isLight ? EDGE_COLOR.light : EDGE_COLOR.dark)
           .attr("stroke-width", 1.5)
           .attr("opacity", 0.08);
       }
@@ -343,7 +350,7 @@ function _TwoDGraph({ model, onNodeSelect, usageOverrides }: TwoDGraphProps) {
       g.append("path")
         .attr("d", `M ${stX} ${stY} C ${stX} ${stY + cp}, ${endX} ${endY - cp}, ${endX} ${endY}`)
         .attr("fill", "none")
-        .attr("stroke", isLight ? "#cbd5e1" : "#3a4155").attr("stroke-width", 1.5).attr("opacity", 0.65)
+        .attr("stroke", isLight ? EDGE_COLOR.light : EDGE_COLOR.dark).attr("stroke-width", 1.5).attr("opacity", 0.65)
         .attr("marker-end", "url(#arrowhead)")
         .attr("data-edge-source", edge.source)
         .attr("data-edge-target", edge.target)

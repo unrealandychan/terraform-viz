@@ -1,36 +1,22 @@
 import type { GraphModel } from "@terraform-viz/graph-schema";
+import {
+  storageGet,
+  storageSet,
+  storageRemove,
+  isAtQuota,
+} from "./storage-adapter";
 
-export const PLAN_STORAGE_KEY = "terraform-viz:plan";
+export { isApproachingQuota, estimateLocalStorageUsage } from "./storage-adapter";
+
+export const PLAN_STORAGE_KEY    = "terraform-viz:plan";
 export const HISTORY_STORAGE_KEY = "terraform-viz:history";
 const MAX_HISTORY = 6;
-const QUOTA_WARN_BYTES = 4 * 1024 * 1024; // warn at 4 MB
 
 export class StorageQuotaError extends Error {
   constructor() {
     super("localStorage quota exceeded");
     this.name = "StorageQuotaError";
   }
-}
-
-export function estimateLocalStorageUsage(): number {
-  try {
-    let total = 0;
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key) total += key.length + (localStorage.getItem(key)?.length ?? 0);
-    }
-    return total * 2; // UTF-16 chars = 2 bytes each
-  } catch {
-    return 0;
-  }
-}
-
-export function isApproachingQuota(): boolean {
-  return estimateLocalStorageUsage() > QUOTA_WARN_BYTES;
-}
-
-export function isAtQuota(): boolean {
-  return estimateLocalStorageUsage() > QUOTA_WARN_BYTES * 1.25;
 }
 
 export interface PlanHistoryEntry {
@@ -42,31 +28,26 @@ export interface PlanHistoryEntry {
 }
 
 export function savePlan(model: GraphModel): void {
-  try {
-    // Evict oldest history entry if at quota before saving
-    if (isAtQuota()) {
-      const history = loadHistory();
-      if (history.length > 0) {
-        const trimmed = history.slice(0, history.length - 1);
-        try {
-          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(trimmed));
-        } catch {
-          // ignore
-        }
-      }
+  // Evict oldest history entry if at quota before saving
+  if (isAtQuota()) {
+    const history = loadHistory();
+    if (history.length > 0) {
+      storageSet(HISTORY_STORAGE_KEY, history.slice(0, history.length - 1));
     }
-    localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(model));
-  } catch {
-    // quota exceeded — skip silently
   }
+  storageSet(PLAN_STORAGE_KEY, model);
 }
 
 export function loadPlan(): GraphModel | null {
   // prefer localStorage, fall back to sessionStorage (legacy)
-  const raw =
-    localStorage.getItem(PLAN_STORAGE_KEY) ?? sessionStorage.getItem(PLAN_STORAGE_KEY);
-  if (raw === null) return null;
+  const fromLocal = storageGet<GraphModel>(PLAN_STORAGE_KEY);
+  if (fromLocal !== null) return fromLocal;
 
+  // legacy sessionStorage fallback
+  const raw = typeof sessionStorage !== "undefined"
+    ? sessionStorage.getItem(PLAN_STORAGE_KEY)
+    : null;
+  if (!raw) return null;
   try {
     return JSON.parse(raw) as GraphModel;
   } catch {
@@ -75,8 +56,10 @@ export function loadPlan(): GraphModel | null {
 }
 
 export function clearPlan(): void {
-  localStorage.removeItem(PLAN_STORAGE_KEY);
-  sessionStorage.removeItem(PLAN_STORAGE_KEY);
+  storageRemove(PLAN_STORAGE_KEY);
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.removeItem(PLAN_STORAGE_KEY);
+  }
 }
 
 export function saveToHistory(model: GraphModel, name: string): void {
@@ -91,29 +74,17 @@ export function saveToHistory(model: GraphModel, name: string): void {
   // deduplicate: drop any older entry that has the same model id
   const filtered = history.filter((e) => e.model.id !== model.id);
   const next = [entry, ...filtered].slice(0, MAX_HISTORY);
-  try {
-    localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(next));
-  } catch {
+
+  if (!storageSet(HISTORY_STORAGE_KEY, next)) {
     // quota exceeded — keep only most recent 2
-    try {
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify([entry, ...filtered].slice(0, 2)));
-    } catch {
-      // give up
-    }
+    storageSet(HISTORY_STORAGE_KEY, [entry, ...filtered].slice(0, 2));
   }
 }
 
 export function loadHistory(): PlanHistoryEntry[] {
-  const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw) as PlanHistoryEntry[];
-  } catch {
-    return [];
-  }
+  return storageGet<PlanHistoryEntry[]>(HISTORY_STORAGE_KEY) ?? [];
 }
 
 export function removeHistoryEntry(id: string): void {
-  const next = loadHistory().filter((e) => e.id !== id);
-  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(next));
+  storageSet(HISTORY_STORAGE_KEY, loadHistory().filter((e) => e.id !== id));
 }

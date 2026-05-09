@@ -1,4 +1,5 @@
 import type { GraphModel } from "@terraform-viz/graph-schema";
+import { storageGet, storageSet, storageRemove } from "./storage-adapter";
 
 const BASELINE_KEY = "terraform-viz:baseline";
 
@@ -10,29 +11,19 @@ export interface BaselineEntry {
 }
 
 export function saveBaseline(name: string, model: GraphModel): void {
-  try {
-    const entry: BaselineEntry = {
-      name,
-      savedAt: new Date().toISOString(),
-      nodeCount: model.nodes.length,
-      model,
-    };
-    localStorage.setItem(BASELINE_KEY, JSON.stringify(entry));
-  } catch {
-    // storage quota exceeded — ignore
-  }
+  const entry: BaselineEntry = {
+    name,
+    savedAt: new Date().toISOString(),
+    nodeCount: model.nodes.length,
+    model,
+  };
+  storageSet(BASELINE_KEY, entry);
 }
 
 export function loadBaseline(): BaselineEntry | null {
-  const raw = localStorage.getItem(BASELINE_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as BaselineEntry;
-  } catch {
-    return null;
-  }
+  return storageGet<BaselineEntry>(BASELINE_KEY);
 }
 
 export function clearBaseline(): void {
-  localStorage.removeItem(BASELINE_KEY);
+  storageRemove(BASELINE_KEY);
 }
